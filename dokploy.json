@@ -1,0 +1,6 @@
+{
+  "name": "au-next",
+  "buildType": "dockerfile",
+  "dockerfile": "./Dockerfile",
+  "port": 3001
+}
