@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { deleteCachedData } from '@/lib/redis';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const result = await query(
