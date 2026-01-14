@@ -1,53 +1,93 @@
-# AU Next - Trading Platform
+# AU-Next Trading Platform
 
-A modern Next.js application built for deployment on Dokploy.
+Advanced automated trading platform built with Next.js, Node.js, PostgreSQL, and Redis.
 
-## Features
+## 🏗️ Architecture
 
-- ⚡ **Next.js 14** - Latest App Router with React Server Components
-- 🎨 **Tailwind CSS** - Utility-first CSS framework
-- 📘 **TypeScript** - Type-safe code
-- 🐳 **Docker Ready** - Optimized multi-stage build
-- 🚀 **Dokploy Compatible** - Easy deployment
+This is a **hybrid microservices** setup with Docker Compose:
 
-## Getting Started
+- **Frontend**: Next.js 14 (Port 3001)
+- **API**: Node.js/Express (Port 3002)
+- **Database**: PostgreSQL 16 (Port 5432)
+- **Cache**: Redis 7 (Port 6379)
 
-### Local Development
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
-
-3. **Open your browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-### Build for Production
-
-```bash
-npm run build
-npm start
-```
-
-## Deploying to Dokploy
+## 🚀 Quick Start
 
 ### Prerequisites
+- Docker & Docker Compose installed
+- Node.js 18+ (for local development)
 
-- Dokploy instance running
-- Git repository connected to Dokploy
-- Docker support enabled
+### Run with Docker Compose
 
-### Deployment Steps
+```bash
+# Start all services
+docker-compose up -d
 
-1. **Push your code to Git repository:**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Rebuild and restart
+docker-compose up --build -d
+```
+
+### Access the Application
+
+- **Frontend**: http://localhost:3001
+- **API**: http://localhost:3002
+- **API Health**: http://localhost:3002/health
+
+## 📁 Project Structure
+
+```
+AU-Next/
+├── app/                    # Next.js frontend
+├── api/                    # Node.js backend API
+│   ├── src/
+│   │   └── server.js
+│   ├── Dockerfile
+│   └── package.json
+├── database/
+│   └── init.sql           # Database initialization
+├── docker-compose.yml     # Orchestration
+├── Dockerfile             # Frontend container
+└── README.md
+```
+
+## 🔧 Development
+
+### Run Frontend Only (Local)
+```bash
+npm run dev
+# Visit http://localhost:3000
+```
+
+### Run API Only (Local)
+```bash
+cd api
+npm install
+npm run dev
+# API runs on http://localhost:3002
+```
+
+## 🌐 API Endpoints
+
+- `GET /health` - Health check
+- `GET /api/trades` - Get all trades
+- `POST /api/trades` - Create new trade
+- `GET /api/stats` - Get trading statistics (cached)
+
+## 📦 Deployment
+
+### Deploy to Dokploy
+
+1. Push to GitHub
+2. In Dokploy, create new application
+3. Select "Docker Compose" as build type
+4. Dokploy will use docker-compose.yml
+5. Add port mappings in Advanced settings
    git push origin main
    ```
 
