@@ -1,93 +1,88 @@
 # AU-Next Trading Platform
 
-Advanced automated trading platform built with Next.js, Node.js, PostgreSQL, and Redis.
+Modern automated trading platform built with Next.js, PostgreSQL, and Redis.
 
 ## 🏗️ Architecture
 
-This is a **hybrid microservices** setup with Docker Compose:
+**Microservices with separate Dokploy deployments:**
 
-- **Frontend**: Next.js 14 (Port 3001)
-- **API**: Node.js/Express (Port 3002)
-- **Database**: PostgreSQL 16 (Port 5432)
-- **Cache**: Redis 7 (Port 6379)
+- **Frontend + API**: Next.js 14 with built-in API routes (Port 3001)
+- **Database**: PostgreSQL (Dokploy Database Service)
+- **Cache**: Redis (Dokploy Database Service)
+- **Admin UI**: NocoDB (Optional)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose installed
-- Node.js 18+ (for local development)
+- Node.js 18+
+- Dokploy instance running
 
-### Run with Docker Compose
+### Local Development
 
 ```bash
-# Start all services
-docker-compose up -d
+# Install dependencies
+npm install
 
-# View logs
-docker-compose logs -f
+# Run development server
+npm run dev
 
-# Stop all services
-docker-compose down
-
-# Rebuild and restart
-docker-compose up --build -d
+# Visit http://localhost:3000
 ```
 
-### Access the Application
+### Build for Production
 
-- **Frontend**: http://localhost:3001
-- **API**: http://localhost:3002
-- **API Health**: http://localhost:3002/health
+```bash
+npm run build
+npm start
+```
 
 ## 📁 Project Structure
 
 ```
 AU-Next/
-├── app/                    # Next.js frontend
-├── api/                    # Node.js backend API
-│   ├── src/
-│   │   └── server.js
-│   ├── Dockerfile
-│   └── package.json
-├── database/
-│   └── init.sql           # Database initialization
-├── docker-compose.yml     # Orchestration
-├── Dockerfile             # Frontend container
-└── README.md
+├── app/
+│   ├── page.tsx              # Landing page
+│   ├── layout.tsx            # Root layout
+│   ├── globals.css           # Global styles
+│   └── api/                  # API routes (to be added)
+├── public/                   # Static assets
+├── Dockerfile                # Production container
+├── dokploy.json             # Dokploy configuration
+└── package.json
 ```
 
-## 🔧 Development
+## 🌐 API Endpoints (Coming Soon)
 
-### Run Frontend Only (Local)
-```bash
-npm run dev
-# Visit http://localhost:3000
-```
-
-### Run API Only (Local)
-```bash
-cd api
-npm install
-npm run dev
-# API runs on http://localhost:3002
-```
-
-## 🌐 API Endpoints
-
-- `GET /health` - Health check
+Will be added as Next.js API routes:
+- `GET /api/health` - Health check
 - `GET /api/trades` - Get all trades
 - `POST /api/trades` - Create new trade
-- `GET /api/stats` - Get trading statistics (cached)
+- `GET /api/stats` - Get trading statistics
 
-## 📦 Deployment
+## 📦 Deployment to Dokploy
 
-### Deploy to Dokploy
+### Services to Deploy:
 
-1. Push to GitHub
-2. In Dokploy, create new application
-3. Select "Docker Compose" as build type
-4. Dokploy will use docker-compose.yml
-5. Add port mappings in Advanced settings
+**1. PostgreSQL Database**
+- Use Dokploy Database Service
+- Template: PostgreSQL
+- Database: `autrading`
+
+**2. Redis Cache**
+- Use Dokploy Database Service  
+- Template: Redis
+
+**3. Next.js Application**
+- Type: Application → Dockerfile
+- Repository: This GitHub repo
+- Port: 3001
+- Environment:
+  - `DATABASE_URL` - PostgreSQL connection string
+  - `REDIS_URL` - Redis connection string
+
+**4. NocoDB (Optional)**
+- Use Dokploy Template
+- For database admin interface
    git push origin main
    ```
 
