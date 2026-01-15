@@ -285,257 +285,208 @@ export default function AdminDashboard() {
           
           {/* Overview Tab */}
           {activeTab === 'overview' && (
-            <div className="space-y-4 h-[calc(100vh-8rem)] overflow-hidden flex flex-col">
-              {/* Compact Header with Stats */}
-              <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-lg">
-                      <svg className="w-4 h-4 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-600">Total Users</div>
-                      <div className="text-2xl font-bold text-[#1a1a1d]">{users.length}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 pl-4 border-l border-gray-200">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
-                      {users.filter(u => u.role === 'admin').length} admins
-                    </span>
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
-                      {users.filter(u => u.role === 'user').length} users
-                    </span>
-                  </div>
+            <div className="h-[calc(100vh-8rem)] overflow-hidden flex flex-col gap-5">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-xl font-semibold text-[#1a1a1d]">Dashboard Overview</h1>
+                  <p className="text-sm text-gray-600 mt-0.5">Monitor your platform at a glance</p>
                 </div>
                 <button
                   onClick={fetchData}
-                  className="px-3 py-2 bg-white hover:bg-gray-50 text-[#1a1a1d] rounded-lg transition-all flex items-center gap-2 border border-gray-200 text-xs"
+                  className="px-4 py-2 text-sm font-medium text-[#1a1a1d] bg-white border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-[#c9a227] transition-all"
                 >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Refresh
+                  Refresh Data
                 </button>
               </div>
 
-              {/* Top Row: System Health, Recent Alerts, Support Tickets */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-shrink-0">
-                {/* System Health */}
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                  <h3 className="text-sm font-bold text-[#1a1a1d] mb-3 flex items-center gap-2">
-                    <div className="w-1 h-4 bg-green-500 rounded-full"></div>
-                    System Health
-                  </h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-2 bg-green-50 rounded border border-green-200">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-green-900">All Systems Operational</p>
-                          <p className="text-xs text-green-700">Uptime: 99.8%</p>
-                        </div>
-                      </div>
-                      <span className="px-2 py-0.5 bg-green-200 text-green-800 rounded text-xs font-bold">LIVE</span>
+              {/* Stats Bar */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-8">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Users</p>
+                      <p className="text-3xl font-semibold text-[#1a1a1d] mt-1">{users.length}</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="p-2 bg-gray-50 rounded">
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                          <span className="text-xs text-gray-600">Database</span>
-                        </div>
-                        <p className="text-xs font-semibold text-[#1a1a1d]">Connected</p>
+                    <div className="h-12 w-px bg-gray-200"></div>
+                    <div className="flex gap-3">
+                      <div className="px-3 py-1.5 bg-amber-50 border border-[#f0d78c] rounded-lg">
+                        <span className="text-xs font-medium text-[#1a1a1d]">{users.filter(u => u.role === 'admin').length} Admins</span>
                       </div>
-                      <div className="p-2 bg-gray-50 rounded">
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                          <span className="text-xs text-gray-600">Maintenance</span>
-                        </div>
-                        <p className="text-xs font-semibold text-[#1a1a1d]">Off</p>
+                      <div className="px-3 py-1.5 bg-amber-50 border border-[#f0d78c] rounded-lg">
+                        <span className="text-xs font-medium text-[#1a1a1d]">{users.filter(u => u.role === 'user').length} Users</span>
                       </div>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setActiveTab('settings')}
-                    className="w-full px-3 py-2 mt-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all text-xs"
-                  >
-                    View Settings
-                  </button>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-600">All Systems Operational</span>
+                  </div>
                 </div>
+              </div>
 
-                {/* Recent Alerts */}
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-bold text-[#1a1a1d] flex items-center gap-2">
-                      <div className="w-1 h-4 bg-[#c9a227] rounded-full"></div>
-                      Recent Alerts
-                    </h3>
-                    <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-bold">3</span>
+              {/* Main Grid */}
+              <div className="flex-1 min-h-0 grid grid-cols-3 gap-5">
+                {/* Notifications */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-sm font-semibold text-[#1a1a1d]">Recent Notifications</h2>
+                    <span className="px-2 py-0.5 text-xs font-medium text-[#c9a227] bg-amber-50 border border-[#f0d78c] rounded">3 New</span>
                   </div>
-                  <div className="space-y-2">
-                    <div className="p-2 bg-amber-50 rounded border-l-2 border-[#c9a227]">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold text-[#1a1a1d]">New User Registration</p>
-                        <span className="text-xs text-gray-500">5m</span>
+                  <div className="flex-1 overflow-auto space-y-3">
+                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-[#1a1a1d]">New User Registration</p>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">5m ago</span>
                       </div>
-                      <p className="text-xs text-gray-700">newuser@example.com</p>
+                      <p className="text-xs text-gray-600 mt-1">newuser@example.com</p>
                     </div>
-                    <div className="p-2 bg-red-50 rounded border-l-2 border-red-500">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold text-[#1a1a1d]">Large Trade Alert</p>
-                        <span className="text-xs text-gray-500">12m</span>
+                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-[#1a1a1d]">Large Trade Alert</p>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">12m ago</span>
                       </div>
-                      <p className="text-xs text-gray-700">5.00 lots XAUUSD</p>
+                      <p className="text-xs text-gray-600 mt-1">5.00 lots XAUUSD</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-[#1a1a1d]">System Update</p>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">1h ago</span>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-1">Security patch applied</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setActiveTab('notifications')}
-                    className="w-full px-3 py-2 mt-3 bg-white hover:bg-gray-50 text-[#1a1a1d] font-semibold rounded-lg transition-all border border-gray-200 hover:border-[#c9a227] text-xs"
+                    className="mt-4 w-full py-2 text-sm font-medium text-[#1a1a1d] bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-lg hover:shadow-lg transition-all"
                   >
-                    View All (3 more)
+                    View All
                   </button>
                 </div>
 
                 {/* Support Tickets */}
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-bold text-[#1a1a1d] flex items-center gap-2">
-                      <div className="w-1 h-4 bg-orange-500 rounded-full"></div>
-                      Support Tickets
-                    </h3>
-                    <div className="flex items-center gap-1">
-                      <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-bold">2</span>
-                    </div>
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-sm font-semibold text-[#1a1a1d]">Support Tickets</h2>
+                    <span className="px-2 py-0.5 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded">2 Open</span>
                   </div>
-                  <div className="space-y-2">
-                    <div className="p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">JD</div>
+                  <div className="flex-1 overflow-auto space-y-3">
+                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-[#1a1a1d] text-xs font-semibold shadow-sm">JD</div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-[#1a1a1d] truncate">John Doe</p>
-                          <p className="text-xs text-gray-700 truncate">Cannot complete trade</p>
+                          <p className="text-sm font-medium text-[#1a1a1d] truncate">John Doe</p>
+                          <p className="text-xs text-gray-500">Ticket #1024</p>
                         </div>
-                        <span className="px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-semibold">Open</span>
                       </div>
+                      <p className="text-xs text-gray-600">Cannot complete trade transaction</p>
                     </div>
-                    <div className="p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold">SA</div>
+                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-semibold shadow-sm">SA</div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-[#1a1a1d] truncate">Sarah Anderson</p>
-                          <p className="text-xs text-gray-700 truncate">Account verification</p>
+                          <p className="text-sm font-medium text-[#1a1a1d] truncate">Sarah Anderson</p>
+                          <p className="text-xs text-gray-500">Ticket #1023</p>
                         </div>
-                        <span className="px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-semibold">Open</span>
                       </div>
+                      <p className="text-xs text-gray-600">Account verification question</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setActiveTab('support')}
-                    className="w-full px-3 py-2 mt-3 bg-white hover:bg-gray-50 text-[#1a1a1d] font-semibold rounded-lg transition-all border border-gray-200 hover:border-[#c9a227] text-xs"
+                    className="mt-4 w-full py-2 text-sm font-medium text-[#1a1a1d] bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-lg hover:shadow-lg transition-all"
                   >
-                    View All Tickets
+                    View All
                   </button>
                 </div>
-              </div>
 
-              {/* Bottom Row: Recent Activity, Recent Trades */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
                 {/* Recent Activity */}
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm flex flex-col min-h-0">
-                  <h3 className="text-sm font-bold text-[#1a1a1d] mb-3 flex items-center gap-2 flex-shrink-0">
-                    <div className="w-1 h-4 bg-purple-500 rounded-full"></div>
-                    Recent Activity
-                  </h3>
-                  <div className="space-y-2 flex-1 overflow-auto">
-                    <div className="flex items-start gap-2">
-                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
+                  <h2 className="text-sm font-semibold text-[#1a1a1d] mb-4">Recent Activity</h2>
+                  <div className="flex-1 overflow-auto space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-green-50 border border-green-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-[#1a1a1d]">User Created</p>
-                        <p className="text-xs text-gray-600 truncate">newuser@example.com</p>
-                        <span className="text-xs text-gray-500">2 minutes ago</span>
+                        <p className="text-sm font-medium text-[#1a1a1d]">User Created</p>
+                        <p className="text-xs text-gray-600 truncate mt-0.5">newuser@example.com</p>
+                        <p className="text-xs text-gray-500 mt-1">2 minutes ago</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-amber-50 border border-[#f0d78c] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg className="w-4 h-4 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-[#1a1a1d]">Large Trade Executed</p>
-                        <p className="text-xs text-gray-600 truncate">XAUUSD · 5.00 lots · $11,701</p>
-                        <span className="text-xs text-gray-500">15 minutes ago</span>
+                        <p className="text-sm font-medium text-[#1a1a1d]">Large Trade</p>
+                        <p className="text-xs text-gray-600 truncate mt-0.5">XAUUSD · 5.00 lots</p>
+                        <p className="text-xs text-gray-500 mt-1">15 minutes ago</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-purple-50 border border-purple-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-[#1a1a1d]">Admin Login</p>
-                        <p className="text-xs text-gray-600 truncate">admin@au.com · 192.168.1.104</p>
-                        <span className="text-xs text-gray-500">1 hour ago</span>
+                        <p className="text-sm font-medium text-[#1a1a1d]">Admin Login</p>
+                        <p className="text-xs text-gray-600 truncate mt-0.5">admin@au.com</p>
+                        <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
                       </div>
                     </div>
                   </div>
                   <button 
                     onClick={() => setActiveTab('audit')}
-                    className="w-full px-3 py-2 mt-3 bg-white hover:bg-gray-50 text-[#1a1a1d] font-semibold rounded-lg transition-all border border-gray-200 hover:border-[#c9a227] text-xs flex-shrink-0"
+                    className="mt-4 w-full py-2 text-sm font-medium text-[#1a1a1d] bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-lg hover:shadow-lg transition-all"
                   >
-                    View Full Audit Log
+                    View Audit Log
                   </button>
                 </div>
+              </div>
 
-                {/* Recent Trades */}
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm flex flex-col min-h-0">
-                  <h3 className="text-sm font-bold text-[#1a1a1d] mb-3 flex items-center gap-2 flex-shrink-0">
-                    <div className="w-1 h-4 bg-[#c9a227] rounded-full"></div>
-                    Recent Trades
-                  </h3>
-                  <div className="space-y-2 flex-1 overflow-auto">
-                    {trades.slice(0, 3).map((trade) => (
-                      <div 
-                        key={trade.id} 
-                        className="flex items-center justify-between p-2 rounded hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
-                      >
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <div className={`p-1.5 rounded ${
-                            trade.type === 'BUY' ? 'bg-green-100' : 'bg-red-100'
-                          }`}>
-                            <svg className={`w-3 h-3 ${trade.type === 'BUY' ? 'text-green-700' : 'text-red-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={trade.type === 'BUY' ? "M7 11l5-5m0 0l5 5m-5-5v12" : "M17 13l-5 5m0 0l-5-5m5 5V6"} />
-                            </svg>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-[#1a1a1d] text-xs">{trade.symbol}</div>
-                            <div className="text-xs text-gray-600 truncate">${parseFloat(trade.price).toFixed(4)} · {parseFloat(trade.amount).toFixed(2)} lots</div>
-                          </div>
-                        </div>
-                        <span className={`px-2 py-0.5 rounded text-xs font-semibold flex-shrink-0 ml-2 ${
-                          trade.type === 'BUY' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              {/* Recent Trades */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex-shrink-0">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-sm font-semibold text-[#1a1a1d]">Recent Trades</h2>
+                  <button 
+                    onClick={() => setActiveTab('trades')}
+                    className="text-sm font-medium text-[#c9a227] hover:text-[#1a1a1d] transition-colors"
+                  >
+                    View All →
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  {trades.slice(0, 3).map((trade) => (
+                    <div 
+                      key={trade.id} 
+                      className="p-4 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-semibold text-[#1a1a1d]">{trade.symbol}</span>
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                          trade.type === 'BUY' 
+                            ? 'text-green-700 bg-green-50 border border-green-200' 
+                            : 'text-red-700 bg-red-50 border border-red-200'
                         }`}>
                           {trade.type}
                         </span>
                       </div>
-                    ))}
-                  </div>
-                  <button 
-                    onClick={() => setActiveTab('trades')}
-                    className="w-full px-3 py-2 mt-3 bg-white hover:bg-gray-50 text-[#1a1a1d] font-semibold rounded-lg transition-all border border-gray-200 hover:border-[#c9a227] text-xs flex-shrink-0"
-                  >
-                    View All Trades
-                  </button>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-600">
+                          <span className="font-medium">Price:</span> ${parseFloat(trade.price).toFixed(4)}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          <span className="font-medium">Amount:</span> {parseFloat(trade.amount).toFixed(2)} lots
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
