@@ -13,12 +13,12 @@ export default function Home() {
         {/* Navigation */}
         <nav className="relative z-10 max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div className="text-2xl font-bold text-white">AU<span className="text-purple-400">Next</span></div>
-          <div className="flex gap-6 text-sm">
+          <div className="flex gap-6 text-sm items-center">
             <a href="#features" className="text-gray-300 hover:text-white transition">Features</a>
             <a href="#about" className="text-gray-300 hover:text-white transition">About</a>
-            <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
+            <a href="/login" className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
               Get Started
-            </button>
+            </a>
           </div>
         </nav>
 
@@ -36,12 +36,12 @@ export default function Home() {
               Powered by cutting-edge technology and deployed with confidence.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold text-lg transition transform hover:scale-105">
+              <a href="/login" className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold text-lg transition transform hover:scale-105">
                 Start Trading
-              </button>
-              <button className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold text-lg backdrop-blur-sm transition">
+              </a>
+              <a href="#features" className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold text-lg backdrop-blur-sm transition">
                 Learn More
-              </button>
+              </a>
             </div>
           </div>
         </div>
