@@ -16,6 +16,7 @@ export default function TradesPage() {
       return;
     }
     fetchTrades();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTrades = async () => {

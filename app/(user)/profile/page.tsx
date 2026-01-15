@@ -28,6 +28,7 @@ export default function ProfilePage() {
       phone: parsedUser.phone || '',
       notifications: parsedUser.notifications ?? true
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSave = () => {

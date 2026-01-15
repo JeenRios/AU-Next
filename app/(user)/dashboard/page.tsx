@@ -18,6 +18,7 @@ export default function UserDashboard() {
     }
     setUser(JSON.parse(userData));
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchData = async () => {
@@ -81,7 +82,7 @@ export default function UserDashboard() {
           <h1 className="text-4xl font-bold text-white mb-2">
             Welcome back, {user?.email?.split('@')[0]}!
           </h1>
-          <p className="text-gray-300">Here's your trading overview</p>
+          <p className="text-gray-300">Here&apos;s your trading overview</p>
         </div>
 
         {/* Stats Grid */}
