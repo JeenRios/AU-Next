@@ -59,35 +59,38 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading analytics...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-[#c9a227] rounded-full animate-spin"></div>
+          <div className="text-[#1a1a1d] text-lg font-medium">Loading...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-50">
       {/* Navigation */}
-      <nav className="bg-white/5 backdrop-blur-lg border-b border-white/10">
+      <nav className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold text-white">
-            AU<span className="text-purple-400">Next</span> <span className="text-sm text-purple-400">Admin</span>
+          <div className="text-2xl font-bold text-[#1a1a1d]">
+            AU<span className="text-[#c9a227]">Next</span> <span className="text-sm text-[#c9a227]">Admin</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="/admin" className="text-gray-300 hover:text-white transition">Dashboard</a>
-            <a href="/admin/analytics" className="text-purple-400 font-medium">Analytics</a>
+            <a href="/admin" className="text-gray-600 hover:text-[#1a1a1d] transition">Dashboard</a>
+            <a href="/admin/analytics" className="text-[#c9a227] font-medium">Analytics</a>
           </div>
         </div>
       </nav>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <h1 className="text-4xl font-bold text-white mb-8">Trading Analytics</h1>
+        <h1 className="text-4xl font-bold text-[#1a1a1d] mb-8">Trading Analytics</h1>
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="text-gray-400 text-sm mb-2">Total Volume</div>
-            <div className="text-3xl font-bold text-white">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+            <div className="text-gray-600 text-sm mb-2">Total Volume</div>
+            <div className="text-3xl font-bold text-[#1a1a1d]">
               {trades.reduce((sum, t) => sum + parseFloat(t.amount), 0).toFixed(2)}
             </div>
             <div className="text-green-400 text-sm mt-2">Units traded</div>
@@ -95,7 +98,7 @@ export default function AnalyticsPage() {
 
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
             <div className="text-gray-400 text-sm mb-2">Average Trade Value</div>
-            <div className="text-3xl font-bold text-purple-400">{stats?.avg_amount || '0.00'}</div>
+            <div className="text-3xl font-bold text-[#c9a227]">{stats?.avg_amount || '0.00'}</div>
             <div className="text-gray-400 text-sm mt-2">Per transaction</div>
           </div>
 
@@ -111,29 +114,29 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Trading Pairs */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 mb-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Top Trading Pairs</h2>
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm mb-8">
+          <h2 className="text-2xl font-bold text-[#1a1a1d] mb-6">Top Trading Pairs</h2>
           <div className="space-y-4">
             {topSymbols.map(([symbol, data]: any, index) => (
               <div key={symbol} className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="w-8 h-8 bg-[#c9a227] rounded-full flex items-center justify-center text-[#1a1a1d] font-bold text-sm">
                   {index + 1}
                 </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-white font-medium">{symbol}</span>
-                    <span className="text-gray-400">{data.count} trades</span>
+                    <span className="text-[#1a1a1d] font-medium">{symbol}</span>
+                    <span className="text-gray-600">{data.count} trades</span>
                   </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full"
+                      className="bg-gradient-to-r from-[#c9a227] to-[#f0d78c] h-2 rounded-full"
                       style={{ width: `${(data.count / trades.length) * 100}%` }}
                     />
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-white font-medium">{data.volume.toFixed(2)}</div>
-                  <div className="text-gray-400 text-sm">Volume</div>
+                  <div className="text-[#1a1a1d] font-medium">{data.volume.toFixed(2)}</div>
+                  <div className="text-gray-600 text-sm">Volume</div>
                 </div>
               </div>
             ))}

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { deleteCachedData } from '@/lib/redis';
 
 export const dynamic = 'force-dynamic';
 
+// GET all users
 export async function GET() {
   try {
     const result = await query(
-      'SELECT * FROM trades ORDER BY created_at DESC LIMIT 100'
+      'SELECT id, email, role, name, created_at FROM users ORDER BY created_at DESC'
     );
 
     return NextResponse.json({
@@ -16,7 +16,7 @@ export async function GET() {
       count: result.rowCount,
     });
   } catch (error: any) {
-    console.error('Error fetching trades:', error);
+    console.error('Error fetching users:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
@@ -24,50 +24,64 @@ export async function GET() {
   }
 }
 
+// POST create new user
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { symbol, type, amount, price, status = 'PENDING' } = body;
+    const { email, password, role = 'user', name } = body;
 
     // Validation
-    if (!symbol || !type || !amount || !price) {
+    if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: 'Email and password are required' },
         { status: 400 }
       );
     }
 
-    if (!['BUY', 'SELL'].includes(type)) {
+    if (!['admin', 'user'].includes(role)) {
       return NextResponse.json(
-        { success: false, error: 'Type must be BUY or SELL' },
+        { success: false, error: 'Role must be admin or user' },
         { status: 400 }
       );
     }
 
-    const result = await query(
-      'INSERT INTO trades (symbol, type, amount, price, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [symbol, type, amount, price, status]
+    // Check if user exists
+    const existing = await query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
     );
 
-    // Invalidate stats cache
-    await deleteCachedData('stats');
+    if (existing.rowCount && existing.rowCount > 0) {
+      return NextResponse.json(
+        { success: false, error: 'User already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Insert new user
+    const result = await query(
+      'INSERT INTO users (email, password, role, name) VALUES ($1, $2, $3, $4) RETURNING id, email, role, name, created_at',
+      [email, password, role, name]
+    );
 
     return NextResponse.json(
       {
         success: true,
         data: result.rows[0],
-        message: 'Trade created successfully',
+        message: 'User created successfully',
       },
       { status: 201 }
     );
   } catch (error: any) {
-    console.error('Error creating trade:', error);
+    console.error('Error creating user:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
     );
   }
 }
+
+// DELETE user
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -75,32 +89,29 @@ export async function DELETE(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'Trade ID is required' },
+        { success: false, error: 'User ID is required' },
         { status: 400 }
       );
     }
 
     const result = await query(
-      'DELETE FROM trades WHERE id = $1 RETURNING id',
+      'DELETE FROM users WHERE id = $1 RETURNING id',
       [id]
     );
 
     if (result.rowCount === 0) {
       return NextResponse.json(
-        { success: false, error: 'Trade not found' },
+        { success: false, error: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Invalidate stats cache
-    await deleteCachedData('stats');
-
     return NextResponse.json({
       success: true,
-      message: 'Trade deleted successfully',
+      message: 'User deleted successfully',
     });
   } catch (error: any) {
-    console.error('Error deleting trade:', error);
+    console.error('Error deleting user:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }

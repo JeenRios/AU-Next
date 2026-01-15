@@ -17,27 +17,27 @@ export default function Navbar({ userRole, currentPage }: NavbarProps) {
 
   if (userRole === 'admin') {
     return (
-      <nav className="bg-white/5 backdrop-blur-lg border-b border-white/10">
+      <nav className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold text-white">
-            AU<span className="text-purple-400">Next</span> <span className="text-sm text-purple-400">Admin</span>
+          <div className="text-2xl font-bold text-[#1a1a1d]">
+            AU<span className="text-[#c9a227]">Next</span> <span className="text-sm text-[#c9a227] font-normal">Admin</span>
           </div>
           <div className="flex items-center gap-6">
             <a 
               href="/admin" 
-              className={currentPage === 'dashboard' ? 'text-purple-400 font-medium' : 'text-gray-300 hover:text-white transition'}
+              className={currentPage === 'dashboard' ? 'text-[#c9a227] font-semibold' : 'text-gray-600 hover:text-[#1a1a1d] transition-colors'}
             >
               Dashboard
             </a>
             <a 
               href="/admin/analytics" 
-              className={currentPage === 'analytics' ? 'text-purple-400 font-medium' : 'text-gray-300 hover:text-white transition'}
+              className={currentPage === 'analytics' ? 'text-[#c9a227] font-semibold' : 'text-gray-600 hover:text-[#1a1a1d] transition-colors'}
             >
               Analytics
             </a>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition"
+              className="px-5 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all"
             >
               Logout
             </button>
@@ -48,33 +48,33 @@ export default function Navbar({ userRole, currentPage }: NavbarProps) {
   }
 
   return (
-    <nav className="bg-white/5 backdrop-blur-lg border-b border-white/10">
+    <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="text-2xl font-bold text-white">
-          AU<span className="text-purple-400">Next</span>
+        <div className="text-2xl font-bold text-[#1a1a1d]">
+          AU<span className="text-[#c9a227]">Next</span>
         </div>
         <div className="flex items-center gap-6">
           <a 
             href="/dashboard" 
-            className={currentPage === 'dashboard' ? 'text-purple-400 font-medium' : 'text-gray-300 hover:text-white transition'}
+            className={currentPage === 'dashboard' ? 'text-[#c9a227] font-semibold' : 'text-gray-600 hover:text-[#1a1a1d] transition-colors'}
           >
             Dashboard
           </a>
           <a 
             href="/trades" 
-            className={currentPage === 'trades' ? 'text-purple-400 font-medium' : 'text-gray-300 hover:text-white transition'}
+            className={currentPage === 'trades' ? 'text-[#c9a227] font-semibold' : 'text-gray-600 hover:text-[#1a1a1d] transition-colors'}
           >
             My Trades
           </a>
           <a 
             href="/profile" 
-            className={currentPage === 'profile' ? 'text-purple-400 font-medium' : 'text-gray-300 hover:text-white transition'}
+            className={currentPage === 'profile' ? 'text-[#c9a227] font-semibold' : 'text-gray-600 hover:text-[#1a1a1d] transition-colors'}
           >
             Profile
           </a>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition"
+            className="px-5 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all"
           >
             Logout
           </button>

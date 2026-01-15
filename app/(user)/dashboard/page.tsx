@@ -47,27 +47,30 @@ export default function UserDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-[#c9a227] rounded-full animate-spin"></div>
+          <div className="text-[#1a1a1d] text-lg font-medium">Loading...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-50">
       {/* Navigation */}
-      <nav className="bg-white/5 backdrop-blur-lg border-b border-white/10">
+      <nav className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold text-white">
-            AU<span className="text-purple-400">Next</span>
+          <div className="text-2xl font-bold text-[#1a1a1d]">
+            AU<span className="text-[#c9a227]">Next</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="/dashboard" className="text-purple-400 font-medium">Dashboard</a>
-            <a href="/trades" className="text-gray-300 hover:text-white transition">My Trades</a>
-            <a href="/profile" className="text-gray-300 hover:text-white transition">Profile</a>
+            <a href="/dashboard" className="text-[#c9a227] font-semibold">Dashboard</a>
+            <a href="/trades" className="text-gray-600 hover:text-[#1a1a1d] transition-colors">My Trades</a>
+            <a href="/profile" className="text-gray-600 hover:text-[#1a1a1d] transition-colors">Profile</a>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition"
+              className="px-5 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all"
             >
               Logout
             </button>
@@ -79,50 +82,50 @@ export default function UserDashboard() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
+          <h1 className="text-4xl font-bold text-[#1a1a1d] mb-2">
             Welcome back, {user?.email?.split('@')[0]}!
           </h1>
-          <p className="text-gray-300">Here&apos;s your trading overview</p>
+          <p className="text-gray-600">Here&apos;s your trading overview</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="text-gray-400 text-sm mb-2">Total Trades</div>
-            <div className="text-3xl font-bold text-white">{stats?.total_trades || 0}</div>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="text-gray-600 text-sm mb-2">Total Trades</div>
+            <div className="text-3xl font-bold text-[#1a1a1d]">{stats?.total_trades || 0}</div>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="text-gray-400 text-sm mb-2">Buy Orders</div>
-            <div className="text-3xl font-bold text-green-400">{stats?.buy_trades || 0}</div>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="text-gray-600 text-sm mb-2">Buy Orders</div>
+            <div className="text-3xl font-bold text-green-600">{stats?.buy_trades || 0}</div>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="text-gray-400 text-sm mb-2">Sell Orders</div>
-            <div className="text-3xl font-bold text-red-400">{stats?.sell_trades || 0}</div>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="text-gray-600 text-sm mb-2">Sell Orders</div>
+            <div className="text-3xl font-bold text-red-600">{stats?.sell_trades || 0}</div>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="text-gray-400 text-sm mb-2">Avg Amount</div>
-            <div className="text-3xl font-bold text-purple-400">{stats?.avg_amount || '0.00'}</div>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="text-gray-600 text-sm mb-2">Avg Amount</div>
+            <div className="text-3xl font-bold text-[#c9a227]">{stats?.avg_amount || '0.00'}</div>
           </div>
         </div>
 
         {/* Recent Trades */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-          <h2 className="text-2xl font-bold text-white mb-4">Recent Trades</h2>
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+          <h2 className="text-2xl font-bold text-[#1a1a1d] mb-4">Recent Trades</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Symbol</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Type</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Amount</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Price</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-gray-600 font-semibold">Symbol</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-semibold">Type</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-semibold">Amount</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Price</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {trades.map((trade) => (
-                  <tr key={trade.id} className="border-b border-white/5 hover:bg-white/5">
-                    <td className="py-3 px-4 text-white font-medium">{trade.symbol}</td>
+                  <tr key={trade.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-3 px-4 text-[#1a1a1d] font-medium">{trade.symbol}</td>
                     <td className="py-3 px-4">
                       <span className={`px-3 py-1 rounded-full text-sm ${
                         trade.type === 'BUY' 
@@ -132,12 +135,12 @@ export default function UserDashboard() {
                         {trade.type}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-300">{parseFloat(trade.amount).toFixed(2)}</td>
-                    <td className="py-3 px-4 text-gray-300">${parseFloat(trade.price).toFixed(4)}</td>
+                    <td className="py-3 px-4 text-gray-700">{parseFloat(trade.amount).toFixed(2)}</td>
+                    <td className="py-3 px-4 text-gray-700">${parseFloat(trade.price).toFixed(4)}</td>
                     <td className="py-3 px-4">
                       <span className={`px-3 py-1 rounded-full text-sm ${
                         trade.status === 'COMPLETED' 
-                          ? 'bg-purple-500/20 text-purple-400' 
+                          ? 'bg-[#c9a227]/20 text-[#f0d78c]' 
                           : 'bg-yellow-500/20 text-yellow-400'
                       }`}>
                         {trade.status}
@@ -149,7 +152,7 @@ export default function UserDashboard() {
             </table>
           </div>
           <div className="mt-4 text-center">
-            <a href="/trades" className="text-purple-400 hover:text-purple-300">
+            <a href="/trades" className="text-[#c9a227] hover:text-[#f0d78c]">
               View All Trades →
             </a>
           </div>

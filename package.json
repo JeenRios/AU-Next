@@ -9,11 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "next": "14.2.3",
+    "pg": "^8.11.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "pg": "^8.11.3",
-    "redis": "^4.6.12"
+    "redis": "^4.6.12",
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
