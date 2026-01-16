@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { verifyPassword } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
@@ -13,38 +14,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // Demo accounts
-    const demoAccounts = [
-      { email: 'admin@au.com', password: 'admin', role: 'admin', name: 'Admin User' },
-      { email: 'user@au.com', password: 'user', role: 'user', name: 'Demo User' }
-    ];
-
-    // Check demo accounts first
-    const demoAccount = demoAccounts.find(
-      acc => acc.email === email && acc.password === password
-    );
-
-    if (demoAccount) {
-      return NextResponse.json({
-        user: {
-          email: demoAccount.email,
-          role: demoAccount.role,
-          name: demoAccount.name
-        }
-      });
-    }
-
-    // If not a demo account, check database
+    // Check database for user
     const result = await query(
-      `SELECT 
-        u.id, 
-        u.email, 
+      `SELECT
+        u.id,
+        u.email,
+        u.password,
         u.role,
         COALESCE(p.first_name || ' ' || p.last_name, u.email) as name
       FROM users u
       LEFT JOIN user_profiles p ON u.id = p.user_id
-      WHERE u.email = $1 AND u.password = $2`,
-      [email, password]
+      WHERE u.email = $1`,
+      [email]
     );
 
     if (result.rows.length === 0) {
@@ -55,6 +36,19 @@ export async function POST(request: Request) {
     }
 
     const user = result.rows[0];
+
+    // Verify password with bcrypt
+    const isValidPassword = await verifyPassword(password, user.password);
+
+    if (!isValidPassword) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
+    // Update last login
+    await query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
 
     return NextResponse.json({
       user: {

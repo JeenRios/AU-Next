@@ -1,4 +1,11 @@
 import { Pool } from 'pg';
+import bcrypt from 'bcrypt';
+
+const SALT_ROUNDS = 10;
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, SALT_ROUNDS);
+}
 
 async function seedDatabase() {
   const pool = new Pool({
@@ -14,13 +21,14 @@ async function seedDatabase() {
       ['support@au.com', 'admin', 'admin'],
     ];
 
-    for (const [email, password, role] of adminUsers) {
+    for (const [email, plainPassword, role] of adminUsers) {
+      const hashedPassword = await hashPassword(plainPassword);
       const result = await pool.query(`
         INSERT INTO users (email, password, role, status, email_verified, last_login)
         VALUES ($1, $2, $3, 'active', true, NOW())
-        ON CONFLICT (email) DO UPDATE SET last_login = NOW()
+        ON CONFLICT (email) DO UPDATE SET password = $2, last_login = NOW()
         RETURNING id
-      `, [email, password, role]);
+      `, [email, hashedPassword, role]);
     }
 
     // Insert Regular Users with Full Profiles
@@ -93,13 +101,14 @@ async function seedDatabase() {
     ];
 
     for (const user of users) {
-      // Insert user
+      // Insert user with hashed password
+      const hashedPassword = await hashPassword(user.password);
       const userResult = await pool.query(`
         INSERT INTO users (email, password, role, status, email_verified, last_login)
         VALUES ($1, $2, 'user', 'active', true, NOW() - INTERVAL '${Math.floor(Math.random() * 30)} days')
-        ON CONFLICT (email) DO UPDATE SET last_login = NOW()
+        ON CONFLICT (email) DO UPDATE SET password = $2, last_login = NOW()
         RETURNING id
-      `, [user.email, user.password]);
+      `, [user.email, hashedPassword]);
 
       const userId = userResult.rows[0].id;
 
@@ -233,7 +242,7 @@ async function seedDatabase() {
       const subject = ticketSubjects[Math.floor(Math.random() * ticketSubjects.length)];
       const status = ticketStatuses[Math.floor(Math.random() * ticketStatuses.length)];
       const priority = priorities[Math.floor(Math.random() * priorities.length)];
-      const ticketNumber = `TICKET${String(1000 + i).padStart(4, '0')}`;
+      const ticketNumber = `TICKET${Date.now()}${i}`;
 
       await pool.query(`
         INSERT INTO support_tickets (
@@ -242,8 +251,9 @@ async function seedDatabase() {
           ${status === 'resolved' ? `NOW() - INTERVAL '${Math.floor(Math.random() * 20)} days'` : 'NULL'},
           NOW() - INTERVAL '${Math.floor(Math.random() * 60)} days'
         )
+        ON CONFLICT (ticket_number) DO NOTHING
       `, [
-        userId, ticketNumber, subject, 
+        userId, ticketNumber, subject,
         'This is a detailed description of the support issue that needs to be resolved.',
         status, priority
       ]);
@@ -271,6 +281,34 @@ async function seedDatabase() {
 
     console.log('✅ Audit logs seeded\n');
 
+    // Insert Community Posts
+    const communityPosts = [
+      { content: 'Just hit my monthly target! XAUUSD has been treating me well this week. Remember: patience is key in trading!', profit: 2450 },
+      { content: 'New strategy working great! Sharing my GBPUSD analysis for those interested.', profit: 890 },
+      { content: 'Learning from my losses today. Down on EURUSD but the lesson was worth more than that. Stay humble!', profit: -150 },
+      { content: 'Started my trading journey 6 months ago. Now consistently profitable. Never give up!', profit: 1200 },
+      { content: 'Quick tip: Always set your stop loss before entering a trade. Saved me today!', profit: null },
+      { content: 'BTCUSD breaking resistance levels. This could be interesting...', profit: 520 },
+    ];
+
+    for (const post of communityPosts) {
+      const randomUserId = userIds[Math.floor(Math.random() * userIds.length)];
+      const daysAgo = Math.floor(Math.random() * 7);
+
+      await pool.query(`
+        INSERT INTO community_posts (user_id, content, profit_amount, likes_count, comments_count, created_at)
+        VALUES ($1, $2, $3, $4, $5, NOW() - INTERVAL '${daysAgo} days')
+      `, [
+        randomUserId,
+        post.content,
+        post.profit,
+        Math.floor(Math.random() * 50) + 5,
+        Math.floor(Math.random() * 15)
+      ]);
+    }
+
+    console.log('✅ Community posts seeded\n');
+
     // Show summary
     const userCount = await pool.query('SELECT COUNT(*) FROM users');
     const profileCount = await pool.query('SELECT COUNT(*) FROM user_profiles');
@@ -279,6 +317,7 @@ async function seedDatabase() {
     const notificationCount = await pool.query('SELECT COUNT(*) FROM notifications');
     const ticketCount = await pool.query('SELECT COUNT(*) FROM support_tickets');
     const auditCount = await pool.query('SELECT COUNT(*) FROM audit_logs');
+    const postCount = await pool.query('SELECT COUNT(*) FROM community_posts');
 
     console.log('📊 Database Summary:');
     console.log('─────────────────────────────');
@@ -289,6 +328,7 @@ async function seedDatabase() {
     console.log(`  Notifications: ${notificationCount.rows[0].count}`);
     console.log(`  Support Tickets: ${ticketCount.rows[0].count}`);
     console.log(`  Audit Logs: ${auditCount.rows[0].count}`);
+    console.log(`  Community Posts: ${postCount.rows[0].count}`);
     console.log('');
     console.log('🎉 Database seeded successfully!');
     console.log('');

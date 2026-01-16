@@ -166,6 +166,53 @@ async function setupDatabase() {
       );
     `);
 
+    // MT5 Accounts table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS mt5_accounts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        account_number VARCHAR(50) NOT NULL,
+        server VARCHAR(100) NOT NULL,
+        platform VARCHAR(10) DEFAULT 'MT5',
+        status VARCHAR(50) DEFAULT 'pending',
+        ea_status VARCHAR(50) DEFAULT 'inactive',
+        balance DECIMAL(15, 2) DEFAULT 0.00,
+        equity DECIMAL(15, 2) DEFAULT 0.00,
+        profit DECIMAL(15, 2) DEFAULT 0.00,
+        approved_by INTEGER REFERENCES users(id),
+        approved_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, account_number)
+      );
+    `);
+
+    // Community Posts table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS community_posts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        image_url TEXT,
+        profit_amount DECIMAL(15, 2),
+        likes_count INTEGER DEFAULT 0,
+        comments_count INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Community Post Likes table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS community_post_likes (
+        id SERIAL PRIMARY KEY,
+        post_id INTEGER REFERENCES community_posts(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(post_id, user_id)
+      );
+    `);
+
     console.log('✅ All tables created successfully!\n');
 
     // Create indexes for better performance
@@ -179,6 +226,9 @@ async function setupDatabase() {
       CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
       CREATE INDEX IF NOT EXISTS idx_support_tickets_user_id ON support_tickets(user_id);
       CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+      CREATE INDEX IF NOT EXISTS idx_mt5_accounts_user_id ON mt5_accounts(user_id);
+      CREATE INDEX IF NOT EXISTS idx_community_posts_user_id ON community_posts(user_id);
+      CREATE INDEX IF NOT EXISTS idx_community_posts_created_at ON community_posts(created_at DESC);
     `);
 
     console.log('✅ Indexes created\n');
@@ -192,6 +242,9 @@ async function setupDatabase() {
     console.log('  ✓ notifications - User notifications');
     console.log('  ✓ support_tickets - Customer support');
     console.log('  ✓ audit_logs - System activity tracking');
+    console.log('  ✓ mt5_accounts - MT5/MT4 trading account connections');
+    console.log('  ✓ community_posts - Community feed posts');
+    console.log('  ✓ community_post_likes - Post likes tracking');
     console.log('');
     console.log('🎉 Database schema setup complete!');
 

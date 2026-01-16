@@ -9,7 +9,10 @@ interface User {
   email: string;
   role: string;
   name?: string;
+  first_name?: string;
+  last_name?: string;
   created_at: string;
+  last_login?: string;
 }
 
 interface Trade {
@@ -20,6 +23,7 @@ interface Trade {
   price: string;
   status: string;
   created_at: string;
+  opened_at?: string;
 }
 
 export default function AdminDashboard() {

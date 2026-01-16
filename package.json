@@ -7,11 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:check": "tsx scripts/check-db.ts",
-    "db:setup": "tsx scripts/setup-db.ts",
-    "db:seed": "tsx scripts/seed-db.ts"
+    "db:check": "tsx --env-file=.env.local scripts/check-db.ts",
+    "db:setup": "tsx --env-file=.env.local scripts/setup-db.ts",
+    "db:seed": "tsx --env-file=.env.local scripts/seed-db.ts"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
     "next": "14.2.3",
     "pg": "^8.11.3",
@@ -21,6 +22,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20.12.7",
     "@types/pg": "^8.11.0",
     "@types/react": "^18.3.1",

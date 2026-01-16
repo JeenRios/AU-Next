@@ -1,59 +1,61 @@
-import { Pool } from 'pg';
+import { query } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-  });
+interface MigrationResult {
+  name: string;
+  success: boolean;
+  error?: string;
+}
 
+async function runMigration(name: string, sql: string): Promise<MigrationResult> {
   try {
-    const migrations = [];
+    await query(sql);
+    console.log(`✅ Migration applied: ${name}`);
+    return { name, success: true };
+  } catch (error: any) {
+    console.error(`❌ Migration failed: ${name}`, error.message);
+    return { name, success: false, error: error.message };
+  }
+}
 
-    // Example: Add new column to users table
-    try {
-      await pool.query(`
-        ALTER TABLE users 
-        ADD COLUMN IF NOT EXISTS two_factor_enabled BOOLEAN DEFAULT false
-      `);
-      migrations.push('Added two_factor_enabled to users');
-    } catch (e) {}
+export async function GET() {
+  try {
+    const results: MigrationResult[] = [];
 
-    // Example: Add new column to user_profiles table
-    try {
-      await pool.query(`
-        ALTER TABLE user_profiles 
-        ADD COLUMN IF NOT EXISTS preferred_currency VARCHAR(10) DEFAULT 'USD'
-      `);
-      migrations.push('Added preferred_currency to user_profiles');
-    } catch (e) {}
+    // Migration: Add two_factor_enabled to users table
+    results.push(await runMigration(
+      'Add two_factor_enabled to users',
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_enabled BOOLEAN DEFAULT false`
+    ));
 
-    // Example: Add new column to trades table
-    try {
-      await pool.query(`
-        ALTER TABLE trades 
-        ADD COLUMN IF NOT EXISTS notes TEXT
-      `);
-      migrations.push('Added notes to trades');
-    } catch (e) {}
+    // Migration: Add preferred_currency to user_profiles table
+    results.push(await runMigration(
+      'Add preferred_currency to user_profiles',
+      `ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS preferred_currency VARCHAR(10) DEFAULT 'USD'`
+    ));
+
+    // Migration: Add notes to trades table
+    results.push(await runMigration(
+      'Add notes to trades',
+      `ALTER TABLE trades ADD COLUMN IF NOT EXISTS notes TEXT`
+    ));
 
     // Add more migrations here as needed
-    // Just copy the pattern above for any new columns
 
-    await pool.end();
+    const successful = results.filter(r => r.success);
+    const failed = results.filter(r => !r.success);
 
-    return NextResponse.json({ 
-      success: true, 
-      message: migrations.length > 0 
-        ? `Applied ${migrations.length} migration(s)` 
-        : 'No new migrations to apply',
-      migrations 
+    return NextResponse.json({
+      success: failed.length === 0,
+      message: `Applied ${successful.length} migration(s), ${failed.length} failed`,
+      results
     });
 
   } catch (error: any) {
-    await pool.end();
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message 
+    console.error('Migration error:', error);
+    return NextResponse.json({
+      success: false,
+      error: error.message
     }, { status: 500 });
   }
 }

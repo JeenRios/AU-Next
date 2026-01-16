@@ -7,8 +7,9 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const result = await query(`
-      SELECT 
+      SELECT
         t.*,
+        t.profit_loss as profit,
         u.email as user_email,
         p.first_name,
         p.last_name,
@@ -16,7 +17,7 @@ export async function GET() {
       FROM trades t
       LEFT JOIN users u ON t.user_id = u.id
       LEFT JOIN user_profiles p ON u.id = p.user_id
-      ORDER BY t.opened_at DESC 
+      ORDER BY t.opened_at DESC
       LIMIT 100
     `);
 
