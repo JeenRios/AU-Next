@@ -36,7 +36,14 @@ export async function POST(request: Request) {
 
     // If not a demo account, check database
     const result = await query(
-      'SELECT id, email, role, name FROM users WHERE email = $1 AND password = $2',
+      `SELECT 
+        u.id, 
+        u.email, 
+        u.role,
+        COALESCE(p.first_name || ' ' || p.last_name, u.email) as name
+      FROM users u
+      LEFT JOIN user_profiles p ON u.id = p.user_id
+      WHERE u.email = $1 AND u.password = $2`,
       [email, password]
     );
 
