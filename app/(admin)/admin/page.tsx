@@ -29,9 +29,24 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'trades' | 'users' | 'settings' | 'support' | 'audit' | 'notifications'>('overview');
+  const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [showAddUser, setShowAddUser] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [editingUser, setEditingUser] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [showTicketDetails, setShowTicketDetails] = useState(false);
+  const [isTicketClosing, setIsTicketClosing] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState<any>(null);
+  const [showNotificationDetails, setShowNotificationDetails] = useState(false);
+  const [isNotificationClosing, setIsNotificationClosing] = useState(false);
   const [newUser, setNewUser] = useState({
     email: '',
     password: '',
@@ -57,25 +72,57 @@ export default function AdminDashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (showUserDetails && isClosing) {
+      // Trigger slide-in animation only when opening
+      const timer = setTimeout(() => setIsClosing(false), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [showUserDetails]);
+
+  useEffect(() => {
+    if (showTicketDetails && isTicketClosing) {
+      // Trigger slide-in animation only when opening
+      const timer = setTimeout(() => setIsTicketClosing(false), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [showTicketDetails]);
+
+  useEffect(() => {
+    if (showNotificationDetails && isNotificationClosing) {
+      // Trigger slide-in animation only when opening
+      const timer = setTimeout(() => setIsNotificationClosing(false), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [showNotificationDetails]);
+
   const fetchData = async () => {
+    setRefreshing(true);
     try {
-      const [statsRes, tradesRes, usersRes] = await Promise.all([
+      const [statsRes, tradesRes, usersRes, notificationsRes, ticketsRes] = await Promise.all([
         fetch('/api/stats'),
         fetch('/api/trades'),
-        fetch('/api/users')
+        fetch('/api/users'),
+        fetch('/api/notifications'),
+        fetch('/api/tickets')
       ]);
 
       const statsData = await statsRes.json();
       const tradesData = await tradesRes.json();
       const usersData = await usersRes.json();
+      const notificationsData = await notificationsRes.json();
+      const ticketsData = await ticketsRes.json();
 
       if (statsData.success) setStats(statsData.data);
       if (tradesData.success) setTrades(tradesData.data);
       if (usersData.success) setUsers(usersData.data);
+      if (notificationsData.success) setNotifications(notificationsData.data.slice(0, 10));
+      if (ticketsData.success) setTickets(ticketsData.data.filter((t: any) => t.status === 'open').slice(0, 10));
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -133,6 +180,30 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('user');
     router.push('/');
+  };
+
+  const closeUserDetails = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowUserDetails(false);
+      setIsClosing(false);
+    }, 300);
+  };
+
+  const closeTicketDetails = () => {
+    setIsTicketClosing(true);
+    setTimeout(() => {
+      setShowTicketDetails(false);
+      setIsTicketClosing(false);
+    }, 300);
+  };
+
+  const closeNotificationDetails = () => {
+    setIsNotificationClosing(true);
+    setTimeout(() => {
+      setShowNotificationDetails(false);
+      setIsNotificationClosing(false);
+    }, 300);
   };
 
   if (loading) {
@@ -301,9 +372,13 @@ export default function AdminDashboard() {
                 </div>
                 <button
                   onClick={fetchData}
-                  className="px-4 py-2 text-sm font-medium text-[#1a1a1d] bg-white border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-[#c9a227] transition-all"
+                  disabled={refreshing}
+                  className="px-4 py-2 text-sm font-medium text-[#1a1a1d] bg-white border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-[#c9a227] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Refresh Data
+                  <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  {refreshing ? 'Refreshing...' : 'Refresh Data'}
                 </button>
               </div>
 
@@ -317,16 +392,28 @@ export default function AdminDashboard() {
                     </div>
                     <div className="h-12 w-px bg-gray-200"></div>
                     <div className="flex gap-3">
-                      <div className="px-3 py-1.5 bg-amber-50 border border-[#f0d78c] rounded-lg">
+                      <button
+                        onClick={() => {
+                          setUserRoleFilter('admin');
+                          setActiveTab('users');
+                        }}
+                        className="px-3 py-1.5 bg-amber-50 border border-[#f0d78c] rounded-lg hover:bg-amber-100 transition-all cursor-pointer"
+                      >
                         <span className="text-xs font-medium text-[#1a1a1d]">{users.filter(u => u.role === 'admin').length} Admins</span>
-                      </div>
-                      <div className="px-3 py-1.5 bg-amber-50 border border-[#f0d78c] rounded-lg">
+                      </button>
+                      <button
+                        onClick={() => {
+                          setUserRoleFilter('user');
+                          setActiveTab('users');
+                        }}
+                        className="px-3 py-1.5 bg-amber-50 border border-[#f0d78c] rounded-lg hover:bg-amber-100 transition-all cursor-pointer"
+                      >
                         <span className="text-xs font-medium text-[#1a1a1d]">{users.filter(u => u.role === 'user').length} Users</span>
-                      </div>
+                      </button>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-gray-600">All Systems Operational</span>
                   </div>
                 </div>
@@ -338,30 +425,34 @@ export default function AdminDashboard() {
                 <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-sm font-semibold text-[#1a1a1d]">Recent Notifications</h2>
-                    <span className="px-2 py-0.5 text-xs font-medium text-[#c9a227] bg-amber-50 border border-[#f0d78c] rounded">3 New</span>
+                    <span className="px-2 py-0.5 text-xs font-medium text-[#c9a227] bg-amber-50 border border-[#f0d78c] rounded">
+                      {notifications.filter(n => !n.is_read).length} New
+                    </span>
                   </div>
                   <div className="flex-1 overflow-auto space-y-3">
-                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-[#1a1a1d]">New User Registration</p>
-                        <span className="text-xs text-gray-500 whitespace-nowrap">5m ago</span>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-1">newuser@example.com</p>
-                    </div>
-                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-[#1a1a1d]">Large Trade Alert</p>
-                        <span className="text-xs text-gray-500 whitespace-nowrap">12m ago</span>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-1">5.00 lots XAUUSD</p>
-                    </div>
-                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-[#1a1a1d]">System Update</p>
-                        <span className="text-xs text-gray-500 whitespace-nowrap">1h ago</span>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-1">Security patch applied</p>
-                    </div>
+                    {notifications.length === 0 ? (
+                      <p className="text-sm text-gray-500 text-center py-8">No notifications</p>
+                    ) : (
+                      notifications.slice(0, 3).map((notif) => (
+                        <div 
+                          key={notif.id}
+                          onClick={() => {
+                            setSelectedNotification(notif);
+                            setIsNotificationClosing(true);
+                            setShowNotificationDetails(true);
+                          }}
+                          className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-medium text-[#1a1a1d]">{notif.title}</p>
+                            <span className="text-xs text-gray-500 whitespace-nowrap">
+                              {new Date(notif.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1 line-clamp-1">{notif.message}</p>
+                        </div>
+                      ))
+                    )}
                   </div>
                   <button 
                     onClick={() => setActiveTab('notifications')}
@@ -375,29 +466,41 @@ export default function AdminDashboard() {
                 <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-sm font-semibold text-[#1a1a1d]">Support Tickets</h2>
-                    <span className="px-2 py-0.5 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded">2 Open</span>
+                    <span className="px-2 py-0.5 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded">
+                      {tickets.length} Open
+                    </span>
                   </div>
                   <div className="flex-1 overflow-auto space-y-3">
-                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-[#1a1a1d] text-xs font-semibold shadow-sm">JD</div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#1a1a1d] truncate">John Doe</p>
-                          <p className="text-xs text-gray-500">Ticket #1024</p>
+                    {tickets.length === 0 ? (
+                      <p className="text-sm text-gray-500 text-center py-8">No open tickets</p>
+                    ) : (
+                      tickets.slice(0, 2).map((ticket) => (
+                        <div 
+                          key={ticket.id}
+                          onClick={() => {
+                            setSelectedTicket(ticket);
+                            setIsTicketClosing(true);
+                            setShowTicketDetails(true);
+                          }}
+                          className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-[#1a1a1d] text-xs font-semibold shadow-sm">
+                              {ticket.first_name?.[0] || ticket.user_email?.[0]?.toUpperCase() || 'U'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-[#1a1a1d] truncate">
+                                {ticket.first_name && ticket.last_name 
+                                  ? `${ticket.first_name} ${ticket.last_name}` 
+                                  : ticket.user_email}
+                              </p>
+                              <p className="text-xs text-gray-500">{ticket.ticket_number}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 line-clamp-1">{ticket.subject}</p>
                         </div>
-                      </div>
-                      <p className="text-xs text-gray-600">Cannot complete trade transaction</p>
-                    </div>
-                    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-semibold shadow-sm">SA</div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#1a1a1d] truncate">Sarah Anderson</p>
-                          <p className="text-xs text-gray-500">Ticket #1023</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-600">Account verification question</p>
-                    </div>
+                      ))
+                    )}
                   </div>
                   <button 
                     onClick={() => setActiveTab('support')}
@@ -411,42 +514,40 @@ export default function AdminDashboard() {
                 <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
                   <h2 className="text-sm font-semibold text-[#1a1a1d] mb-4">Recent Activity</h2>
                   <div className="flex-1 overflow-auto space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-green-50 border border-green-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+                    {users.slice(0, 1).map(u => (
+                      <div key={`user-${u.id}`} className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-green-50 border border-green-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[#1a1a1d]">User {u.last_login ? 'Login' : 'Created'}</p>
+                          <p className="text-xs text-gray-600 truncate mt-0.5">{u.email}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(u.last_login || u.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#1a1a1d]">User Created</p>
-                        <p className="text-xs text-gray-600 truncate mt-0.5">newuser@example.com</p>
-                        <p className="text-xs text-gray-500 mt-1">2 minutes ago</p>
+                    ))}
+                    {trades.slice(0, 2).map(trade => (
+                      <div key={`trade-${trade.id}`} className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-amber-50 border border-[#f0d78c] rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[#1a1a1d]">{trade.type} Trade</p>
+                          <p className="text-xs text-gray-600 truncate mt-0.5">
+                            {trade.symbol} · {parseFloat(trade.amount).toFixed(2)} lots
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(trade.opened_at || trade.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-amber-50 border border-[#f0d78c] rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg className="w-4 h-4 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#1a1a1d]">Large Trade</p>
-                        <p className="text-xs text-gray-600 truncate mt-0.5">XAUUSD · 5.00 lots</p>
-                        <p className="text-xs text-gray-500 mt-1">15 minutes ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-purple-50 border border-purple-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                        </svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#1a1a1d]">Admin Login</p>
-                        <p className="text-xs text-gray-600 truncate mt-0.5">admin@au.com</p>
-                        <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                   <button 
                     onClick={() => setActiveTab('audit')}
@@ -577,15 +678,51 @@ export default function AdminDashboard() {
                   <h2 className="text-2xl font-bold text-[#1a1a1d] mb-2">User Management</h2>
                   <p className="text-gray-600 text-sm">Manage system users and permissions</p>
                 </div>
-                <button
-                  onClick={() => setShowAddUser(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all duration-300 shadow-md shadow-[#c9a227]/30 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 text-sm"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Add New User
-                </button>
+                <div className="flex items-center gap-3">
+                  {/* Filter Buttons */}
+                  <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                    <button
+                      onClick={() => setUserRoleFilter('all')}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                        userRoleFilter === 'all'
+                          ? 'bg-white text-[#1a1a1d] shadow-sm'
+                          : 'text-gray-600 hover:text-[#1a1a1d]'
+                      }`}
+                    >
+                      All ({users.length})
+                    </button>
+                    <button
+                      onClick={() => setUserRoleFilter('admin')}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                        userRoleFilter === 'admin'
+                          ? 'bg-white text-[#1a1a1d] shadow-sm'
+                          : 'text-gray-600 hover:text-[#1a1a1d]'
+                      }`}
+                    >
+                      Admins ({users.filter(u => u.role === 'admin').length})
+                    </button>
+                    <button
+                      onClick={() => setUserRoleFilter('user')}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                        userRoleFilter === 'user'
+                          ? 'bg-white text-[#1a1a1d] shadow-sm'
+                          : 'text-gray-600 hover:text-[#1a1a1d]'
+                      }`}
+                    >
+                      Users ({users.filter(u => u.role === 'user').length})
+                    </button>
+                  </div>
+                  
+                  <button
+                    onClick={() => setShowAddUser(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all duration-300 shadow-md shadow-[#c9a227]/30 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 text-sm"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add New User
+                  </button>
+                </div>
               </div>
 
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -602,11 +739,21 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {users.map((u) => (
-                        <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                      {users
+                        .filter(u => userRoleFilter === 'all' || u.role === userRoleFilter)
+                        .map((u) => (
+                        <tr 
+                          key={u.id} 
+                          onClick={() => {
+                            setSelectedUser(u);
+                            setIsClosing(true);
+                            setShowUserDetails(true);
+                          }}
+                          className="hover:bg-amber-50 transition-colors cursor-pointer"
+                        >
                           <td className="py-3 px-4 text-gray-600 font-medium text-sm">#{u.id}</td>
                           <td className="py-3 px-4 text-[#1a1a1d] font-semibold text-sm">{u.email}</td>
-                          <td className="py-3 px-4 text-gray-700 text-sm">{u.name || '-'}</td>
+                          <td className="py-3 px-4 text-gray-700 text-sm">{u.name || u.first_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : '-'}</td>
                           <td className="py-3 px-4">
                             <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${
                               u.role === 'admin' 
@@ -621,7 +768,10 @@ export default function AdminDashboard() {
                           </td>
                           <td className="py-3 px-4">
                             <button
-                              onClick={() => handleDeleteUser(u.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteUser(u.id);
+                              }}
                               className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-all duration-300"
                             >
                               Delete
@@ -1122,6 +1272,484 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* User Details Slide-out Panel */}
+      {showUserDetails && selectedUser && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+            style={{ opacity: isClosing ? 0 : 1 }}
+            onClick={closeUserDetails}
+          />
+          
+          {/* Panel */}
+          <div 
+            className="relative bg-white w-full max-w-2xl h-full overflow-y-auto shadow-2xl transition-transform duration-300 ease-out translate-x-full"
+            style={{ transform: isClosing ? 'translateX(100%)' : 'translateX(0)' }}
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] px-6 py-5 flex items-center justify-between border-b border-gray-200">
+              <div>
+                <h2 className="text-xl font-bold text-[#1a1a1d]">User Profile</h2>
+                <p className="text-sm text-[#1a1a1d]/70">{selectedUser.email}</p>
+              </div>
+              <button
+                onClick={closeUserDetails}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Account Status */}
+              <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white font-bold text-lg">
+                      {selectedUser.first_name?.[0] || selectedUser.email[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[#1a1a1d]">
+                        {selectedUser.first_name || selectedUser.last_name 
+                          ? `${selectedUser.first_name || ''} ${selectedUser.last_name || ''}`.trim()
+                          : 'No Name Set'}
+                      </h3>
+                      <p className="text-sm text-gray-600">{selectedUser.role === 'admin' ? 'Administrator' : 'User Account'}</p>
+                    </div>
+                  </div>
+                  <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                    selectedUser.status === 'active' 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-red-100 text-red-700'
+                  }`}>
+                    {selectedUser.status || 'Active'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Account Information */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Account Information
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Account Number</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.account_number || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Account Type</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d] capitalize">{selectedUser.account_type || 'Standard'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Balance</p>
+                    <p className="text-sm font-bold text-green-600">
+                      ${parseFloat(selectedUser.account_balance || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Currency</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.account_currency || 'USD'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Personal Information */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Personal Information
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <p className="text-xs text-gray-500 mb-1">Email</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Phone</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.phone || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Country</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.country || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">City</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.city || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Postal Code</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.postal_code || 'Not provided'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* KYC Status */}
+              {selectedUser.role !== 'admin' && (
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    KYC Verification
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-600">Verification Status</p>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        selectedUser.kyc_status === 'verified' 
+                          ? 'bg-green-100 text-green-700'
+                          : selectedUser.kyc_status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {selectedUser.kyc_status || 'Pending'}
+                      </span>
+                    </div>
+                    {selectedUser.id_document_type && (
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-600">Document Type</p>
+                        <p className="text-sm font-semibold text-[#1a1a1d] capitalize">{selectedUser.id_document_type}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Account Dates */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Account Timeline
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-600">Created</p>
+                    <p className="text-sm font-semibold text-[#1a1a1d]">
+                      {new Date(selectedUser.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  </div>
+                  {selectedUser.last_login && (
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-600">Last Login</p>
+                      <p className="text-sm font-semibold text-[#1a1a1d]">
+                        {new Date(selectedUser.last_login).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    // TODO: Implement edit functionality
+                    modal.alert('Edit functionality coming soon!', 'Feature');
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all shadow-md"
+                >
+                  Edit Profile
+                </button>
+                <button
+                  onClick={async () => {
+                    const confirmed = await modal.confirm(
+                      'This will permanently delete the user and all associated data.',
+                      'Delete User?'
+                    );
+                    if (confirmed) {
+                      closeUserDetails();
+                      setTimeout(() => handleDeleteUser(selectedUser.id), 300);
+                    }
+                  }}
+                  className="px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-lg transition-all"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Ticket Details Slide-out Panel */}
+      {showTicketDetails && selectedTicket && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+            style={{ opacity: isTicketClosing ? 0 : 1 }}
+            onClick={closeTicketDetails}
+          />
+          
+          {/* Panel */}
+          <div 
+            className="relative bg-white w-full max-w-2xl h-full overflow-y-auto shadow-2xl transition-transform duration-300 ease-out translate-x-full"
+            style={{ transform: isTicketClosing ? 'translateX(100%)' : 'translateX(0)' }}
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] px-6 py-5 flex items-center justify-between border-b border-gray-200">
+              <div>
+                <h2 className="text-xl font-bold text-[#1a1a1d]">Support Ticket</h2>
+                <p className="text-sm text-[#1a1a1d]/70">{selectedTicket.ticket_number}</p>
+              </div>
+              <button
+                onClick={closeTicketDetails}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* User Info */}
+              <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    {selectedTicket.first_name?.[0] || selectedTicket.user_email?.[0]?.toUpperCase() || 'U'}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-[#1a1a1d]">
+                      {selectedTicket.first_name && selectedTicket.last_name 
+                        ? `${selectedTicket.first_name} ${selectedTicket.last_name}` 
+                        : selectedTicket.user_email || 'Unknown User'}
+                    </h3>
+                    <p className="text-sm text-gray-600">{selectedTicket.user_email}</p>
+                  </div>
+                  <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                    selectedTicket.priority === 'high' 
+                      ? 'bg-red-100 text-red-700'
+                      : selectedTicket.priority === 'normal'
+                      ? 'bg-yellow-100 text-yellow-700'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    {selectedTicket.priority || 'Normal'} Priority
+                  </span>
+                </div>
+              </div>
+
+              {/* Ticket Details */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Ticket Information
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Subject</p>
+                    <p className="text-base font-semibold text-[#1a1a1d]">{selectedTicket.subject}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Message</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">{selectedTicket.message || 'No message provided.'}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Status</p>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                        selectedTicket.status === 'open' 
+                          ? 'bg-orange-100 text-orange-700'
+                          : selectedTicket.status === 'resolved'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {selectedTicket.status || 'Open'}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Created</p>
+                      <p className="text-sm font-semibold text-[#1a1a1d]">
+                        {new Date(selectedTicket.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                  {selectedTicket.resolved_at && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Resolved At</p>
+                      <p className="text-sm font-semibold text-green-700">
+                        {new Date(selectedTicket.resolved_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={async () => {
+                    await modal.alert('Reply functionality coming soon!', 'Feature');
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all shadow-md"
+                >
+                  Reply to Ticket
+                </button>
+                {selectedTicket.status === 'open' && (
+                  <button
+                    onClick={async () => {
+                      await modal.alert('Mark as resolved functionality coming soon!', 'Feature');
+                    }}
+                    className="px-4 py-3 bg-green-100 hover:bg-green-200 text-green-700 font-semibold rounded-lg transition-all"
+                  >
+                    Mark Resolved
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification Details Slide-out Panel */}
+      {showNotificationDetails && selectedNotification && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+            style={{ opacity: isNotificationClosing ? 0 : 1 }}
+            onClick={closeNotificationDetails}
+          />
+          
+          {/* Panel */}
+          <div 
+            className="relative bg-white w-full max-w-2xl h-full overflow-y-auto shadow-2xl transition-transform duration-300 ease-out translate-x-full"
+            style={{ transform: isNotificationClosing ? 'translateX(100%)' : 'translateX(0)' }}
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] px-6 py-5 flex items-center justify-between border-b border-gray-200">
+              <div>
+                <h2 className="text-xl font-bold text-[#1a1a1d]">Notification</h2>
+                <p className="text-sm text-[#1a1a1d]/70">
+                  {new Date(selectedNotification.created_at).toLocaleString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+              <button
+                onClick={closeNotificationDetails}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Notification Type Badge */}
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  selectedNotification.type === 'trade' 
+                    ? 'bg-amber-50 border-2 border-[#f0d78c]'
+                    : selectedNotification.type === 'account'
+                    ? 'bg-green-50 border-2 border-green-200'
+                    : selectedNotification.type === 'system'
+                    ? 'bg-blue-50 border-2 border-blue-200'
+                    : 'bg-purple-50 border-2 border-purple-200'
+                }`}>
+                  <svg className={`w-6 h-6 ${
+                    selectedNotification.type === 'trade' 
+                      ? 'text-[#c9a227]'
+                      : selectedNotification.type === 'account'
+                      ? 'text-green-600'
+                      : selectedNotification.type === 'system'
+                      ? 'text-blue-600'
+                      : 'text-purple-600'
+                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {selectedNotification.type === 'trade' && (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    )}
+                    {selectedNotification.type === 'account' && (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    )}
+                    {selectedNotification.type === 'system' && (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    )}
+                    {selectedNotification.type === 'promotion' && (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    )}
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-2 ${
+                    selectedNotification.type === 'trade' 
+                      ? 'bg-amber-100 text-[#c9a227]'
+                      : selectedNotification.type === 'account'
+                      ? 'bg-green-100 text-green-700'
+                      : selectedNotification.type === 'system'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-purple-100 text-purple-700'
+                  }`}>
+                    {selectedNotification.type?.toUpperCase() || 'NOTIFICATION'}
+                  </span>
+                  <p className="text-xs text-gray-500">
+                    {selectedNotification.is_read ? 'Read' : 'Unread'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Notification Content */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 className="text-lg font-bold text-[#1a1a1d] mb-3">
+                  {selectedNotification.title}
+                </h3>
+                <p className="text-base text-gray-700 leading-relaxed">
+                  {selectedNotification.message}
+                </p>
+              </div>
+
+              {/* User Info (if available) */}
+              {selectedNotification.user_email && (
+                <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Related User</h4>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white font-bold">
+                      {selectedNotification.first_name?.[0] || selectedNotification.user_email?.[0]?.toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#1a1a1d]">
+                        {selectedNotification.first_name && selectedNotification.last_name 
+                          ? `${selectedNotification.first_name} ${selectedNotification.last_name}` 
+                          : selectedNotification.user_email}
+                      </p>
+                      <p className="text-xs text-gray-500">{selectedNotification.user_email}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Button */}
+              <div className="pt-4 border-t border-gray-200">
+                <button
+                  onClick={closeNotificationDetails}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all shadow-md"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
