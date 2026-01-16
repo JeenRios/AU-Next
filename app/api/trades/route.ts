@@ -6,9 +6,19 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const result = await query(
-      'SELECT * FROM trades ORDER BY created_at DESC LIMIT 100'
-    );
+    const result = await query(`
+      SELECT 
+        t.*,
+        u.email as user_email,
+        p.first_name,
+        p.last_name,
+        p.account_number
+      FROM trades t
+      LEFT JOIN users u ON t.user_id = u.id
+      LEFT JOIN user_profiles p ON u.id = p.user_id
+      ORDER BY t.opened_at DESC 
+      LIMIT 100
+    `);
 
     return NextResponse.json({
       success: true,
@@ -27,10 +37,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { symbol, type, amount, price, status = 'PENDING' } = body;
+    const { user_id, symbol, type, amount, price, open_price, status = 'open' } = body;
 
     // Validation
-    if (!symbol || !type || !amount || !price) {
+    if (!user_id || !symbol || !type || !amount) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -44,9 +54,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const tradeNumber = `T${Date.now()}`;
+    const actualPrice = price || open_price;
+
     const result = await query(
-      'INSERT INTO trades (symbol, type, amount, price, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [symbol, type, amount, price, status]
+      'INSERT INTO trades (user_id, trade_number, symbol, type, amount, price, open_price, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [user_id, tradeNumber, symbol, type, amount, actualPrice, actualPrice, status]
     );
 
     // Invalidate stats cache

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useModal } from '@/components/ModalProvider';
 
 interface User {
   id: number;
@@ -23,6 +24,7 @@ interface Trade {
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const modal = useModal();
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -93,18 +95,23 @@ export default function AdminDashboard() {
         setShowAddUser(false);
         setNewUser({ email: '', password: '', role: 'user', name: '' });
         fetchData();
-        alert('User created successfully!');
+        await modal.alert('User created successfully!', 'Success');
       } else {
-        alert(data.error || 'Failed to create user');
+        await modal.alert(data.error || 'Failed to create user', 'Error');
       }
     } catch (error) {
       console.error('Error adding user:', error);
-      alert('Error creating user');
+      await modal.alert('Error creating user', 'Error');
     }
   };
 
   const handleDeleteUser = async (userId: number) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    const confirmed = await modal.confirm(
+      'This action cannot be undone. The user and all associated data will be permanently deleted.',
+      'Delete User?'
+    );
+    
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/users?id=${userId}`, {
@@ -113,13 +120,13 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         fetchData();
-        alert('User deleted successfully!');
+        await modal.alert('User deleted successfully!', 'Success');
       } else {
-        alert('Failed to delete user');
+        await modal.alert('Failed to delete user', 'Error');
       }
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Error deleting user');
+      await modal.alert('Error deleting user', 'Error');
     }
   };
 

@@ -3,12 +3,31 @@ import { query } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-// GET all users
+// GET all users with their profiles
 export async function GET() {
   try {
-    const result = await query(
-      'SELECT id, email, role, name, created_at FROM users ORDER BY created_at DESC'
-    );
+    const result = await query(`
+      SELECT 
+        u.id, 
+        u.email, 
+        u.role, 
+        u.status,
+        u.email_verified,
+        u.last_login,
+        u.created_at,
+        p.first_name,
+        p.last_name,
+        p.phone,
+        p.country,
+        p.account_number,
+        p.account_type,
+        p.account_balance,
+        p.account_currency,
+        p.kyc_status
+      FROM users u
+      LEFT JOIN user_profiles p ON u.id = p.user_id
+      ORDER BY u.created_at DESC
+    `);
 
     return NextResponse.json({
       success: true,
@@ -24,11 +43,11 @@ export async function GET() {
   }
 }
 
-// POST create new user
+// POST create new user with profile
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, role = 'user', name } = body;
+    const { email, password, role = 'user', first_name, last_name, phone, country } = body;
 
     // Validation
     if (!email || !password) {
@@ -59,15 +78,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert new user
-    const result = await query(
-      'INSERT INTO users (email, password, role, name) VALUES ($1, $2, $3, $4) RETURNING id, email, role, name, created_at',
-      [email, password, role, name]
+    const userResult = await query(
+      'INSERT INTO users (email, password, role, status, email_verified) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, role, created_at',
+      [email, password, role, 'active', true]
     );
+
+    const userId = userResult.rows[0].id;
+
+    // Create user profile if role is user
+    if (role === 'user' && (first_name || last_name)) {
+      const accountNumber = `AU${String(userId).padStart(8, '0')}`;
+      await query(
+        'INSERT INTO user_profiles (user_id, first_name, last_name, phone, country, account_number) VALUES ($1, $2, $3, $4, $5, $6)',
+        [userId, first_name, last_name, phone, country, accountNumber]
+      );
+    }
 
     return NextResponse.json(
       {
         success: true,
-        data: result.rows[0],
+        data: userResult.rows[0],
         message: 'User created successfully',
       },
       { status: 201 }

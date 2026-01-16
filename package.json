@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:check": "tsx scripts/check-db.ts",
+    "db:setup": "tsx scripts/setup-db.ts",
+    "db:seed": "tsx scripts/seed-db.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -27,6 +30,7 @@
     "eslint-config-next": "14.2.3",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
+    "tsx": "^4.7.1",
     "typescript": "^5.4.5"
   }
 }
