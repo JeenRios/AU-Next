@@ -207,127 +207,253 @@ export default function UserDashboard() {
           </button>
         </div>
 
-        {/* Overview Tab */}
+        {/* Overview Tab - Social Media Style Feed */}
         {activeTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Stats Bar */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-3 bg-gradient-to-br from-[#c9a227]/20 to-[#f0d78c]/20 rounded-lg">
-                    <svg className="w-6 h-6 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
+          <div className="grid grid-cols-12 gap-6">
+            {/* Left Column - Main Feed */}
+            <div className="col-span-12 lg:col-span-8 space-y-4">
+              {/* Create Post Card */}
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
                   </div>
+                  <input
+                    type="text"
+                    placeholder="Share your trading insights..."
+                    className="flex-1 px-4 py-3 bg-gray-100 rounded-full text-[#1a1a1d] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#c9a227]"
+                  />
                 </div>
-                <p className="text-sm text-gray-600 mb-1">Total Trades</p>
-                <p className="text-3xl font-bold text-[#1a1a1d]">{stats?.total_trades || 0}</p>
-              </div>
-
-              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-3 bg-gradient-to-br from-green-500/20 to-green-400/20 rounded-lg">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                    </svg>
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <div className="flex gap-2">
+                    <button className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      Photo
+                    </button>
+                    <button className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Feeling
+                    </button>
                   </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-1">Buy Orders</p>
-                <p className="text-3xl font-bold text-green-600">{stats?.buy_trades || 0}</p>
-              </div>
-
-              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-3 bg-gradient-to-br from-red-500/20 to-red-400/20 rounded-lg">
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-1">Sell Orders</p>
-                <p className="text-3xl font-bold text-red-600">{stats?.sell_trades || 0}</p>
-              </div>
-
-              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-3 bg-gradient-to-br from-[#c9a227]/20 to-[#f0d78c]/20 rounded-lg">
-                    <svg className="w-6 h-6 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-1">Average Amount</p>
-                <p className="text-3xl font-bold text-[#c9a227]">${stats?.avg_amount || '0.00'}</p>
-              </div>
-            </div>
-
-            {/* Cards Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Recent Trades Card */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="p-6 border-b border-gray-200">
-                  <h3 className="text-xl font-bold text-[#1a1a1d]">Recent Trades</h3>
-                </div>
-                <div className="p-6">
-                  <div className="space-y-3">
-                    {trades.slice(0, 5).map((trade) => (
-                      <div key={trade.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-amber-50 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            trade.type === 'BUY' ? 'bg-green-500/20' : 'bg-red-500/20'
-                          }`}>
-                            <svg className={`w-5 h-5 ${trade.type === 'BUY' ? 'text-green-600' : 'text-red-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={trade.type === 'BUY' ? "M5 10l7-7m0 0l7 7m-7-7v18" : "M19 14l-7 7m0 0l-7-7m7 7V3"} />
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-[#1a1a1d]">{trade.symbol}</p>
-                            <p className="text-sm text-gray-600">{trade.type}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-[#1a1a1d]">${parseFloat(trade.amount).toFixed(2)}</p>
-                          <p className="text-sm text-gray-600">${parseFloat(trade.price).toFixed(4)}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => setActiveTab('trades')}
-                    className="mt-4 w-full py-2 text-[#c9a227] hover:text-[#f0d78c] font-semibold transition-colors"
-                  >
-                    View All Trades →
+                  <button className="px-6 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-lg transition-all text-sm">
+                    Post
                   </button>
                 </div>
               </div>
 
-              {/* Notifications Card */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="p-6 border-b border-gray-200">
-                  <h3 className="text-xl font-bold text-[#1a1a1d]">Notifications</h3>
-                </div>
-                <div className="p-6">
-                  <div className="space-y-3">
-                    {notifications.slice(0, 5).map((notif) => (
-                      <div key={notif.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-amber-50 transition-colors">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          notif.type === 'success' ? 'bg-green-500/20' : 
-                          notif.type === 'warning' ? 'bg-yellow-500/20' : 'bg-blue-500/20'
-                        }`}>
-                          <svg className={`w-5 h-5 ${
-                            notif.type === 'success' ? 'text-green-600' : 
-                            notif.type === 'warning' ? 'text-yellow-600' : 'text-blue-600'
-                          }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-[#1a1a1d] text-sm">{notif.title}</p>
-                          <p className="text-xs text-gray-600">{notif.message}</p>
+              {/* Activity Feed */}
+              <div className="space-y-4">
+                {/* Recent Trade Posts */}
+                {trades.slice(0, 5).map((trade, index) => (
+                  <div key={trade.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    {/* Post Header */}
+                    <div className="p-4 flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white font-bold shadow-md">
+                        {user?.name?.charAt(0) || 'U'}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-[#1a1a1d]">{user?.name || user?.email?.split('@')[0]}</div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(trade.created_at).toLocaleDateString()} • {new Date(trade.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                         </div>
                       </div>
-                    ))}
+                      <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Post Content */}
+                    <div className="px-4 pb-3">
+                      <p className="text-[#1a1a1d] mb-3">
+                        Executed a {trade.type.toLowerCase()} order for <span className="font-semibold">{trade.symbol}</span> 
+                        {trade.type === 'BUY' ? ' 📈' : ' 📉'}
+                      </p>
+                      
+                      {/* Trade Card */}
+                      <div className={`p-4 rounded-xl border-2 ${
+                        trade.type === 'BUY' 
+                          ? 'bg-green-50 border-green-200' 
+                          : 'bg-red-50 border-red-200'
+                      }`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                              trade.type === 'BUY' ? 'bg-green-500' : 'bg-red-500'
+                            }`}>
+                              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={trade.type === 'BUY' ? "M5 10l7-7m0 0l7 7m-7-7v18" : "M19 14l-7 7m0 0l-7-7m7 7V3"} />
+                              </svg>
+                            </div>
+                            <div>
+                              <div className="font-bold text-lg text-[#1a1a1d]">{trade.symbol}</div>
+                              <div className={`text-xs font-semibold ${trade.type === 'BUY' ? 'text-green-600' : 'text-red-600'}`}>
+                                {trade.type} ORDER
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-[#1a1a1d]">${parseFloat(trade.amount).toFixed(2)}</div>
+                            <div className="text-xs text-gray-600">@ ${parseFloat(trade.price).toFixed(4)}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-300/50">
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            trade.status === 'COMPLETED' 
+                              ? 'bg-[#c9a227] text-white' 
+                              : 'bg-yellow-500 text-white'
+                          }`}>
+                            {trade.status}
+                          </span>
+                          <span className="text-xs text-gray-600">Trade #{trade.id}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Post Actions */}
+                    <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-around">
+                      <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                        </svg>
+                        <span className="text-sm font-medium">Like</span>
+                      </button>
+                      <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        <span className="text-sm font-medium">Comment</span>
+                      </button>
+                      <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        <span className="text-sm font-medium">Share</span>
+                      </button>
+                    </div>
                   </div>
+                ))}
+
+                {/* Notification Posts */}
+                {notifications.slice(0, 3).map((notif) => (
+                  <div key={notif.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-4">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        notif.type === 'success' ? 'bg-green-500' : 
+                        notif.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+                      }`}>
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-[#1a1a1d] mb-1">{notif.title}</div>
+                        <p className="text-sm text-gray-600">{notif.message}</p>
+                        <div className="text-xs text-gray-400 mt-2">
+                          {new Date(notif.created_at).toLocaleDateString()} • {new Date(notif.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column - Stats & Info */}
+            <div className="col-span-12 lg:col-span-4 space-y-4">
+              {/* Quick Stats Card */}
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sticky top-4">
+                <h3 className="font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Your Stats
+                </h3>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-[#c9a227]/10 to-[#f0d78c]/10 rounded-xl">
+                    <div>
+                      <div className="text-xs text-gray-600 mb-1">Total Trades</div>
+                      <div className="text-2xl font-bold text-[#1a1a1d]">{stats?.total_trades || 0}</div>
+                    </div>
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
+                    <div>
+                      <div className="text-xs text-gray-600 mb-1">Buy Orders</div>
+                      <div className="text-2xl font-bold text-green-600">{stats?.buy_trades || 0}</div>
+                    </div>
+                    <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-xl">
+                    <div>
+                      <div className="text-xs text-gray-600 mb-1">Sell Orders</div>
+                      <div className="text-2xl font-bold text-red-600">{stats?.sell_trades || 0}</div>
+                    </div>
+                    <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl">
+                    <div>
+                      <div className="text-xs text-gray-600 mb-1">Avg Amount</div>
+                      <div className="text-2xl font-bold text-[#c9a227]">${stats?.avg_amount || '0.00'}</div>
+                    </div>
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setActiveTab('trades')}
+                  className="w-full mt-4 py-2.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all text-sm"
+                >
+                  View All Activity
+                </button>
+              </div>
+
+              {/* Trending Card */}
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+                <h3 className="font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                  Trending Symbols
+                </h3>
+                
+                <div className="space-y-2">
+                  {['XAUUSD', 'GBPUSD', 'EURUSD', 'BTCUSD', 'USDJPY'].map((symbol, idx) => (
+                    <div key={symbol} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 font-mono">#{idx + 1}</span>
+                        <span className="font-semibold text-[#1a1a1d] text-sm">{symbol}</span>
+                      </div>
+                      <span className={`text-xs font-semibold ${idx % 2 === 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {idx % 2 === 0 ? '+' : '-'}{(Math.random() * 5).toFixed(2)}%
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
