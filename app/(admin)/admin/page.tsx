@@ -770,7 +770,7 @@ export default function AdminDashboard() {
                     <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold">Open</span>
                   </div>
                   <h3 className="text-sm font-bold text-[#1a1a1d] mb-2">Cannot complete trade transaction</h3>
-                  <p className="text-sm text-gray-600 mb-3">I'm experiencing issues when trying to place a buy order. The system shows an error message...</p>
+                  <p className="text-sm text-gray-600 mb-3">I&apos;m experiencing issues when trying to place a buy order. The system shows an error message...</p>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">2 hours ago · Ticket #1024</span>
                     <button className="px-4 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all duration-300 text-xs">
