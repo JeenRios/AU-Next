@@ -154,11 +154,141 @@ export async function GET() {
       CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
     `);
 
+    // Create mt5_accounts table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS mt5_accounts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        account_number VARCHAR(50) NOT NULL,
+        server VARCHAR(100) NOT NULL,
+        platform VARCHAR(10) DEFAULT 'MT5',
+        status VARCHAR(50) DEFAULT 'pending',
+        ea_status VARCHAR(50) DEFAULT 'inactive',
+        balance DECIMAL(15, 2) DEFAULT 0.00,
+        equity DECIMAL(15, 2) DEFAULT 0.00,
+        profit DECIMAL(15, 2) DEFAULT 0.00,
+        encrypted_password TEXT,
+        approved_by INTEGER REFERENCES users(id),
+        approved_at TIMESTAMP,
+        automation_status VARCHAR(50) DEFAULT 'none',
+        automation_notes TEXT,
+        last_sync_at TIMESTAMP,
+        gain_percentage DECIMAL(10, 2) DEFAULT 0.00,
+        current_lot_size DECIMAL(10, 4) DEFAULT 0.00,
+        open_positions_count INTEGER DEFAULT 0,
+        last_trade_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(user_id, account_number)
+      );
+      CREATE INDEX IF NOT EXISTS idx_mt5_accounts_user_id ON mt5_accounts(user_id);
+      CREATE INDEX IF NOT EXISTS idx_mt5_accounts_status ON mt5_accounts(status);
+    `);
+
+    // Create vps_instances table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS vps_instances (
+        id SERIAL PRIMARY KEY,
+        mt5_account_id INTEGER REFERENCES mt5_accounts(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL,
+        ip_address VARCHAR(45),
+        ssh_port INTEGER DEFAULT 22,
+        ssh_username VARCHAR(100),
+        encrypted_ssh_password TEXT,
+        encrypted_ssh_key TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        os_type VARCHAR(50) DEFAULT 'windows',
+        mt5_path TEXT,
+        ea_path TEXT,
+        last_health_check TIMESTAMP,
+        health_status VARCHAR(50),
+        notes TEXT,
+        created_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(mt5_account_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_vps_instances_mt5_account_id ON vps_instances(mt5_account_id);
+      CREATE INDEX IF NOT EXISTS idx_vps_instances_status ON vps_instances(status);
+    `);
+
+    // Create automation_jobs table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS automation_jobs (
+        id SERIAL PRIMARY KEY,
+        mt5_account_id INTEGER REFERENCES mt5_accounts(id) ON DELETE CASCADE,
+        vps_instance_id INTEGER REFERENCES vps_instances(id) ON DELETE CASCADE,
+        job_type VARCHAR(50) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        progress INTEGER DEFAULT 0,
+        message TEXT,
+        error_message TEXT,
+        started_at TIMESTAMP,
+        completed_at TIMESTAMP,
+        created_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        retry_count INTEGER DEFAULT 0,
+        max_retries INTEGER DEFAULT 3,
+        metadata JSONB
+      );
+      CREATE INDEX IF NOT EXISTS idx_automation_jobs_mt5_account ON automation_jobs(mt5_account_id);
+      CREATE INDEX IF NOT EXISTS idx_automation_jobs_status ON automation_jobs(status);
+    `);
+
+    // Create community_posts table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS community_posts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        image_url TEXT,
+        profit_amount DECIMAL(15, 2),
+        likes_count INTEGER DEFAULT 0,
+        comments_count INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_community_posts_user_id ON community_posts(user_id);
+    `);
+
+    // Create community_post_likes table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS community_post_likes (
+        id SERIAL PRIMARY KEY,
+        post_id INTEGER REFERENCES community_posts(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(post_id, user_id)
+      );
+    `);
+
+    // Add missing columns to mt5_accounts if they don't exist
+    const mt5Columns = [
+      { name: 'encrypted_password', type: 'TEXT' },
+      { name: 'approved_by', type: 'INTEGER REFERENCES users(id)' },
+      { name: 'approved_at', type: 'TIMESTAMP' },
+      { name: 'automation_status', type: "VARCHAR(50) DEFAULT 'none'" },
+      { name: 'automation_notes', type: 'TEXT' },
+      { name: 'last_sync_at', type: 'TIMESTAMP' },
+      { name: 'gain_percentage', type: 'DECIMAL(10, 2) DEFAULT 0.00' },
+      { name: 'current_lot_size', type: 'DECIMAL(10, 4) DEFAULT 0.00' },
+      { name: 'open_positions_count', type: 'INTEGER DEFAULT 0' },
+      { name: 'last_trade_at', type: 'TIMESTAMP' },
+    ];
+
+    for (const col of mt5Columns) {
+      try {
+        await pool.query(`ALTER TABLE mt5_accounts ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
+      } catch (e) {
+        // Column might already exist, ignore error
+      }
+    }
+
     await pool.end();
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Database schema created successfully! All 7 tables are ready.' 
+    return NextResponse.json({
+      success: true,
+      message: 'Database schema created successfully! All tables are ready (users, user_profiles, trades, transactions, notifications, support_tickets, audit_logs, mt5_accounts, vps_instances, automation_jobs, community_posts, community_post_likes).'
     });
 
   } catch (error: any) {

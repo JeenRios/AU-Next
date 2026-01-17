@@ -179,11 +179,65 @@ async function setupDatabase() {
         balance DECIMAL(15, 2) DEFAULT 0.00,
         equity DECIMAL(15, 2) DEFAULT 0.00,
         profit DECIMAL(15, 2) DEFAULT 0.00,
+        encrypted_password TEXT,
         approved_by INTEGER REFERENCES users(id),
         approved_at TIMESTAMP,
+        automation_status VARCHAR(50) DEFAULT 'none',
+        automation_notes TEXT,
+        last_sync_at TIMESTAMP,
+        gain_percentage DECIMAL(10, 2) DEFAULT 0.00,
+        current_lot_size DECIMAL(10, 4) DEFAULT 0.00,
+        open_positions_count INTEGER DEFAULT 0,
+        last_trade_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(user_id, account_number)
+      );
+    `);
+
+    // VPS Instances table - for tracking VPS provisioning for MT5 accounts
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS vps_instances (
+        id SERIAL PRIMARY KEY,
+        mt5_account_id INTEGER REFERENCES mt5_accounts(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL,
+        ip_address VARCHAR(45),
+        ssh_port INTEGER DEFAULT 22,
+        ssh_username VARCHAR(100),
+        encrypted_ssh_password TEXT,
+        encrypted_ssh_key TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        os_type VARCHAR(50) DEFAULT 'windows',
+        mt5_path TEXT,
+        ea_path TEXT,
+        last_health_check TIMESTAMP,
+        health_status VARCHAR(50),
+        notes TEXT,
+        created_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(mt5_account_id)
+      );
+    `);
+
+    // Automation Jobs table - for tracking EA deployment and automation tasks
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS automation_jobs (
+        id SERIAL PRIMARY KEY,
+        mt5_account_id INTEGER REFERENCES mt5_accounts(id) ON DELETE CASCADE,
+        vps_instance_id INTEGER REFERENCES vps_instances(id) ON DELETE CASCADE,
+        job_type VARCHAR(50) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        progress INTEGER DEFAULT 0,
+        message TEXT,
+        error_message TEXT,
+        started_at TIMESTAMP,
+        completed_at TIMESTAMP,
+        created_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        retry_count INTEGER DEFAULT 0,
+        max_retries INTEGER DEFAULT 3,
+        metadata JSONB
       );
     `);
 
@@ -227,6 +281,13 @@ async function setupDatabase() {
       CREATE INDEX IF NOT EXISTS idx_support_tickets_user_id ON support_tickets(user_id);
       CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
       CREATE INDEX IF NOT EXISTS idx_mt5_accounts_user_id ON mt5_accounts(user_id);
+      CREATE INDEX IF NOT EXISTS idx_mt5_accounts_status ON mt5_accounts(status);
+      CREATE INDEX IF NOT EXISTS idx_mt5_accounts_automation_status ON mt5_accounts(automation_status);
+      CREATE INDEX IF NOT EXISTS idx_vps_instances_mt5_account_id ON vps_instances(mt5_account_id);
+      CREATE INDEX IF NOT EXISTS idx_vps_instances_status ON vps_instances(status);
+      CREATE INDEX IF NOT EXISTS idx_automation_jobs_mt5_account ON automation_jobs(mt5_account_id);
+      CREATE INDEX IF NOT EXISTS idx_automation_jobs_status ON automation_jobs(status);
+      CREATE INDEX IF NOT EXISTS idx_automation_jobs_vps_instance ON automation_jobs(vps_instance_id);
       CREATE INDEX IF NOT EXISTS idx_community_posts_user_id ON community_posts(user_id);
       CREATE INDEX IF NOT EXISTS idx_community_posts_created_at ON community_posts(created_at DESC);
     `);
@@ -242,7 +303,9 @@ async function setupDatabase() {
     console.log('  ✓ notifications - User notifications');
     console.log('  ✓ support_tickets - Customer support');
     console.log('  ✓ audit_logs - System activity tracking');
-    console.log('  ✓ mt5_accounts - MT5/MT4 trading account connections');
+    console.log('  ✓ mt5_accounts - MT5/MT4 trading account connections (with automation fields)');
+    console.log('  ✓ vps_instances - VPS tracking for automated trading');
+    console.log('  ✓ automation_jobs - EA deployment & automation job tracking');
     console.log('  ✓ community_posts - Community feed posts');
     console.log('  ✓ community_post_likes - Post likes tracking');
     console.log('');

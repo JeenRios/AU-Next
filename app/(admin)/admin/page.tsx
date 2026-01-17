@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useModal } from '@/components/ModalProvider';
+import MT5Trading from '@/components/admin/MT5Trading';
+import VPSManagement from '@/components/admin/VPSManagement';
+import AutomationJobs from '@/components/admin/AutomationJobs';
 
 interface User {
   id: number;
@@ -38,7 +41,8 @@ export default function AdminDashboard() {
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'trades' | 'users' | 'settings' | 'support' | 'audit' | 'notifications'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'trades' | 'users' | 'settings' | 'support' | 'audit' | 'notifications' | 'mt5'>('overview');
+  const [mt5SubTab, setMt5SubTab] = useState<'accounts' | 'vps' | 'jobs'>('accounts');
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [showAddUser, setShowAddUser] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -181,7 +185,12 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
     localStorage.removeItem('user');
     router.push('/');
   };
@@ -344,6 +353,21 @@ export default function AdminDashboard() {
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold">3</span>
             </div>
             <span>Notifications</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('mt5')}
+            className={`w-full text-left px-4 py-3.5 rounded-xl transition-all duration-300 flex items-center gap-3 group ${
+              activeTab === 'mt5'
+                ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] font-semibold shadow-lg shadow-[#c9a227]/30'
+                : 'text-gray-600 hover:bg-amber-50 hover:text-[#1a1a1d]'
+            }`}
+          >
+            <div className={`p-2 rounded-lg ${activeTab === 'mt5' ? 'bg-white/20' : 'bg-white group-hover:bg-amber-100/50'}`}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <span>MT5 Trading</span>
           </button>
         </nav>
 
@@ -1202,6 +1226,67 @@ export default function AdminDashboard() {
                   <p className="text-sm text-gray-600">Automated database backup completed successfully</p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* MT5 Trading Tab */}
+          {activeTab === 'mt5' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-[#1a1a1d] mb-2">MT5 Trading & Automation</h2>
+                  <p className="text-gray-600 text-sm">Connect and manage MT5 trading accounts, VPS instances, and automation jobs</p>
+                </div>
+              </div>
+
+              {/* MT5 Sub-tabs */}
+              <div className="flex gap-2 border-b border-gray-200 pb-4">
+                <button
+                  onClick={() => setMt5SubTab('accounts')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    mt5SubTab === 'accounts'
+                      ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] shadow-md'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  MT5 Accounts
+                </button>
+                <button
+                  onClick={() => setMt5SubTab('vps')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    mt5SubTab === 'vps'
+                      ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] shadow-md'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  VPS Management
+                </button>
+                <button
+                  onClick={() => setMt5SubTab('jobs')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    mt5SubTab === 'jobs'
+                      ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] shadow-md'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Automation Jobs
+                </button>
+              </div>
+
+              {/* Sub-tab Content */}
+              {mt5SubTab === 'accounts' && <MT5Trading />}
+              {mt5SubTab === 'vps' && (
+                <VPSManagement
+                  onError={(msg) => modal.alert(msg, 'Error')}
+                  onSuccess={(msg) => modal.alert(msg, 'Success')}
+                />
+              )}
+              {mt5SubTab === 'jobs' && (
+                <AutomationJobs
+                  onError={(msg) => modal.alert(msg, 'Error')}
+                  onSuccess={(msg) => modal.alert(msg, 'Success')}
+                />
+              )}
             </div>
           )}
         </div>

@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { requireAdmin, hashPassword } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET all users with their profiles
+// GET all users with their profiles (Admin only)
 export async function GET() {
   try {
+    // Require admin role
+    await requireAdmin();
+
     const result = await query(`
-      SELECT 
-        u.id, 
-        u.email, 
-        u.role, 
+      SELECT
+        u.id,
+        u.email,
+        u.role,
         u.status,
         u.email_verified,
         u.last_login,
@@ -35,6 +39,12 @@ export async function GET() {
       count: result.rowCount,
     });
   } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 });
+    }
     console.error('Error fetching users:', error);
     return NextResponse.json(
       { success: false, error: error.message },
@@ -43,9 +53,12 @@ export async function GET() {
   }
 }
 
-// POST create new user with profile
+// POST create new user with profile (Admin only)
 export async function POST(request: NextRequest) {
   try {
+    // Require admin role
+    await requireAdmin();
+
     const body = await request.json();
     const { email, password, role = 'user', first_name, last_name, phone, country } = body;
 
@@ -77,10 +90,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Hash password before storing
+    const hashedPassword = await hashPassword(password);
+
     // Insert new user
     const userResult = await query(
       'INSERT INTO users (email, password, role, status, email_verified) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, role, created_at',
-      [email, password, role, 'active', true]
+      [email, hashedPassword, role, 'active', true]
     );
 
     const userId = userResult.rows[0].id;
@@ -103,6 +119,12 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 });
+    }
     console.error('Error creating user:', error);
     return NextResponse.json(
       { success: false, error: error.message },
@@ -111,15 +133,26 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE user
+// DELETE user (Admin only)
 export async function DELETE(request: NextRequest) {
   try {
+    // Require admin role
+    const session = await requireAdmin();
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
     if (!id) {
       return NextResponse.json(
         { success: false, error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Prevent admin from deleting themselves
+    if (parseInt(id) === session.user.id) {
+      return NextResponse.json(
+        { success: false, error: 'Cannot delete your own account' },
         { status: 400 }
       );
     }
@@ -141,6 +174,12 @@ export async function DELETE(request: NextRequest) {
       message: 'User deleted successfully',
     });
   } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 });
+    }
     console.error('Error deleting user:', error);
     return NextResponse.json(
       { success: false, error: error.message },
