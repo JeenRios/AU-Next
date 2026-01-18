@@ -42,6 +42,9 @@ export default function AdminDashboard() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [vpsInstances, setVpsInstances] = useState<any[]>([]);
+  const [mt5Accounts, setMt5Accounts] = useState<any[]>([]);
+  const [automationJobs, setAutomationJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'trading' | 'support' | 'system'>('overview');
@@ -86,12 +89,15 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setRefreshing(true);
     try {
-      const [statsRes, tradesRes, usersRes, notificationsRes, ticketsRes] = await Promise.all([
+      const [statsRes, tradesRes, usersRes, notificationsRes, ticketsRes, vpsRes, mt5Res, jobsRes] = await Promise.all([
         fetch('/api/stats'),
         fetch('/api/trades'),
         fetch('/api/users'),
         fetch('/api/notifications'),
-        fetch('/api/tickets')
+        fetch('/api/tickets'),
+        fetch('/api/vps'),
+        fetch('/api/mt5/connect'),
+        fetch('/api/automation/jobs')
       ]);
 
       const statsData = await statsRes.json();
@@ -99,12 +105,18 @@ export default function AdminDashboard() {
       const usersData = await usersRes.json();
       const notificationsData = await notificationsRes.json();
       const ticketsData = await ticketsRes.json();
+      const vpsData = await vpsRes.json();
+      const mt5Data = await mt5Res.json();
+      const jobsData = await jobsRes.json();
 
       if (statsData.success) setStats(statsData.data);
       if (tradesData.success) setTrades(tradesData.data);
       if (usersData.success) setUsers(usersData.data);
       if (notificationsData.success) setNotifications(notificationsData.data.slice(0, 10));
       if (ticketsData.success) setTickets(ticketsData.data.filter((t: any) => t.status === 'open').slice(0, 10));
+      if (vpsData.success) setVpsInstances(vpsData.data || []);
+      if (mt5Data.success) setMt5Accounts(mt5Data.data || []);
+      if (jobsData.success) setAutomationJobs(jobsData.data || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -317,236 +329,434 @@ export default function AdminDashboard() {
           
           {/* Overview Tab */}
           {activeTab === 'overview' && (
-            <div className="h-[calc(100vh-8rem)] overflow-hidden flex flex-col gap-5">
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-xl font-semibold text-[#1a1a1d]">Dashboard Overview</h1>
-                  <p className="text-sm text-gray-600 mt-0.5">Monitor your platform at a glance</p>
-                </div>
-                <button
-                  onClick={fetchData}
-                  disabled={refreshing}
-                  className="px-4 py-2 text-sm font-medium text-[#1a1a1d] bg-white border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-[#c9a227] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  {refreshing ? 'Refreshing...' : 'Refresh Data'}
-                </button>
-              </div>
-
-              {/* Stats Bar */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-8">
+            <div className="space-y-5">
+              {/* Welcome Header with System Status Bar */}
+              <div className="bg-gradient-to-r from-[#1a1a1d] to-[#2d2d30] rounded-2xl p-5 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#c9a227]/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Total Users</p>
-                      <p className="text-3xl font-semibold text-[#1a1a1d] mt-1">{users.length}</p>
+                      <p className="text-[#f0d78c] text-xs font-medium mb-1">
+                        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                      <h1 className="text-xl font-bold">Welcome back, {user?.email?.split('@')[0] || 'Admin'}</h1>
                     </div>
-                    <div className="h-12 w-px bg-gray-200"></div>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => {
-                          setUserRoleFilter('admin');
-                          setActiveTab('users');
-                        }}
-                        className="px-3 py-1.5 bg-amber-50 border border-[#f0d78c] rounded-lg hover:bg-amber-100 transition-all cursor-pointer"
-                      >
-                        <span className="text-xs font-medium text-[#1a1a1d]">{users.filter(u => u.role === 'admin').length} Admins</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setUserRoleFilter('user');
-                          setActiveTab('users');
-                        }}
-                        className="px-3 py-1.5 bg-amber-50 border border-[#f0d78c] rounded-lg hover:bg-amber-100 transition-all cursor-pointer"
-                      >
-                        <span className="text-xs font-medium text-[#1a1a1d]">{users.filter(u => u.role === 'user').length} Users</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-gray-600">All Systems Operational</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Grid */}
-              <div className="flex-1 min-h-0 grid grid-cols-3 gap-5">
-                {/* Notifications */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-sm font-semibold text-[#1a1a1d]">Recent Notifications</h2>
-                    <span className="px-2 py-0.5 text-xs font-medium text-[#c9a227] bg-amber-50 border border-[#f0d78c] rounded">
-                      {notifications.filter(n => !n.is_read).length} New
-                    </span>
-                  </div>
-                  <div className="flex-1 overflow-auto space-y-3">
-                    {notifications.length === 0 ? (
-                      <p className="text-sm text-gray-500 text-center py-8">No notifications</p>
-                    ) : (
-                      notifications.slice(0, 3).map((notif) => (
-                        <div 
-                          key={notif.id}
-                          onClick={() => {
-                            setSelectedNotification(notif);
-                            setShowNotificationDetails(true);
-                          }}
-                          className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-medium text-[#1a1a1d]">{notif.title}</p>
-                            <span className="text-xs text-gray-500 whitespace-nowrap">
-                              {new Date(notif.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 mt-1 line-clamp-1">{notif.message}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <button
-                    onClick={() => { setActiveTab('support'); setSupportSubTab('notifications'); }}
-                    className="mt-4 w-full py-2 text-sm font-medium text-[#1a1a1d] bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-lg hover:shadow-lg transition-all"
-                  >
-                    View All
-                  </button>
-                </div>
-
-                {/* Support Tickets */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-sm font-semibold text-[#1a1a1d]">Support Tickets</h2>
-                    <span className="px-2 py-0.5 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded">
-                      {tickets.length} Open
-                    </span>
-                  </div>
-                  <div className="flex-1 overflow-auto space-y-3">
-                    {tickets.length === 0 ? (
-                      <p className="text-sm text-gray-500 text-center py-8">No open tickets</p>
-                    ) : (
-                      tickets.slice(0, 2).map((ticket) => (
-                        <div 
-                          key={ticket.id}
-                          onClick={() => {
-                            setSelectedTicket(ticket);
-                            setShowTicketDetails(true);
-                          }}
-                          className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer"
-                        >
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-[#1a1a1d] text-xs font-semibold shadow-sm">
-                              {ticket.first_name?.[0] || ticket.user_email?.[0]?.toUpperCase() || 'U'}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-[#1a1a1d] truncate">
-                                {ticket.first_name && ticket.last_name 
-                                  ? `${ticket.first_name} ${ticket.last_name}` 
-                                  : ticket.user_email}
-                              </p>
-                              <p className="text-xs text-gray-500">{ticket.ticket_number}</p>
-                            </div>
-                          </div>
-                          <p className="text-xs text-gray-600 line-clamp-1">{ticket.subject}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <button 
-                    onClick={() => setActiveTab('support')}
-                    className="mt-4 w-full py-2 text-sm font-medium text-[#1a1a1d] bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-lg hover:shadow-lg transition-all"
-                  >
-                    View All
-                  </button>
-                </div>
-
-                {/* Recent Activity */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
-                  <h2 className="text-sm font-semibold text-[#1a1a1d] mb-4">Recent Activity</h2>
-                  <div className="flex-1 overflow-auto space-y-3">
-                    {users.slice(0, 1).map(u => (
-                      <div key={`user-${u.id}`} className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-green-50 border border-green-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#1a1a1d]">User {u.last_login ? 'Login' : 'Created'}</p>
-                          <p className="text-xs text-gray-600 truncate mt-0.5">{u.email}</p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {new Date(u.last_login || u.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    {trades.slice(0, 2).map(trade => (
-                      <div key={`trade-${trade.id}`} className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-amber-50 border border-[#f0d78c] rounded-lg flex items-center justify-center flex-shrink-0">
-                          <svg className="w-4 h-4 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#1a1a1d]">{trade.type} Trade</p>
-                          <p className="text-xs text-gray-600 truncate mt-0.5">
-                            {trade.symbol} · {parseFloat(trade.amount).toFixed(2)} lots
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {new Date(trade.opened_at || trade.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => { setActiveTab('system'); setSystemSubTab('audit'); }}
-                    className="mt-4 w-full py-2 text-sm font-medium text-[#1a1a1d] bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-lg hover:shadow-lg transition-all"
-                  >
-                    View Audit Log
-                  </button>
-                </div>
-              </div>
-
-              {/* Recent Trades */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex-shrink-0">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm font-semibold text-[#1a1a1d]">Recent Trades</h2>
-                  <button
-                    onClick={() => { setActiveTab('trading'); setTradingSubTab('history'); }}
-                    className="text-sm font-medium text-[#c9a227] hover:text-[#1a1a1d] transition-colors"
-                  >
-                    View All →
-                  </button>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  {trades.slice(0, 3).map((trade) => (
-                    <div 
-                      key={trade.id} 
-                      className="p-4 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all"
+                    <button
+                      onClick={fetchData}
+                      disabled={refreshing}
+                      className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-lg text-sm font-medium transition-all disabled:opacity-50 flex items-center gap-2"
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-semibold text-[#1a1a1d]">{trade.symbol}</span>
-                        <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                          trade.type === 'BUY' 
-                            ? 'text-green-700 bg-green-50 border border-green-200' 
-                            : 'text-red-700 bg-red-50 border border-red-200'
-                        }`}>
-                          {trade.type}
-                        </span>
+                      <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      {refreshing ? 'Syncing...' : 'Sync'}
+                    </button>
+                  </div>
+                  {/* System Status Bar */}
+                  <div className="flex items-center gap-6 pt-3 border-t border-white/10">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-[#c9a227] rounded-full"></span>
+                      <span className="text-xs text-gray-400">Database</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-[#c9a227] rounded-full"></span>
+                      <span className="text-xs text-gray-400">Redis</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-[#c9a227] rounded-full"></span>
+                      <span className="text-xs text-gray-400">MT5 Service</span>
+                    </div>
+                    <div className="ml-auto flex items-center gap-1.5 text-xs text-[#c9a227]">
+                      <span className="w-1.5 h-1.5 bg-[#c9a227] rounded-full animate-pulse"></span>
+                      All Systems Operational
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions Bar */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowAddUser(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50 rounded-lg transition-all group"
+                >
+                  <svg className="w-4 h-4 text-gray-400 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-600 group-hover:text-[#1a1a1d]">Add User</span>
+                </button>
+                <button
+                  onClick={() => { setActiveTab('trading'); setTradingSubTab('vps'); }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50 rounded-lg transition-all group"
+                >
+                  <svg className="w-4 h-4 text-gray-400 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-600 group-hover:text-[#1a1a1d]">New VPS</span>
+                </button>
+                <button
+                  onClick={() => { setActiveTab('support'); setSupportSubTab('notifications'); }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50 rounded-lg transition-all group"
+                >
+                  <svg className="w-4 h-4 text-gray-400 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-600 group-hover:text-[#1a1a1d]">Send Alert</span>
+                </button>
+                <button
+                  onClick={() => { setActiveTab('system'); setSystemSubTab('settings'); }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50 rounded-lg transition-all group"
+                >
+                  <svg className="w-4 h-4 text-gray-400 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-600 group-hover:text-[#1a1a1d]">Settings</span>
+                </button>
+
+                {/* Action Required - inline if exists */}
+                {(mt5Accounts.filter(a => a.status === 'pending').length > 0 || tickets.length > 0) && (
+                  <div className="ml-auto flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-amber-50 to-[#f0d78c]/30 border border-[#c9a227]/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-[#c9a227] rounded-full animate-pulse"></span>
+                      <span className="text-xs font-medium text-[#1a1a1d]">
+                        {mt5Accounts.filter(a => a.status === 'pending').length} pending
+                        {tickets.length > 0 && ` · ${tickets.length} tickets`}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => { setActiveTab('trading'); setTradingSubTab('accounts'); }}
+                      className="px-3 py-1 bg-[#c9a227] hover:bg-[#b8922a] text-white text-xs font-medium rounded transition-all"
+                    >
+                      Review
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-4 gap-4">
+                <div
+                  onClick={() => setActiveTab('users')}
+                  className="bg-white border border-gray-100 rounded-xl p-5 hover:border-[#c9a227] hover:shadow-md transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#c9a227]/10 to-[#f0d78c]/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
+                    <svg className="w-4 h-4 text-gray-300 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  <p className="text-3xl font-bold text-[#1a1a1d]">{users.length}</p>
+                  <p className="text-sm text-gray-500 mt-1">Total Users</p>
+                  <div className="flex items-center gap-2 mt-3">
+                    <span className="text-xs px-2 py-1 bg-amber-50 text-[#c9a227] rounded-md font-medium">{users.filter(u => u.role === 'admin').length} Admin</span>
+                    <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-md font-medium">{users.filter(u => u.role === 'user').length} Users</span>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => { setActiveTab('trading'); setTradingSubTab('accounts'); }}
+                  className="bg-white border border-gray-100 rounded-xl p-5 hover:border-[#c9a227] hover:shadow-md transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#c9a227]/10 to-[#f0d78c]/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                    <svg className="w-4 h-4 text-gray-300 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  <p className="text-3xl font-bold text-[#1a1a1d]">{mt5Accounts.length}</p>
+                  <p className="text-sm text-gray-500 mt-1">MT5 Accounts</p>
+                  <div className="flex items-center gap-2 mt-3">
+                    <span className="text-xs px-2 py-1 bg-amber-50 text-[#c9a227] rounded-md font-medium">{mt5Accounts.filter(a => a.status === 'active').length} Active</span>
+                    {mt5Accounts.filter(a => a.status === 'pending').length > 0 && (
+                      <span className="text-xs px-2 py-1 bg-[#c9a227] text-white rounded-md font-medium animate-pulse">{mt5Accounts.filter(a => a.status === 'pending').length} Pending</span>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => { setActiveTab('trading'); setTradingSubTab('vps'); }}
+                  className="bg-white border border-gray-100 rounded-xl p-5 hover:border-[#c9a227] hover:shadow-md transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#c9a227]/10 to-[#f0d78c]/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                      </svg>
+                    </div>
+                    <svg className="w-4 h-4 text-gray-300 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  <p className="text-3xl font-bold text-[#1a1a1d]">{vpsInstances.length}</p>
+                  <p className="text-sm text-gray-500 mt-1">VPS Servers</p>
+                  <div className="flex items-center gap-2 mt-3">
+                    <span className="text-xs px-2 py-1 bg-amber-50 text-[#c9a227] rounded-md font-medium">{vpsInstances.filter(v => v.status === 'active').length} Online</span>
+                    {vpsInstances.filter(v => v.status === 'error').length > 0 && (
+                      <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-md font-medium">{vpsInstances.filter(v => v.status === 'error').length} Error</span>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => { setActiveTab('trading'); setTradingSubTab('jobs'); }}
+                  className="bg-white border border-gray-100 rounded-xl p-5 hover:border-[#c9a227] hover:shadow-md transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#c9a227]/10 to-[#f0d78c]/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </div>
+                    <svg className="w-4 h-4 text-gray-300 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  <p className="text-3xl font-bold text-[#1a1a1d]">{automationJobs.length}</p>
+                  <p className="text-sm text-gray-500 mt-1">Automation Jobs</p>
+                  <div className="flex items-center gap-2 mt-3">
+                    {automationJobs.filter(j => j.status === 'running').length > 0 && (
+                      <span className="text-xs px-2 py-1 bg-amber-50 text-[#c9a227] rounded-md font-medium flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-[#c9a227] rounded-full animate-pulse"></span>
+                        {automationJobs.filter(j => j.status === 'running').length} Running
+                      </span>
+                    )}
+                    {automationJobs.filter(j => j.status === 'failed').length > 0 && (
+                      <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-md font-medium">{automationJobs.filter(j => j.status === 'failed').length} Failed</span>
+                    )}
+                    {automationJobs.filter(j => j.status === 'running').length === 0 && automationJobs.filter(j => j.status === 'failed').length === 0 && (
+                      <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-md font-medium">All Complete</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Content - 2 Column Layout */}
+              <div className="grid grid-cols-5 gap-6">
+                {/* Left Column - Pending Approvals & Quick Actions */}
+                <div className="col-span-3 space-y-6">
+                  {/* Pending MT5 Approvals */}
+                  <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-[#1a1a1d]">Pending MT5 Approvals</h3>
+                          <p className="text-xs text-gray-500">Review and approve connection requests</p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-600">
-                          <span className="font-medium">Price:</span> ${parseFloat(trade.price).toFixed(4)}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          <span className="font-medium">Amount:</span> {parseFloat(trade.amount).toFixed(2)} lots
-                        </p>
+                      <button
+                        onClick={() => { setActiveTab('trading'); setTradingSubTab('accounts'); }}
+                        className="text-xs text-[#c9a227] hover:text-[#1a1a1d] font-medium transition-colors"
+                      >
+                        View All →
+                      </button>
+                    </div>
+                    <div className="p-5">
+                      {mt5Accounts.filter(a => a.status === 'pending').length === 0 ? (
+                        <div className="text-center py-8">
+                          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <p className="text-sm text-gray-500">No pending approvals</p>
+                          <p className="text-xs text-gray-400 mt-1">All MT5 requests have been processed</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {mt5Accounts.filter(a => a.status === 'pending').slice(0, 4).map((account) => (
+                            <div key={account.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-amber-50/50 transition-all">
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                  {account.user_email?.[0]?.toUpperCase() || 'U'}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold text-[#1a1a1d]">{account.account_number}</p>
+                                  <p className="text-xs text-gray-500">{account.broker || 'Unknown Broker'} · {account.user_email}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">
+                                  {new Date(account.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                </span>
+                                <button
+                                  onClick={() => { setActiveTab('trading'); setTradingSubTab('accounts'); }}
+                                  className="px-3 py-1.5 bg-[#c9a227] hover:bg-[#b8922a] text-white text-xs font-medium rounded-lg transition-all"
+                                >
+                                  Review
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Support Tickets */}
+                  <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-[#1a1a1d]">Open Tickets</h3>
+                          <p className="text-xs text-gray-500">{tickets.length} tickets need attention</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab('support')}
+                        className="text-xs text-[#c9a227] hover:text-[#1a1a1d] font-medium transition-colors"
+                      >
+                        View All →
+                      </button>
+                    </div>
+                    <div className="divide-y divide-gray-50">
+                      {tickets.length === 0 ? (
+                        <div className="text-center py-8">
+                          <p className="text-sm text-gray-500">No open tickets</p>
+                        </div>
+                      ) : (
+                        tickets.slice(0, 3).map((ticket) => (
+                          <div
+                            key={ticket.id}
+                            onClick={() => { setSelectedTicket(ticket); setShowTicketDetails(true); }}
+                            className="px-5 py-4 hover:bg-amber-50/50 transition-all cursor-pointer flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                {ticket.first_name?.[0] || ticket.user_email?.[0]?.toUpperCase() || 'U'}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-[#1a1a1d]">{ticket.subject}</p>
+                                <p className="text-xs text-gray-500">{ticket.ticket_number} · {ticket.user_email}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className={`text-xs px-2 py-1 rounded font-medium ${
+                                ticket.priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+                              }`}>
+                                {ticket.priority || 'normal'}
+                              </span>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {new Date(ticket.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column - Activity & Notifications */}
+                <div className="col-span-2 space-y-6">
+                  {/* Recent Activity Timeline */}
+                  <div className="bg-white border border-gray-100 rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-[#1a1a1d]">Recent Activity</h3>
+                      <button
+                        onClick={() => { setActiveTab('system'); setSystemSubTab('audit'); }}
+                        className="text-xs text-[#c9a227] hover:text-[#1a1a1d] font-medium transition-colors"
+                      >
+                        View All →
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-[#c9a227] to-transparent"></div>
+                      <div className="space-y-4">
+                        {users.slice(0, 2).map((u, index) => (
+                          <div key={`timeline-user-${u.id}`} className="flex items-start gap-4 relative">
+                            <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center z-10 flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            </div>
+                            <div className="flex-1 pb-4">
+                              <p className="text-sm font-medium text-[#1a1a1d]">{u.last_login ? 'User logged in' : 'New user registered'}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">{u.email}</p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {new Date(u.last_login || u.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                        {mt5Accounts.slice(0, 2).map((account) => (
+                          <div key={`timeline-mt5-${account.id}`} className="flex items-start gap-4 relative">
+                            <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center z-10 flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                              </svg>
+                            </div>
+                            <div className="flex-1 pb-4">
+                              <p className="text-sm font-medium text-[#1a1a1d]">
+                                MT5 {account.status === 'pending' ? 'connection requested' : `account ${account.status}`}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-0.5">{account.account_number}</p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {new Date(account.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Notifications */}
+                  <div className="bg-white border border-gray-100 rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-[#1a1a1d]">Notifications</h3>
+                      {notifications.filter(n => !n.is_read).length > 0 && (
+                        <span className="text-xs font-medium text-[#c9a227] bg-amber-50 px-2 py-1 rounded">
+                          {notifications.filter(n => !n.is_read).length} new
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      {notifications.length === 0 ? (
+                        <p className="text-sm text-gray-500 text-center py-4">No notifications</p>
+                      ) : (
+                        notifications.slice(0, 4).map((notif) => (
+                          <div
+                            key={notif.id}
+                            onClick={() => { setSelectedNotification(notif); setShowNotificationDetails(true); }}
+                            className="flex items-start gap-3 p-3 rounded-lg hover:bg-amber-50/50 transition-all cursor-pointer"
+                          >
+                            <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${notif.is_read ? 'bg-gray-300' : 'bg-[#c9a227]'}`}></div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-sm ${notif.is_read ? 'text-gray-600' : 'text-[#1a1a1d] font-medium'} truncate`}>{notif.title}</p>
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                {new Date(notif.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <button
+                      onClick={() => { setActiveTab('support'); setSupportSubTab('notifications'); }}
+                      className="mt-3 w-full py-2.5 text-sm font-medium text-[#1a1a1d] bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-lg hover:shadow-md transition-all"
+                    >
+                      View All Notifications
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
