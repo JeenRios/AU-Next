@@ -9,6 +9,7 @@ import AutomationJobs from '@/components/admin/AutomationJobs';
 import UserDetailDrawer, { UserDetail } from '@/components/admin/UserDetailDrawer';
 import TicketDetailDrawer, { TicketDetail } from '@/components/admin/TicketDetailDrawer';
 import NotificationDetailDrawer, { NotificationDetail } from '@/components/admin/NotificationDetailDrawer';
+import SlideOutPanel from '@/components/admin/SlideOutPanel';
 
 interface User {
   id: number;
@@ -66,6 +67,29 @@ export default function AdminDashboard() {
     role: 'user',
     name: ''
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+
+  // Search results computed from query
+  const searchResults = searchQuery.length >= 2 ? {
+    users: users.filter(u =>
+      u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.last_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 3),
+    accounts: mt5Accounts.filter(a =>
+      a.account_number?.toString().includes(searchQuery) ||
+      a.broker?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.user_email?.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 3),
+    tickets: tickets.filter(t =>
+      t.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.ticket_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.user_email?.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 3)
+  } : { users: [], accounts: [], tickets: [] };
+
+  const hasSearchResults = searchResults.users.length > 0 || searchResults.accounts.length > 0 || searchResults.tickets.length > 0;
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -331,8 +355,8 @@ export default function AdminDashboard() {
           {activeTab === 'overview' && (
             <div className="space-y-5">
               {/* Welcome Header with System Status Bar */}
-              <div className="bg-gradient-to-r from-[#1a1a1d] to-[#2d2d30] rounded-2xl p-5 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#c9a227]/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+              <div className="bg-gradient-to-r from-[#1a1a1d] to-[#2d2d30] rounded-2xl p-5 text-white relative">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#c9a227]/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -341,97 +365,221 @@ export default function AdminDashboard() {
                       </p>
                       <h1 className="text-xl font-bold">Welcome back, {user?.email?.split('@')[0] || 'Admin'}</h1>
                     </div>
-                    <button
-                      onClick={fetchData}
-                      disabled={refreshing}
-                      className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-lg text-sm font-medium transition-all disabled:opacity-50 flex items-center gap-2"
-                    >
-                      <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      {refreshing ? 'Syncing...' : 'Sync'}
-                    </button>
                   </div>
-                  {/* System Status Bar */}
-                  <div className="flex items-center gap-6 pt-3 border-t border-white/10">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-[#c9a227] rounded-full"></span>
-                      <span className="text-xs text-gray-400">Database</span>
+                  {/* Search & Quick Actions Bar */}
+                  <div className="flex items-center gap-3 pt-3 border-t border-white/10">
+                    {/* Search Bar */}
+                    <div className="flex-1 relative">
+                      <div className={`flex items-center gap-3 px-3 py-2 bg-white/5 border rounded-lg transition-all ${searchFocused ? 'bg-white/10 border-white/30' : 'border-white/10 hover:border-white/20'}`}>
+                        <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onFocus={() => setSearchFocused(true)}
+                          onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+                          placeholder="Search users, accounts, tickets..."
+                          className="flex-1 bg-transparent text-sm text-white placeholder-white/40 outline-none"
+                        />
+                        {searchQuery && (
+                          <button
+                            onClick={() => setSearchQuery('')}
+                            className="p-0.5 hover:bg-white/10 rounded transition-colors"
+                          >
+                            <svg className="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
+                        {!searchQuery && (
+                          <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/10 rounded text-[10px] text-white/30 font-mono">
+                            Ctrl+K
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Search Results Dropdown */}
+                      {searchFocused && searchQuery.length >= 2 && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                          {!hasSearchResults ? (
+                            <div className="px-4 py-6 text-center">
+                              <svg className="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                              </svg>
+                              <p className="text-sm text-gray-500">No results found for &quot;{searchQuery}&quot;</p>
+                            </div>
+                          ) : (
+                            <div className="divide-y divide-gray-100">
+                              {/* Users Results */}
+                              {searchResults.users.length > 0 && (
+                                <div className="p-2">
+                                  <p className="px-2 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Users</p>
+                                  {searchResults.users.map((u) => (
+                                    <div
+                                      key={u.id}
+                                      onClick={() => {
+                                        setSelectedUser(u);
+                                        setShowUserDetails(true);
+                                        setSearchQuery('');
+                                        setSearchFocused(false);
+                                      }}
+                                      className="flex items-center gap-3 px-2 py-2 hover:bg-amber-50 rounded-lg cursor-pointer transition-colors"
+                                    >
+                                      <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                        {u.first_name?.[0] || u.email[0].toUpperCase()}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-[#1a1a1d] truncate">
+                                          {u.first_name && u.last_name ? `${u.first_name} ${u.last_name}` : u.email}
+                                        </p>
+                                        <p className="text-xs text-gray-500 truncate">{u.email}</p>
+                                      </div>
+                                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${u.role === 'admin' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'}`}>
+                                        {u.role}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* MT5 Accounts Results */}
+                              {searchResults.accounts.length > 0 && (
+                                <div className="p-2">
+                                  <p className="px-2 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">MT5 Accounts</p>
+                                  {searchResults.accounts.map((a) => (
+                                    <div
+                                      key={a.id}
+                                      onClick={() => {
+                                        setActiveTab('trading');
+                                        setTradingSubTab('accounts');
+                                        setSearchQuery('');
+                                        setSearchFocused(false);
+                                      }}
+                                      className="flex items-center gap-3 px-2 py-2 hover:bg-amber-50 rounded-lg cursor-pointer transition-colors"
+                                    >
+                                      <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center">
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-[#1a1a1d]">{a.account_number}</p>
+                                        <p className="text-xs text-gray-500 truncate">{a.broker} · {a.user_email}</p>
+                                      </div>
+                                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                                        a.status === 'active' ? 'bg-green-100 text-green-700' :
+                                        a.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                        'bg-gray-100 text-gray-600'
+                                      }`}>
+                                        {a.status}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Tickets Results */}
+                              {searchResults.tickets.length > 0 && (
+                                <div className="p-2">
+                                  <p className="px-2 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Support Tickets</p>
+                                  {searchResults.tickets.map((t) => (
+                                    <div
+                                      key={t.id}
+                                      onClick={() => {
+                                        setSelectedTicket(t);
+                                        setShowTicketDetails(true);
+                                        setSearchQuery('');
+                                        setSearchFocused(false);
+                                      }}
+                                      className="flex items-center gap-3 px-2 py-2 hover:bg-amber-50 rounded-lg cursor-pointer transition-colors"
+                                    >
+                                      <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                        </svg>
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-[#1a1a1d] truncate">{t.subject}</p>
+                                        <p className="text-xs text-gray-500">{t.ticket_number} · {t.user_email}</p>
+                                      </div>
+                                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                                        t.status === 'open' ? 'bg-orange-100 text-orange-700' :
+                                        t.status === 'resolved' ? 'bg-green-100 text-green-700' :
+                                        'bg-gray-100 text-gray-600'
+                                      }`}>
+                                        {t.status}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-[#c9a227] rounded-full"></span>
-                      <span className="text-xs text-gray-400">Redis</span>
+
+                    {/* Quick Action Buttons */}
+                    <div className="flex items-center gap-1">
+                      {/* Add User */}
+                      <div
+                        onClick={() => setShowAddUser(true)}
+                        className="group relative w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-[#c9a227]/30 hover:to-[#f0d78c]/20 border border-white/10 hover:border-[#c9a227]/30 transition-all cursor-pointer"
+                      >
+                        <svg className="w-4 h-4 text-white/50 group-hover:text-[#f0d78c] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#1a1a1d] text-[10px] text-white/80 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">Add User</span>
+                      </div>
+
+                      {/* Refresh */}
+                      <div
+                        onClick={fetchData}
+                        className="group relative w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-[#c9a227]/30 hover:to-[#f0d78c]/20 border border-white/10 hover:border-[#c9a227]/30 transition-all cursor-pointer"
+                      >
+                        <svg className={`w-4 h-4 text-white/50 group-hover:text-[#f0d78c] transition-colors ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#1a1a1d] text-[10px] text-white/80 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">Refresh</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-[#c9a227] rounded-full"></span>
-                      <span className="text-xs text-gray-400">MT5 Service</span>
-                    </div>
-                    <div className="ml-auto flex items-center gap-1.5 text-xs text-[#c9a227]">
-                      <span className="w-1.5 h-1.5 bg-[#c9a227] rounded-full animate-pulse"></span>
-                      All Systems Operational
-                    </div>
+
+                    {/* Divider */}
+                    <div className="w-px h-6 bg-white/10"></div>
+
+                    {/* Pending Review Indicator */}
+                    {(mt5Accounts.filter(a => a.status === 'pending').length > 0 || tickets.length > 0) ? (
+                      <div
+                        onClick={() => { setActiveTab('trading'); setTradingSubTab('accounts'); }}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[#c9a227]/20 to-[#f0d78c]/10 border border-[#c9a227]/30 rounded-lg cursor-pointer hover:from-[#c9a227]/30 hover:to-[#f0d78c]/20 transition-all group"
+                      >
+                        <div className="flex items-center -space-x-1.5">
+                          {mt5Accounts.filter(a => a.status === 'pending').length > 0 && (
+                            <span className="w-5 h-5 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-[9px] font-bold text-[#1a1a1d] ring-1 ring-[#1a1a1d]/50">
+                              {mt5Accounts.filter(a => a.status === 'pending').length}
+                            </span>
+                          )}
+                          {tickets.length > 0 && (
+                            <span className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-[9px] font-bold text-[#1a1a1d] ring-1 ring-[#1a1a1d]/50">
+                              {tickets.length}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-[#f0d78c] font-medium">Pending</span>
+                        <svg className="w-3 h-3 text-[#c9a227] group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span className="text-[11px] text-white/50">All Clear</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-
-              {/* Quick Actions Bar */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setShowAddUser(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50 rounded-lg transition-all group"
-                >
-                  <svg className="w-4 h-4 text-gray-400 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-600 group-hover:text-[#1a1a1d]">Add User</span>
-                </button>
-                <button
-                  onClick={() => { setActiveTab('trading'); setTradingSubTab('vps'); }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50 rounded-lg transition-all group"
-                >
-                  <svg className="w-4 h-4 text-gray-400 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-600 group-hover:text-[#1a1a1d]">New VPS</span>
-                </button>
-                <button
-                  onClick={() => { setActiveTab('support'); setSupportSubTab('notifications'); }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50 rounded-lg transition-all group"
-                >
-                  <svg className="w-4 h-4 text-gray-400 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-600 group-hover:text-[#1a1a1d]">Send Alert</span>
-                </button>
-                <button
-                  onClick={() => { setActiveTab('system'); setSystemSubTab('settings'); }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50 rounded-lg transition-all group"
-                >
-                  <svg className="w-4 h-4 text-gray-400 group-hover:text-[#c9a227] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-600 group-hover:text-[#1a1a1d]">Settings</span>
-                </button>
-
-                {/* Action Required - inline if exists */}
-                {(mt5Accounts.filter(a => a.status === 'pending').length > 0 || tickets.length > 0) && (
-                  <div className="ml-auto flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-amber-50 to-[#f0d78c]/30 border border-[#c9a227]/30 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-[#c9a227] rounded-full animate-pulse"></span>
-                      <span className="text-xs font-medium text-[#1a1a1d]">
-                        {mt5Accounts.filter(a => a.status === 'pending').length} pending
-                        {tickets.length > 0 && ` · ${tickets.length} tickets`}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => { setActiveTab('trading'); setTradingSubTab('accounts'); }}
-                      className="px-3 py-1 bg-[#c9a227] hover:bg-[#b8922a] text-white text-xs font-medium rounded transition-all"
-                    >
-                      Review
-                    </button>
-                  </div>
-                )}
               </div>
 
               {/* Quick Stats */}
@@ -1354,78 +1502,151 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Add User Modal */}
-      {showAddUser && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl border-2 border-[#c9a227]/20 animate-slide-up">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center">
-                <svg className="w-6 h-6 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-[#1a1a1d]">Add New User</h2>
+      {/* Add User Slide Panel */}
+      <SlideOutPanel
+        isOpen={showAddUser}
+        onClose={() => setShowAddUser(false)}
+        title="Add New User"
+        subtitle="Create a new user account"
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleAddUser} className="space-y-6">
+          {/* User Icon */}
+          <div className="flex justify-center">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#c9a227]/20 to-[#f0d78c]/30 flex items-center justify-center border-2 border-dashed border-[#c9a227]/40">
+              <svg className="w-10 h-10 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </div>
-            <form onSubmit={handleAddUser} className="space-y-4">
+          </div>
+
+          {/* Form Fields */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                placeholder="user@example.com"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-[#1a1a1d] focus:border-[#c9a227] focus:outline-none transition-all"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Password <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                placeholder="Enter a secure password"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-[#1a1a1d] focus:border-[#c9a227] focus:outline-none transition-all"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Minimum 8 characters recommended</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-[#1a1a1d] focus:border-[#c9a227] focus:outline-none transition-all shadow-sm focus:shadow-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-                <input
-                  type="password"
-                  value={newUser.password}
-                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-[#1a1a1d] focus:border-[#c9a227] focus:outline-none transition-all shadow-sm focus:shadow-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
                 <input
                   type="text"
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({...newUser, name: e.target.value})}
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-[#1a1a1d] focus:border-[#c9a227] focus:outline-none transition-all shadow-sm focus:shadow-md"
+                  value={newUser.name.split(' ')[0] || ''}
+                  onChange={(e) => {
+                    const lastName = newUser.name.split(' ').slice(1).join(' ');
+                    setNewUser({...newUser, name: `${e.target.value} ${lastName}`.trim()});
+                  }}
+                  placeholder="John"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-[#1a1a1d] focus:border-[#c9a227] focus:outline-none transition-all"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
-                <select
-                  value={newUser.role}
-                  onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-[#1a1a1d] focus:border-[#c9a227] focus:outline-none transition-all shadow-sm focus:shadow-md"
-                >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
+                <input
+                  type="text"
+                  value={newUser.name.split(' ').slice(1).join(' ') || ''}
+                  onChange={(e) => {
+                    const firstName = newUser.name.split(' ')[0] || '';
+                    setNewUser({...newUser, name: `${firstName} ${e.target.value}`.trim()});
+                  }}
+                  placeholder="Doe"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-[#1a1a1d] focus:border-[#c9a227] focus:outline-none transition-all"
+                />
               </div>
-              <div className="flex gap-4 mt-6 pt-4">
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Account Role</label>
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setShowAddUser(false)}
-                  className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-[#1a1a1d] font-semibold rounded-xl transition-all duration-300"
+                  onClick={() => setNewUser({...newUser, role: 'user'})}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    newUser.role === 'user'
+                      ? 'border-[#c9a227] bg-amber-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 >
-                  Cancel
+                  <div className="flex flex-col items-center gap-2">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      newUser.role === 'user' ? 'bg-[#c9a227]/20' : 'bg-gray-100'
+                    }`}>
+                      <svg className={`w-5 h-5 ${newUser.role === 'user' ? 'text-[#c9a227]' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <span className={`text-sm font-medium ${newUser.role === 'user' ? 'text-[#1a1a1d]' : 'text-gray-600'}`}>User</span>
+                    <span className="text-xs text-gray-500">Standard access</span>
+                  </div>
                 </button>
                 <button
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-bold rounded-xl transition-all duration-300 shadow-lg shadow-[#c9a227]/30"
+                  type="button"
+                  onClick={() => setNewUser({...newUser, role: 'admin'})}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    newUser.role === 'admin'
+                      ? 'border-[#c9a227] bg-amber-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 >
-                  Add User
+                  <div className="flex flex-col items-center gap-2">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      newUser.role === 'admin' ? 'bg-[#c9a227]/20' : 'bg-gray-100'
+                    }`}>
+                      <svg className={`w-5 h-5 ${newUser.role === 'admin' ? 'text-[#c9a227]' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </div>
+                    <span className={`text-sm font-medium ${newUser.role === 'admin' ? 'text-[#1a1a1d]' : 'text-gray-600'}`}>Admin</span>
+                    <span className="text-xs text-gray-500">Full access</span>
+                  </div>
                 </button>
               </div>
-            </form>
+            </div>
           </div>
-        </div>
-      )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={() => setShowAddUser(false)}
+              className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all shadow-md"
+            >
+              Create User
+            </button>
+          </div>
+        </form>
+      </SlideOutPanel>
 
       {/* User Details Drawer */}
       <UserDetailDrawer
