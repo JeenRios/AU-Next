@@ -265,7 +265,8 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
       os_type: 'windows',
       mt5_path: 'C:\\Program Files\\MetaTrader 5\\terminal64.exe',
       ea_path: '',
-      notes: ''
+      notes: '',
+      status: 'pending'
     });
     setSelectedVps(null);
   };
