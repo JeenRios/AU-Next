@@ -176,6 +176,67 @@ none → vps_provisioning → vps_ready → ea_deploying → active
 - `vps_provisioning` / `vps_ready` - User: VPS status updates
 - `ea_deploying` / `ea_deployed` / `ea_deploy_failed` - EA deployment updates
 
+## Admin UI Components
+
+### Drawer Components (in `components/admin/`)
+These are reusable slide-out panel components used in the admin dashboard:
+
+- `SlideOutPanel.tsx` - Base wrapper component for all drawers (handles backdrop, animation, close behavior)
+- `UserDetailDrawer.tsx` - Shows user profile, account info, KYC status (actions: Edit, Delete)
+- `TicketDetailDrawer.tsx` - Shows ticket details with user info (actions: Reply, Mark Resolved)
+- `NotificationDetailDrawer.tsx` - Shows notification details with type styling (action: Mark as Read)
+
+### How Drawers Work
+1. Parent component manages `isOpen` state and `selectedItem` data
+2. Drawer component receives `isOpen`, `onClose`, and item data as props
+3. `SlideOutPanel` handles animation internally (no external animation state needed)
+4. Action callbacks (onEdit, onDelete, etc.) are passed as optional props
+
+## Refactoring Guidelines
+
+**IMPORTANT: Follow these rules when modifying or refactoring code to prevent losing existing features.**
+
+### Before Making Changes
+1. **Read the entire file** before modifying - understand all existing features
+2. **Document existing interactive features**: clickable elements, modals, drawers, expandable sections
+3. **Note all state variables and their purposes** - check what each state controls
+4. **Check for component imports** - ensure you know what external components are being used
+
+### During Refactoring
+1. **Preserve all functionality** - if you're extracting code to a component, ensure ALL features are moved
+2. **Don't silently remove features** - if something must be removed, explicitly note it
+3. **Test click handlers** - ensure all clickable items still have their handlers connected
+4. **Verify state connections** - extracted components must receive all necessary state/callbacks as props
+
+### Component Extraction Pattern
+When extracting inline code to a reusable component:
+```tsx
+// 1. Create interface with ALL required props
+interface ComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  data: DataType | null;
+  onAction1?: (item: DataType) => void;  // Include all action callbacks
+  onAction2?: (id: number) => void;
+}
+
+// 2. In parent, replace inline code with component usage
+<MyComponent
+  isOpen={showDetails}
+  onClose={closeDetails}
+  data={selectedItem}
+  onAction1={handleAction1}
+  onAction2={handleAction2}
+/>
+```
+
+### Checklist After Refactoring
+- [ ] All clickable items still work
+- [ ] All modals/drawers still open and close
+- [ ] All form submissions still function
+- [ ] All action buttons (edit, delete, etc.) still trigger correct behavior
+- [ ] No console errors related to missing handlers or props
+
 ## Deployment
 
 Configured for Dokploy deployment with standalone Next.js output. The Dockerfile uses multi-stage build and runs on port 3001 in production.

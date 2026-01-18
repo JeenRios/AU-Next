@@ -6,6 +6,9 @@ import { useModal } from '@/components/ModalProvider';
 import MT5Trading from '@/components/admin/MT5Trading';
 import VPSManagement from '@/components/admin/VPSManagement';
 import AutomationJobs from '@/components/admin/AutomationJobs';
+import UserDetailDrawer, { UserDetail } from '@/components/admin/UserDetailDrawer';
+import TicketDetailDrawer, { TicketDetail } from '@/components/admin/TicketDetailDrawer';
+import NotificationDetailDrawer, { NotificationDetail } from '@/components/admin/NotificationDetailDrawer';
 
 interface User {
   id: number;
@@ -47,14 +50,11 @@ export default function AdminDashboard() {
   const [showAddUser, setShowAddUser] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
   const [editingUser, setEditingUser] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [showTicketDetails, setShowTicketDetails] = useState(false);
-  const [isTicketClosing, setIsTicketClosing] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<any>(null);
   const [showNotificationDetails, setShowNotificationDetails] = useState(false);
-  const [isNotificationClosing, setIsNotificationClosing] = useState(false);
   const [newUser, setNewUser] = useState({
     email: '',
     password: '',
@@ -80,29 +80,6 @@ export default function AdminDashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (showUserDetails && isClosing) {
-      // Trigger slide-in animation only when opening
-      const timer = setTimeout(() => setIsClosing(false), 50);
-      return () => clearTimeout(timer);
-    }
-  }, [showUserDetails]);
-
-  useEffect(() => {
-    if (showTicketDetails && isTicketClosing) {
-      // Trigger slide-in animation only when opening
-      const timer = setTimeout(() => setIsTicketClosing(false), 50);
-      return () => clearTimeout(timer);
-    }
-  }, [showTicketDetails]);
-
-  useEffect(() => {
-    if (showNotificationDetails && isNotificationClosing) {
-      // Trigger slide-in animation only when opening
-      const timer = setTimeout(() => setIsNotificationClosing(false), 50);
-      return () => clearTimeout(timer);
-    }
-  }, [showNotificationDetails]);
 
   const fetchData = async () => {
     setRefreshing(true);
@@ -196,27 +173,15 @@ export default function AdminDashboard() {
   };
 
   const closeUserDetails = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setShowUserDetails(false);
-      setIsClosing(false);
-    }, 300);
+    setShowUserDetails(false);
   };
 
   const closeTicketDetails = () => {
-    setIsTicketClosing(true);
-    setTimeout(() => {
-      setShowTicketDetails(false);
-      setIsTicketClosing(false);
-    }, 300);
+    setShowTicketDetails(false);
   };
 
   const closeNotificationDetails = () => {
-    setIsNotificationClosing(true);
-    setTimeout(() => {
-      setShowNotificationDetails(false);
-      setIsNotificationClosing(false);
-    }, 300);
+    setShowNotificationDetails(false);
   };
 
   if (loading) {
@@ -466,7 +431,6 @@ export default function AdminDashboard() {
                           key={notif.id}
                           onClick={() => {
                             setSelectedNotification(notif);
-                            setIsNotificationClosing(true);
                             setShowNotificationDetails(true);
                           }}
                           className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer"
@@ -507,7 +471,6 @@ export default function AdminDashboard() {
                           key={ticket.id}
                           onClick={() => {
                             setSelectedTicket(ticket);
-                            setIsTicketClosing(true);
                             setShowTicketDetails(true);
                           }}
                           className="p-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-[#f0d78c] transition-all cursor-pointer"
@@ -774,7 +737,6 @@ export default function AdminDashboard() {
                           key={u.id} 
                           onClick={() => {
                             setSelectedUser(u);
-                            setIsClosing(true);
                             setShowUserDetails(true);
                           }}
                           className="hover:bg-amber-50 transition-colors cursor-pointer"
@@ -1365,483 +1327,43 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* User Details Slide-out Panel */}
-      {showUserDetails && selectedUser && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
-            style={{ opacity: isClosing ? 0 : 1 }}
-            onClick={closeUserDetails}
-          />
-          
-          {/* Panel */}
-          <div 
-            className="relative bg-white w-full max-w-2xl h-full overflow-y-auto shadow-2xl transition-transform duration-300 ease-out translate-x-full"
-            style={{ transform: isClosing ? 'translateX(100%)' : 'translateX(0)' }}
-          >
-            {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] px-6 py-5 flex items-center justify-between border-b border-gray-200">
-              <div>
-                <h2 className="text-xl font-bold text-[#1a1a1d]">User Profile</h2>
-                <p className="text-sm text-[#1a1a1d]/70">{selectedUser.email}</p>
-              </div>
-              <button
-                onClick={closeUserDetails}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-              >
-                <svg className="w-6 h-6 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+      {/* User Details Drawer */}
+      <UserDetailDrawer
+        isOpen={showUserDetails}
+        onClose={closeUserDetails}
+        user={selectedUser as UserDetail}
+        onEdit={() => modal.alert('Edit functionality coming soon!', 'Feature')}
+        onDelete={async (userId) => {
+          const confirmed = await modal.confirm(
+            'This will permanently delete the user and all associated data.',
+            'Delete User?'
+          );
+          if (confirmed) {
+            closeUserDetails();
+            setTimeout(() => handleDeleteUser(userId), 300);
+          }
+        }}
+      />
 
-            <div className="p-6 space-y-6">
-              {/* Account Status */}
-              <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      {selectedUser.first_name?.[0] || selectedUser.email[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-[#1a1a1d]">
-                        {selectedUser.first_name || selectedUser.last_name 
-                          ? `${selectedUser.first_name || ''} ${selectedUser.last_name || ''}`.trim()
-                          : 'No Name Set'}
-                      </h3>
-                      <p className="text-sm text-gray-600">{selectedUser.role === 'admin' ? 'Administrator' : 'User Account'}</p>
-                    </div>
-                  </div>
-                  <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                    selectedUser.status === 'active' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {selectedUser.status || 'Active'}
-                  </span>
-                </div>
-              </div>
+      {/* Ticket Details Drawer */}
+      <TicketDetailDrawer
+        isOpen={showTicketDetails}
+        onClose={closeTicketDetails}
+        ticket={selectedTicket as TicketDetail}
+        onReply={() => modal.alert('Reply functionality coming soon!', 'Feature')}
+        onMarkResolved={() => modal.alert('Mark as resolved functionality coming soon!', 'Feature')}
+      />
 
-              {/* Account Information */}
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Account Information
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Account Number</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.account_number || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Account Type</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d] capitalize">{selectedUser.account_type || 'Standard'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Balance</p>
-                    <p className="text-sm font-bold text-green-600">
-                      ${parseFloat(selectedUser.account_balance || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Currency</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.account_currency || 'USD'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Personal Information */}
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  Personal Information
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <p className="text-xs text-gray-500 mb-1">Email</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Phone</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.phone || 'Not provided'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Country</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.country || 'Not provided'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">City</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.city || 'Not provided'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Postal Code</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d]">{selectedUser.postal_code || 'Not provided'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* KYC Status */}
-              {selectedUser.role !== 'admin' && (
-                <div className="bg-white rounded-xl border border-gray-200 p-5">
-                  <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                    <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    KYC Verification
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-gray-600">Verification Status</p>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        selectedUser.kyc_status === 'verified' 
-                          ? 'bg-green-100 text-green-700'
-                          : selectedUser.kyc_status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {selectedUser.kyc_status || 'Pending'}
-                      </span>
-                    </div>
-                    {selectedUser.id_document_type && (
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-600">Document Type</p>
-                        <p className="text-sm font-semibold text-[#1a1a1d] capitalize">{selectedUser.id_document_type}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Account Dates */}
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Account Timeline
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600">Created</p>
-                    <p className="text-sm font-semibold text-[#1a1a1d]">
-                      {new Date(selectedUser.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
-                  </div>
-                  {selectedUser.last_login && (
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-gray-600">Last Login</p>
-                      <p className="text-sm font-semibold text-[#1a1a1d]">
-                        {new Date(selectedUser.last_login).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => {
-                    // TODO: Implement edit functionality
-                    modal.alert('Edit functionality coming soon!', 'Feature');
-                  }}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all shadow-md"
-                >
-                  Edit Profile
-                </button>
-                <button
-                  onClick={async () => {
-                    const confirmed = await modal.confirm(
-                      'This will permanently delete the user and all associated data.',
-                      'Delete User?'
-                    );
-                    if (confirmed) {
-                      closeUserDetails();
-                      setTimeout(() => handleDeleteUser(selectedUser.id), 300);
-                    }
-                  }}
-                  className="px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-lg transition-all"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Ticket Details Slide-out Panel */}
-      {showTicketDetails && selectedTicket && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
-            style={{ opacity: isTicketClosing ? 0 : 1 }}
-            onClick={closeTicketDetails}
-          />
-          
-          {/* Panel */}
-          <div 
-            className="relative bg-white w-full max-w-2xl h-full overflow-y-auto shadow-2xl transition-transform duration-300 ease-out translate-x-full"
-            style={{ transform: isTicketClosing ? 'translateX(100%)' : 'translateX(0)' }}
-          >
-            {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] px-6 py-5 flex items-center justify-between border-b border-gray-200">
-              <div>
-                <h2 className="text-xl font-bold text-[#1a1a1d]">Support Ticket</h2>
-                <p className="text-sm text-[#1a1a1d]/70">{selectedTicket.ticket_number}</p>
-              </div>
-              <button
-                onClick={closeTicketDetails}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-              >
-                <svg className="w-6 h-6 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* User Info */}
-              <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {selectedTicket.first_name?.[0] || selectedTicket.user_email?.[0]?.toUpperCase() || 'U'}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-[#1a1a1d]">
-                      {selectedTicket.first_name && selectedTicket.last_name 
-                        ? `${selectedTicket.first_name} ${selectedTicket.last_name}` 
-                        : selectedTicket.user_email || 'Unknown User'}
-                    </h3>
-                    <p className="text-sm text-gray-600">{selectedTicket.user_email}</p>
-                  </div>
-                  <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                    selectedTicket.priority === 'high' 
-                      ? 'bg-red-100 text-red-700'
-                      : selectedTicket.priority === 'normal'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-gray-100 text-gray-700'
-                  }`}>
-                    {selectedTicket.priority || 'Normal'} Priority
-                  </span>
-                </div>
-              </div>
-
-              {/* Ticket Details */}
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <h3 className="text-lg font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Ticket Information
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Subject</p>
-                    <p className="text-base font-semibold text-[#1a1a1d]">{selectedTicket.subject}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Message</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">{selectedTicket.message || 'No message provided.'}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Status</p>
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                        selectedTicket.status === 'open' 
-                          ? 'bg-orange-100 text-orange-700'
-                          : selectedTicket.status === 'resolved'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {selectedTicket.status || 'Open'}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Created</p>
-                      <p className="text-sm font-semibold text-[#1a1a1d]">
-                        {new Date(selectedTicket.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                    </div>
-                  </div>
-                  {selectedTicket.resolved_at && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Resolved At</p>
-                      <p className="text-sm font-semibold text-green-700">
-                        {new Date(selectedTicket.resolved_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
-                <button
-                  onClick={async () => {
-                    await modal.alert('Reply functionality coming soon!', 'Feature');
-                  }}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all shadow-md"
-                >
-                  Reply to Ticket
-                </button>
-                {selectedTicket.status === 'open' && (
-                  <button
-                    onClick={async () => {
-                      await modal.alert('Mark as resolved functionality coming soon!', 'Feature');
-                    }}
-                    className="px-4 py-3 bg-green-100 hover:bg-green-200 text-green-700 font-semibold rounded-lg transition-all"
-                  >
-                    Mark Resolved
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Notification Details Slide-out Panel */}
-      {showNotificationDetails && selectedNotification && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
-            style={{ opacity: isNotificationClosing ? 0 : 1 }}
-            onClick={closeNotificationDetails}
-          />
-          
-          {/* Panel */}
-          <div 
-            className="relative bg-white w-full max-w-2xl h-full overflow-y-auto shadow-2xl transition-transform duration-300 ease-out translate-x-full"
-            style={{ transform: isNotificationClosing ? 'translateX(100%)' : 'translateX(0)' }}
-          >
-            {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] px-6 py-5 flex items-center justify-between border-b border-gray-200">
-              <div>
-                <h2 className="text-xl font-bold text-[#1a1a1d]">Notification</h2>
-                <p className="text-sm text-[#1a1a1d]/70">
-                  {new Date(selectedNotification.created_at).toLocaleString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit'
-                  })}
-                </p>
-              </div>
-              <button
-                onClick={closeNotificationDetails}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-              >
-                <svg className="w-6 h-6 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* Notification Type Badge */}
-              <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  selectedNotification.type === 'trade' 
-                    ? 'bg-amber-50 border-2 border-[#f0d78c]'
-                    : selectedNotification.type === 'account'
-                    ? 'bg-green-50 border-2 border-green-200'
-                    : selectedNotification.type === 'system'
-                    ? 'bg-blue-50 border-2 border-blue-200'
-                    : 'bg-purple-50 border-2 border-purple-200'
-                }`}>
-                  <svg className={`w-6 h-6 ${
-                    selectedNotification.type === 'trade' 
-                      ? 'text-[#c9a227]'
-                      : selectedNotification.type === 'account'
-                      ? 'text-green-600'
-                      : selectedNotification.type === 'system'
-                      ? 'text-blue-600'
-                      : 'text-purple-600'
-                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {selectedNotification.type === 'trade' && (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    )}
-                    {selectedNotification.type === 'account' && (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    )}
-                    {selectedNotification.type === 'system' && (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    )}
-                    {selectedNotification.type === 'promotion' && (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                    )}
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-2 ${
-                    selectedNotification.type === 'trade' 
-                      ? 'bg-amber-100 text-[#c9a227]'
-                      : selectedNotification.type === 'account'
-                      ? 'bg-green-100 text-green-700'
-                      : selectedNotification.type === 'system'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-purple-100 text-purple-700'
-                  }`}>
-                    {selectedNotification.type?.toUpperCase() || 'NOTIFICATION'}
-                  </span>
-                  <p className="text-xs text-gray-500">
-                    {selectedNotification.is_read ? 'Read' : 'Unread'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Notification Content */}
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <h3 className="text-lg font-bold text-[#1a1a1d] mb-3">
-                  {selectedNotification.title}
-                </h3>
-                <p className="text-base text-gray-700 leading-relaxed">
-                  {selectedNotification.message}
-                </p>
-              </div>
-
-              {/* User Info (if available) */}
-              {selectedNotification.user_email && (
-                <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Related User</h4>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white font-bold">
-                      {selectedNotification.first_name?.[0] || selectedNotification.user_email?.[0]?.toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#1a1a1d]">
-                        {selectedNotification.first_name && selectedNotification.last_name 
-                          ? `${selectedNotification.first_name} ${selectedNotification.last_name}` 
-                          : selectedNotification.user_email}
-                      </p>
-                      <p className="text-xs text-gray-500">{selectedNotification.user_email}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Action Button */}
-              <div className="pt-4 border-t border-gray-200">
-                <button
-                  onClick={closeNotificationDetails}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all shadow-md"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Notification Details Drawer */}
+      <NotificationDetailDrawer
+        isOpen={showNotificationDetails}
+        onClose={closeNotificationDetails}
+        notification={selectedNotification as NotificationDetail}
+        onMarkAsRead={(notificationId) => {
+          // TODO: Implement mark as read API call
+          console.log('Mark as read:', notificationId);
+        }}
+      />
     </div>
   );
 }
