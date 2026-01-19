@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'trading' | 'support' | 'system'>('overview');
-  const [tradingSubTab, setTradingSubTab] = useState<'history' | 'accounts' | 'vps' | 'jobs'>('history');
+  const [tradingSubTab, setTradingSubTab] = useState<'history' | 'accounts' | 'vps' | 'jobs'>('accounts');
   const [supportSubTab, setSupportSubTab] = useState<'tickets' | 'notifications'>('tickets');
   const [systemSubTab, setSystemSubTab] = useState<'settings' | 'audit'>('settings');
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
