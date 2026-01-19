@@ -125,11 +125,56 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
       {/* Main Section: Chart + Stats Side by Side */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="flex">
-          {/* Left: Equity Curve */}
-          <div className="flex-1 p-5 border-r border-gray-100">
+          {/* Key Stats Grid */}
+          <div className="w-72 p-4 bg-gray-800 rounded-lg shadow-sm border border-gray-700">
+            {/* Main Gain Metric */}
+            <div className="bg-gradient-to-r from-primary-gold/20 to-secondary-gold/20 rounded-lg p-3 text-center mb-3">
+              <p className="text-sm font-semibold text-primary-gold uppercase tracking-wider">Gain</p>
+              <p className={`text-3xl font-bold mt-1 ${stats.gain >= 0 ? 'text-primary-gold' : 'text-red-500'}`}>
+                {stats.gain >= 0 ? '+' : ''}{stats.gain.toFixed(2)}%
+              </p>
+            </div>
+
+            {/* Other Metrics List */}
+            <div className="space-y-0.5 text-sm">
+              <div className="flex justify-between items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-primary-gold/20">
+                <span className="text-gray-300">Balance</span>
+                <span className="font-semibold text-white">${stats.balance.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-primary-gold/20">
+                <span className="text-gray-300">Profit</span>
+                <span className={`font-semibold ${stats.profit >= 0 ? 'text-primary-gold' : 'text-red-500'}`}>
+                  {stats.profit >= 0 ? '+' : ''}${Math.abs(stats.profit).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-primary-gold/20">
+                <span className="text-gray-300">Drawdown</span>
+                <span className="font-semibold text-orange-400">{stats.drawdown}%</span>
+              </div>
+              <div className="flex justify-between items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-primary-gold/20">
+                <span className="text-gray-300">Win Rate</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-semibold text-white">{stats.winRate}%</span>
+                  <span className="text-[10px] text-gray-400">({stats.winningTrades}W/{stats.losingTrades}L)</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-primary-gold/20">
+                <span className="text-gray-300">Profit Factor</span>
+                <span className="font-semibold text-white">{stats.profitFactor}</span>
+              </div>
+            </div>
+
+            {/* Mini Stats Row */}
+            <div className="mt-3 flex items-center justify-between text-xs text-gray-400 px-1 pt-2 border-t border-gray-700">
+              <span>Max DD: <strong className="text-orange-400">{stats.maxDrawdown}%</strong></span>
+              <span>Trades: <strong className="text-white">{stats.totalTrades}</strong></span>
+            </div>
+          </div>
+          {/* Right: Equity Curve */}
+          <div className="flex-1 p-5 border-l border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#e8c547] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-gold to-secondary-gold flex items-center justify-center">
                   <svg className="w-5 h-5 text-[#1a1a1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
@@ -159,8 +204,8 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
                 <AreaChart data={filteredData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="balanceGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#c9a227" stopOpacity={0.3}/>
-                      <stop offset="100%" stopColor="#c9a227" stopOpacity={0}/>
+                      <stop offset="0%" stopColor="var(--primary-gold)" stopOpacity={0.3}/>
+                      <stop offset="100%" stopColor="var(--primary-gold)" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -188,66 +233,12 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
                   <Area
                     type="monotone"
                     dataKey="balance"
-                    stroke="#c9a227"
+                    stroke="var(--primary-gold)"
                     strokeWidth={2}
                     fill="url(#balanceGradient)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Right: Key Stats Grid */}
-          <div className="w-80 p-5 bg-gray-50/50">
-            <div className="grid grid-cols-2 gap-3">
-              {/* Gain */}
-              <div className="bg-white rounded-xl p-3 border border-gray-100">
-                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Gain</p>
-                <p className={`text-xl font-bold mt-1 ${stats.gain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {stats.gain >= 0 ? '+' : ''}{stats.gain.toFixed(2)}%
-                </p>
-              </div>
-
-              {/* Balance */}
-              <div className="bg-white rounded-xl p-3 border border-gray-100">
-                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Balance</p>
-                <p className="text-xl font-bold mt-1 text-[#1a1a1d]">${stats.balance.toLocaleString()}</p>
-              </div>
-
-              {/* Profit */}
-              <div className="bg-white rounded-xl p-3 border border-gray-100">
-                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Profit</p>
-                <p className={`text-xl font-bold mt-1 ${stats.profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {stats.profit >= 0 ? '+' : ''}${Math.abs(stats.profit).toLocaleString()}
-                </p>
-              </div>
-
-              {/* Drawdown */}
-              <div className="bg-white rounded-xl p-3 border border-gray-100">
-                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Drawdown</p>
-                <p className="text-xl font-bold mt-1 text-orange-500">{stats.drawdown}%</p>
-              </div>
-
-              {/* Win Rate */}
-              <div className="bg-white rounded-xl p-3 border border-gray-100">
-                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Win Rate</p>
-                <div className="flex items-baseline gap-2 mt-1">
-                  <p className="text-xl font-bold text-[#1a1a1d]">{stats.winRate}%</p>
-                  <p className="text-[10px] text-gray-400">{stats.winningTrades}W/{stats.losingTrades}L</p>
-                </div>
-              </div>
-
-              {/* Profit Factor */}
-              <div className="bg-white rounded-xl p-3 border border-gray-100">
-                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Profit Factor</p>
-                <p className="text-xl font-bold mt-1 text-[#1a1a1d]">{stats.profitFactor}</p>
-              </div>
-            </div>
-
-            {/* Mini Stats Row */}
-            <div className="mt-3 flex items-center justify-between text-xs text-gray-500 px-1">
-              <span>Max DD: <strong className="text-orange-500">{stats.maxDrawdown}%</strong></span>
-              <span>Trades: <strong className="text-[#1a1a1d]">{stats.totalTrades}</strong></span>
             </div>
           </div>
         </div>
@@ -258,7 +249,7 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-[#1a1a1d]">Monthly Performance</h3>
           <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span>Profit</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary-gold"></span>Profit</span>
             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500"></span>Loss</span>
           </div>
         </div>
@@ -285,7 +276,7 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
               />
               <Bar dataKey="pct" radius={[4, 4, 0, 0]}>
                 {monthlyData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.pct >= 0 ? '#22c55e' : '#ef4444'} />
+                  <Cell key={`cell-${index}`} fill={entry.pct >= 0 ? 'var(--primary-gold)' : '#ef4444'} />
                 ))}
               </Bar>
             </BarChart>
@@ -297,7 +288,7 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
           {monthlyData.map((m, i) => (
             <div key={i} className="text-center">
               <p className="text-[10px] text-gray-400 mb-1">{m.month}</p>
-              <p className={`text-sm font-bold ${m.pct >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <p className={`text-sm font-bold ${m.pct >= 0 ? 'text-primary-gold' : 'text-red-600'}`}>
                 {m.pct >= 0 ? '+' : ''}{m.pct.toFixed(1)}%
               </p>
             </div>
