@@ -105,9 +105,9 @@ export default function AnalyticsPage() {
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
             <div className="text-gray-600 text-sm mb-2">Buy/Sell Ratio</div>
             <div className="text-3xl font-bold text-[#1a1a1d]">
-              {stats?.buyTrades && stats?.sellTrades
+              {stats?.buyTrades && stats?.sellTrades && Number(stats.sellTrades) !== 0
                 ? (Number(stats.buyTrades) / Number(stats.sellTrades)).toFixed(2)
-                : '0.00'}
+                : (stats?.buyTrades && !stats?.sellTrades ? '1.00+' : '0.00')}
             </div>
             <div className="text-gray-600 text-sm mt-2 font-medium">Buy vs Sell</div>
           </div>

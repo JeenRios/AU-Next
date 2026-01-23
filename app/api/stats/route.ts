@@ -32,8 +32,8 @@ export async function GET() {
         ROUND(AVG(price)::numeric, 4) as avg_price,
         COUNT(DISTINCT symbol) as unique_symbols,
         CASE
-          WHEN COUNT(*) = 0 THEN 0
-          ELSE ROUND((COUNT(*) FILTER (WHERE status = 'COMPLETED')::numeric / COUNT(*)::numeric) * 100, 1)
+          WHEN COUNT(*) FILTER (WHERE status = 'closed') = 0 THEN 0
+          ELSE ROUND((COUNT(*) FILTER (WHERE status = 'closed' AND profit_loss > 0)::numeric / COUNT(*) FILTER (WHERE status = 'closed')::numeric) * 100, 1)
         END as win_rate
       FROM trades
     `;
@@ -57,7 +57,7 @@ export async function GET() {
       avgPrice: Number(stats.avg_price || 0),
       uniqueSymbols: Number(stats.unique_symbols || 0),
       winRate: Number(stats.win_rate || 0),
-      totalBalance: 12450.50, // Mocked for now as no balance table exists
+      totalBalance: 12450.50, // TODO: Replace with real balance from a dedicated table once implemented
     };
 
     // Cache for 60 seconds
