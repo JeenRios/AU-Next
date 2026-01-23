@@ -30,7 +30,11 @@ export async function GET() {
         SUM(CASE WHEN type = 'SELL' THEN 1 ELSE 0 END) as sell_trades,
         ROUND(AVG(amount)::numeric, 4) as avg_amount,
         ROUND(AVG(price)::numeric, 4) as avg_price,
-        COUNT(DISTINCT symbol) as unique_symbols
+        COUNT(DISTINCT symbol) as unique_symbols,
+        CASE
+          WHEN COUNT(*) = 0 THEN 0
+          ELSE ROUND((COUNT(*) FILTER (WHERE status = 'COMPLETED')::numeric / COUNT(*)::numeric) * 100, 1)
+        END as win_rate
       FROM trades
     `;
 
@@ -46,12 +50,14 @@ export async function GET() {
 
     // Convert BigInt to Number for JSON serialization
     const formattedStats = {
-      total_trades: Number(stats.total_trades || 0),
-      buy_trades: Number(stats.buy_trades || 0),
-      sell_trades: Number(stats.sell_trades || 0),
-      avg_amount: Number(stats.avg_amount || 0),
-      avg_price: Number(stats.avg_price || 0),
-      unique_symbols: Number(stats.unique_symbols || 0),
+      totalTrades: Number(stats.total_trades || 0),
+      buyTrades: Number(stats.buy_trades || 0),
+      sellTrades: Number(stats.sell_trades || 0),
+      avgAmount: Number(stats.avg_amount || 0),
+      avgPrice: Number(stats.avg_price || 0),
+      uniqueSymbols: Number(stats.unique_symbols || 0),
+      winRate: Number(stats.win_rate || 0),
+      totalBalance: 12450.50, // Mocked for now as no balance table exists
     };
 
     // Cache for 60 seconds

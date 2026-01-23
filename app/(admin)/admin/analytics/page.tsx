@@ -98,15 +98,15 @@ export default function AnalyticsPage() {
 
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
             <div className="text-gray-400 text-sm mb-2">Average Trade Value</div>
-            <div className="text-3xl font-bold text-[#c9a227]">{stats?.avg_amount || '0.00'}</div>
+            <div className="text-3xl font-bold text-[#c9a227]">{stats?.avgAmount || '0.00'}</div>
             <div className="text-gray-400 text-sm mt-2">Per transaction</div>
           </div>
 
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
             <div className="text-gray-400 text-sm mb-2">Buy/Sell Ratio</div>
             <div className="text-3xl font-bold text-white">
-              {stats?.buy_trades && stats?.sell_trades 
-                ? (Number(stats.buy_trades) / Number(stats.sell_trades)).toFixed(2)
+              {stats?.buyTrades && stats?.sellTrades
+                ? (Number(stats.buyTrades) / Number(stats.sellTrades)).toFixed(2)
                 : '0.00'}
             </div>
             <div className="text-gray-400 text-sm mt-2">Buy vs Sell</div>
@@ -151,24 +151,24 @@ export default function AnalyticsPage() {
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-green-400 font-medium">Buy Orders</span>
-                  <span className="text-white">{stats?.buy_trades || 0}</span>
+                  <span className="text-white">{stats?.buyTrades || 0}</span>
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-3">
                   <div
                     className="bg-green-500 h-3 rounded-full"
-                    style={{ width: `${(Number(stats?.buy_trades) / Number(stats?.total_trades)) * 100}%` }}
+                    style={{ width: `${(Number(stats?.buyTrades) / Number(stats?.totalTrades)) * 100}%` }}
                   />
                 </div>
               </div>
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-red-400 font-medium">Sell Orders</span>
-                  <span className="text-white">{stats?.sell_trades || 0}</span>
+                  <span className="text-white">{stats?.sellTrades || 0}</span>
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-3">
                   <div
                     className="bg-red-500 h-3 rounded-full"
-                    style={{ width: `${(Number(stats?.sell_trades) / Number(stats?.total_trades)) * 100}%` }}
+                    style={{ width: `${(Number(stats?.sellTrades) / Number(stats?.totalTrades)) * 100}%` }}
                   />
                 </div>
               </div>
