@@ -34,6 +34,27 @@ export async function GET() {
   }
 }
 
+export async function DELETE() {
+  try {
+    const session = await requireAuth();
+    const userId = session.user.id;
+
+    // In a real application, you might want to mark the user as deleted
+    // or perform a cascade delete. Here we'll delete the user record.
+    await query('DELETE FROM users WHERE id = $1', [userId]);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Account deleted successfully'
+    });
+  } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const session = await requireAuth();

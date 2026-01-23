@@ -300,6 +300,13 @@ export async function GET() {
       { name: 'push_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
       { name: 'sms_notifications_enabled', type: 'BOOLEAN DEFAULT false' },
       { name: 'email_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
+      { name: 'first_name', type: 'VARCHAR(100)' },
+      { name: 'last_name', type: 'VARCHAR(100)' },
+      { name: 'phone', type: 'VARCHAR(50)' },
+      { name: 'country', type: 'VARCHAR(100)' },
+      { name: 'city', type: 'VARCHAR(100)' },
+      { name: 'address', type: 'TEXT' },
+      { name: 'postal_code', type: 'VARCHAR(20)' },
     ];
 
     for (const col of profileColumns) {

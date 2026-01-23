@@ -1,17 +1,25 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/Toast';
-import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState } from '@/components/dashboard';
+import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab } from '@/components/dashboard';
 import { useDashboardData } from '@/lib/hooks/useFetch';
 import MT5AccountStatus from '@/components/dashboard/MT5AccountStatus';
 import TradingAnalytics from '@/components/dashboard/TradingAnalytics';
 
-export default function UserDashboard() {
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'my-trading' | 'community' | 'settings'>('dashboard');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['dashboard', 'my-trading', 'community', 'settings'].includes(tab)) {
+      setActiveTab(tab as any);
+    }
+  }, [searchParams]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { showToast, ToastContainer } = useToast();
   
@@ -999,267 +1007,19 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* Billing Tab */}
-
+        {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="space-y-8">
-            {/* Account Information Section */}
-            <div className="max-w-2xl">
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
-                <h2 className="text-2xl font-bold text-[#1a1a1d] mb-6">Account Information</h2>
-                
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-600 mb-2">Email Address</label>
-                    <input
-                      type="email"
-                      value={user?.email || ''}
-                      disabled
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-[#1a1a1d] disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-600 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={user?.name || ''}
-                      disabled
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-[#1a1a1d] disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-600 mb-2">Account Role</label>
-                    <input
-                      type="text"
-                      value={user?.role || 'User'}
-                      disabled
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-[#1a1a1d] disabled:opacity-50 capitalize"
-                    />
-                  </div>
-
-                  <div className="pt-4">
-                    <button
-                      className="px-6 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all"
-                    >
-                      Edit Profile
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Billing Section */}
-            <div className="space-y-6">
-              {/* Current Plan */}
-              <div className="bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl p-8 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm opacity-90 mb-2">Current Plan</div>
-                    <h2 className="text-4xl font-bold mb-2">Pro Plan</h2>
-                    <div className="text-2xl font-semibold">$199<span className="text-lg opacity-75">/month</span></div>
-                  </div>
-                  <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center">
-                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="mt-6 pt-6 border-t border-white/20">
-                  <div className="text-sm opacity-90 mb-2">Next billing date</div>
-                  <div className="font-semibold">February 16, 2026</div>
-                </div>
-              </div>
-
-              {/* Upgrade Options */}
-              <div>
-                <h3 className="text-xl font-bold text-[#1a1a1d] mb-4">Upgrade Your Plan</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Basic Plan */}
-                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow">
-                    <div className="text-center mb-6">
-                      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                      </div>
-                      <h4 className="text-2xl font-bold text-[#1a1a1d] mb-2">Basic</h4>
-                      <div className="text-3xl font-bold text-[#1a1a1d] mb-1">$99</div>
-                      <div className="text-sm text-gray-600">per month</div>
-                    </div>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        1 MT5 Account
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Basic EA
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Email Support
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-400">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Advanced Analytics
-                      </li>
-                    </ul>
-                    <button className="w-full py-3 border-2 border-gray-300 hover:border-[#c9a227] text-gray-700 hover:text-[#1a1a1d] font-semibold rounded-xl transition-all">
-                      Select Plan
-                    </button>
-                  </div>
-
-                  {/* Pro Plan - Current */}
-                  <div className="bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                    <div className="absolute top-4 right-4 bg-white text-[#c9a227] px-3 py-1 rounded-full text-xs font-bold">
-                      CURRENT
-                    </div>
-                    <div className="text-center mb-6">
-                      <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                      </div>
-                      <h4 className="text-2xl font-bold mb-2">Pro</h4>
-                      <div className="text-3xl font-bold mb-1">$199</div>
-                      <div className="text-sm opacity-75">per month</div>
-                    </div>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        3 MT5 Accounts
-                      </li>
-                      <li className="flex items-center gap-2 text-sm">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Advanced EA
-                      </li>
-                      <li className="flex items-center gap-2 text-sm">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Priority Support
-                      </li>
-                      <li className="flex items-center gap-2 text-sm">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Advanced Analytics
-                      </li>
-                    </ul>
-                    <button className="w-full py-3 bg-white text-[#c9a227] font-bold rounded-xl">
-                      Current Plan
-                    </button>
-                  </div>
-
-                  {/* Premium Plan */}
-                  <div className="bg-white rounded-2xl border-2 border-[#c9a227] shadow-sm p-6 hover:shadow-lg transition-shadow">
-                    <div className="text-center mb-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                        </svg>
-                      </div>
-                      <h4 className="text-2xl font-bold text-[#1a1a1d] mb-2">Premium</h4>
-                      <div className="text-3xl font-bold text-[#1a1a1d] mb-1">$499</div>
-                      <div className="text-sm text-gray-600">per month</div>
-                    </div>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Unlimited MT5 Accounts
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Premium EA Suite
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        24/7 VIP Support
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Custom EA Development
-                      </li>
-                    </ul>
-                    <button className="w-full py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all">
-                      Upgrade Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment History */}
-              <div>
-                <h3 className="text-xl font-bold text-[#1a1a1d] mb-4">Payment History</h3>
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50">
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Invoice</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Plan</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Amount</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Status</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Date</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6 font-mono text-sm text-gray-600">#INV-2026-001</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">Pro Plan</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">$199.00</td>
-                          <td className="py-4 px-6">
-                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">PAID</span>
-                          </td>
-                          <td className="py-4 px-6 text-sm text-gray-600">Jan 16, 2026</td>
-                          <td className="py-4 px-6">
-                            <button className="text-[#c9a227] hover:text-[#1a1a1d] text-sm font-semibold">Download</button>
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6 font-mono text-sm text-gray-600">#INV-2025-012</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">Pro Plan</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">$199.00</td>
-                          <td className="py-4 px-6">
-                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">PAID</span>
-                          </td>
-                          <td className="py-4 px-6 text-sm text-gray-600">Dec 16, 2025</td>
-                          <td className="py-4 px-6">
-                            <button className="text-[#c9a227] hover:text-[#1a1a1d] text-sm font-semibold">Download</button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SettingsTab user={user} />
         )}
       </main>
     </div>
+  );
+}
+
+export default function UserDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c9a227]"></div></div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

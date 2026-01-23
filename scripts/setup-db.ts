@@ -276,6 +276,32 @@ async function setupDatabase() {
 
     console.log('✅ All tables created successfully!\n');
 
+    // Add missing columns to user_profiles if they don't exist
+    const profileColumns = [
+      { name: 'two_factor_enabled', type: 'BOOLEAN DEFAULT false' },
+      { name: 'trading_risk_level', type: "VARCHAR(50) DEFAULT 'moderate'" },
+      { name: 'default_stop_loss', type: 'DECIMAL(15, 4)' },
+      { name: 'default_take_profit', type: 'DECIMAL(15, 4)' },
+      { name: 'push_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
+      { name: 'sms_notifications_enabled', type: 'BOOLEAN DEFAULT false' },
+      { name: 'email_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
+      { name: 'first_name', type: 'VARCHAR(100)' },
+      { name: 'last_name', type: 'VARCHAR(100)' },
+      { name: 'phone', type: 'VARCHAR(50)' },
+      { name: 'country', type: 'VARCHAR(100)' },
+      { name: 'city', type: 'VARCHAR(100)' },
+      { name: 'address', type: 'TEXT' },
+      { name: 'postal_code', type: 'VARCHAR(20)' },
+    ];
+
+    for (const col of profileColumns) {
+      try {
+        await pool.query(`ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
+      } catch (e) {
+        // Column might already exist, ignore error
+      }
+    }
+
     // Create indexes for better performance
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);

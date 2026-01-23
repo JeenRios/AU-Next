@@ -1,0 +1,19 @@
+
+> au-next@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+ ⚠ Port 3001 is in use, trying 3002 instead.
+ ⚠ Port 3002 is in use, trying 3003 instead.
+ ⚠ Port 3003 is in use, trying 3004 instead.
+  ▲ Next.js 14.2.3
+  - Local:        http://localhost:3004
+
+ ✓ Starting...
+ ✓ Ready in 2.2s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 857ms (73 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 5.7s (478 modules)
+ ✓ Compiled in 817ms (242 modules)
+ GET /?tab=settings&redirect=%2Fdashboard 200 in 6528ms
