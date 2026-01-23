@@ -60,6 +60,13 @@ async function setupDatabase() {
         avatar_url TEXT,
         timezone VARCHAR(50) DEFAULT 'UTC',
         language VARCHAR(10) DEFAULT 'en',
+        two_factor_enabled BOOLEAN DEFAULT false,
+        trading_risk_level VARCHAR(50) DEFAULT 'moderate',
+        default_stop_loss DECIMAL(15, 4),
+        default_take_profit DECIMAL(15, 4),
+        push_notifications_enabled BOOLEAN DEFAULT true,
+        sms_notifications_enabled BOOLEAN DEFAULT false,
+        email_notifications_enabled BOOLEAN DEFAULT true,
         
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

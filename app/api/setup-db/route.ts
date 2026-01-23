@@ -50,6 +50,13 @@ export async function GET() {
         avatar_url TEXT,
         timezone VARCHAR(50) DEFAULT 'UTC',
         language VARCHAR(10) DEFAULT 'en',
+        two_factor_enabled BOOLEAN DEFAULT false,
+        trading_risk_level VARCHAR(50) DEFAULT 'moderate',
+        default_stop_loss DECIMAL(15, 4),
+        default_take_profit DECIMAL(15, 4),
+        push_notifications_enabled BOOLEAN DEFAULT true,
+        sms_notifications_enabled BOOLEAN DEFAULT false,
+        email_notifications_enabled BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       );
@@ -284,6 +291,25 @@ export async function GET() {
       }
     }
 
+    // Add missing columns to user_profiles
+    const profileColumns = [
+      { name: 'two_factor_enabled', type: 'BOOLEAN DEFAULT false' },
+      { name: 'trading_risk_level', type: "VARCHAR(50) DEFAULT 'moderate'" },
+      { name: 'default_stop_loss', type: 'DECIMAL(15, 4)' },
+      { name: 'default_take_profit', type: 'DECIMAL(15, 4)' },
+      { name: 'push_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
+      { name: 'sms_notifications_enabled', type: 'BOOLEAN DEFAULT false' },
+      { name: 'email_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
+    ];
+
+    for (const col of profileColumns) {
+      try {
+        await pool.query(`ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
+      } catch (e) {
+        // Column might already exist, ignore error
+      }
+    }
+
     await pool.end();
 
     return NextResponse.json({
@@ -292,10 +318,11 @@ export async function GET() {
     });
 
   } catch (error: any) {
-    await pool.end();
+    console.error('Setup DB Error:', error);
+    try { await pool.end(); } catch (e) {}
     return NextResponse.json({ 
       success: false, 
-      error: error.message 
+      error: error.message || 'Unknown error occurred'
     }, { status: 500 });
   }
 }
