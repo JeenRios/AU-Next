@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const result = await query(`
       SELECT
         p.id,
+        p.user_id,
         p.content,
         p.image_url,
         p.profit_amount,
@@ -24,11 +25,13 @@ export async function GET(request: NextRequest) {
         COALESCE(up.first_name || ' ' || up.last_name, u.email) as user_name,
         COALESCE(UPPER(LEFT(up.first_name, 1)), UPPER(LEFT(u.email, 1))) as avatar,
         CASE WHEN up.kyc_status = 'verified' THEN true ELSE false END as verified,
-        CASE WHEN pl.id IS NOT NULL THEN true ELSE false END as liked
+        CASE WHEN pl.id IS NOT NULL THEN true ELSE false END as liked,
+        CASE WHEN f.id IS NOT NULL THEN true ELSE false END as following
       FROM community_posts p
       JOIN users u ON p.user_id = u.id
       LEFT JOIN user_profiles up ON u.id = up.user_id
       LEFT JOIN community_post_likes pl ON p.id = pl.post_id AND pl.user_id = $1
+      LEFT JOIN user_follows f ON p.user_id = f.following_id AND f.follower_id = $1
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3
     `, [session.user.id, limit, offset]);
@@ -37,9 +40,11 @@ export async function GET(request: NextRequest) {
     const posts = result.rows.map(post => ({
       id: post.id,
       user: {
+        id: post.user_id,
         name: post.user_name,
         avatar: post.avatar,
-        verified: post.verified
+        verified: post.verified,
+        following: post.following
       },
       content: post.content,
       image: post.image_url,

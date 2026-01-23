@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/Toast';
-import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab } from '@/components/dashboard';
+import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab, CommunityTab } from '@/components/dashboard';
 import { useDashboardData } from '@/lib/hooks/useFetch';
 import MT5AccountStatus from '@/components/dashboard/MT5AccountStatus';
 import TradingAnalytics from '@/components/dashboard/TradingAnalytics';
@@ -48,50 +48,6 @@ function DashboardContent() {
     email: ''
   });
 
-  // Community/Social
-  const [newPost, setNewPost] = useState('');
-  const [communityPosts, setCommunityPosts] = useState<any[]>([
-    {
-      id: 1,
-      user: { name: 'Alex Trader', avatar: 'A', verified: true },
-      content: 'Just hit my monthly target! 🎯 XAUUSD has been treating me well this week. Remember: patience is key in trading!',
-      image: null,
-      profit: '+$2,450',
-      likes: 24,
-      comments: 8,
-      liked: false,
-      timestamp: '2 hours ago'
-    },
-    {
-      id: 2,
-      user: { name: 'Sarah Gold', avatar: 'S', verified: true },
-      content: 'New strategy working great! Sharing my GBPUSD analysis for those interested 📊',
-      image: null,
-      profit: '+$890',
-      likes: 45,
-      comments: 12,
-      liked: true,
-      timestamp: '4 hours ago'
-    },
-    {
-      id: 3,
-      user: { name: 'Mike Reynolds', avatar: 'M', verified: false },
-      content: 'Learning from my losses today. Down $150 on EURUSD but the lesson was worth more than that. Stay humble! 💪',
-      image: null,
-      profit: '-$150',
-      likes: 67,
-      comments: 23,
-      liked: false,
-      timestamp: '6 hours ago'
-    }
-  ]);
-  const [leaderboard] = useState([
-    { rank: 1, name: 'GoldMaster99', profit: '+$12,450', winRate: '78%', trades: 156 },
-    { rank: 2, name: 'ForexQueen', profit: '+$9,230', winRate: '72%', trades: 203 },
-    { rank: 3, name: 'Alex Trader', profit: '+$8,100', winRate: '69%', trades: 178 },
-    { rank: 4, name: 'TradingPro', profit: '+$6,890', winRate: '65%', trades: 142 },
-    { rank: 5, name: 'Sarah Gold', profit: '+$5,670', winRate: '71%', trades: 98 },
-  ]);
 
   // Use custom hook for data fetching with error handling
   const { data: dashboardData, loading: dataLoading, error: dataError, refetch } = useDashboardData();
@@ -198,33 +154,6 @@ function DashboardContent() {
     return true;
   });
 
-  // Community functions
-  const handleLikePost = (postId: number) => {
-    setCommunityPosts(communityPosts.map(post => 
-      post.id === postId 
-        ? { ...post, liked: !post.liked, likes: post.liked ? post.likes - 1 : post.likes + 1 }
-        : post
-    ));
-  };
-
-  const handleCreatePost = () => {
-    if (!newPost.trim()) return;
-    
-    const post = {
-      id: Date.now(),
-      user: { name: user?.name || 'Anonymous', avatar: user?.name?.charAt(0) || 'U', verified: false },
-      content: newPost,
-      image: null,
-      profit: null,
-      likes: 0,
-      comments: 0,
-      liked: false,
-      timestamp: 'Just now'
-    };
-    
-    setCommunityPosts([post, ...communityPosts]);
-    setNewPost('');
-  };
 
   // Show error state with retry
   if (dataError && !dataLoading) {
@@ -390,202 +319,7 @@ function DashboardContent() {
 
         {/* Community Tab */}
         {activeTab === 'community' && (
-          <div className="grid grid-cols-12 gap-6">
-            {/* Main Feed Column */}
-            <div className="col-span-12 lg:col-span-8 space-y-4">
-              {/* Create Post */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                    {user?.name?.charAt(0) || 'U'}
-                  </div>
-                  <div className="flex-1">
-                    <textarea
-                      value={newPost}
-                      onChange={(e) => setNewPost(e.target.value)}
-                      placeholder="Share your trading insights, wins, or lessons learned..."
-                      className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#c9a227] focus:border-transparent resize-none h-24"
-                    />
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex gap-2">
-                        <button className="p-2 text-gray-500 hover:text-[#c9a227] hover:bg-amber-50 rounded-lg transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </button>
-                        <button className="p-2 text-gray-500 hover:text-[#c9a227] hover:bg-amber-50 rounded-lg transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                          </svg>
-                        </button>
-                      </div>
-                      <button
-                        onClick={handleCreatePost}
-                        disabled={!newPost.trim()}
-                        className="px-6 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all disabled:opacity-50"
-                      >
-                        Post
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feed Posts */}
-              {communityPosts.map((post) => (
-                <div key={post.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                  {/* Post Header */}
-                  <div className="p-5 flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white font-bold">
-                      {post.user.avatar}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-[#1a1a1d]">{post.user.name}</span>
-                        {post.user.verified && (
-                          <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-500">{post.timestamp}</div>
-                    </div>
-                    {post.profit && (
-                      <div className={`px-4 py-2 rounded-xl font-bold ${
-                        post.profit.startsWith('+') 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-red-100 text-red-700'
-                      }`}>
-                        {post.profit}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Post Content */}
-                  <div className="px-5 pb-4">
-                    <p className="text-[#1a1a1d] text-base leading-relaxed">{post.content}</p>
-                  </div>
-
-                  {/* Post Actions */}
-                  <div className="px-5 py-3 border-t border-gray-100 flex items-center gap-6">
-                    <button
-                      onClick={() => handleLikePost(post.id)}
-                      className={`flex items-center gap-2 transition-colors ${
-                        post.liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-                      }`}
-                    >
-                      <svg className="w-5 h-5" fill={post.liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                      <span className="font-medium">{post.likes}</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-gray-500 hover:text-[#c9a227] transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
-                      <span className="font-medium">{post.comments}</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-gray-500 hover:text-[#c9a227] transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                      </svg>
-                      <span className="font-medium">Share</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Right Sidebar */}
-            <div className="col-span-12 lg:col-span-4 space-y-4">
-              {/* Leaderboard */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sticky top-4">
-                <h3 className="font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                  Top Traders This Month
-                </h3>
-
-                <div className="space-y-3">
-                  {leaderboard.map((trader, idx) => (
-                    <div key={idx} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                      idx === 0 ? 'bg-gradient-to-r from-[#c9a227]/10 to-[#f0d78c]/10 border border-[#f0d78c]' :
-                      idx === 1 ? 'bg-gray-100' :
-                      idx === 2 ? 'bg-orange-50' : 'hover:bg-gray-50'
-                    }`}>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                        idx === 0 ? 'bg-[#c9a227] text-white' :
-                        idx === 1 ? 'bg-gray-400 text-white' :
-                        idx === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        {trader.rank}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-[#1a1a1d] text-sm">{trader.name}</div>
-                        <div className="text-xs text-gray-500">{trader.trades} trades • {trader.winRate} win</div>
-                      </div>
-                      <div className="text-green-600 font-bold text-sm">{trader.profit}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <button className="w-full mt-4 py-2.5 border border-[#c9a227] text-[#c9a227] hover:bg-amber-50 font-semibold rounded-xl transition-all text-sm">
-                  View Full Leaderboard
-                </button>
-              </div>
-
-              {/* Suggested Traders */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <h3 className="font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                  Suggested to Follow
-                </h3>
-
-                <div className="space-y-3">
-                  {[
-                    { name: 'CryptoKing', followers: '2.5k', winRate: '75%' },
-                    { name: 'GoldTrader_Pro', followers: '1.8k', winRate: '71%' },
-                    { name: 'ForexMaster', followers: '3.2k', winRate: '68%' },
-                  ].map((trader, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white font-bold">
-                        {trader.name.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-[#1a1a1d] text-sm">{trader.name}</div>
-                        <div className="text-xs text-gray-500">{trader.followers} followers • {trader.winRate} win</div>
-                      </div>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] text-xs font-semibold rounded-lg hover:shadow-md transition-all">
-                        Follow
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Trending Topics */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <h3 className="font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                  Trending Topics
-                </h3>
-
-                <div className="space-y-2">
-                  {['#XAUUSD', '#NFP', '#GoldTrading', '#ForexSignals', '#TradingPsychology'].map((topic, idx) => (
-                    <button key={idx} className="w-full text-left px-3 py-2 hover:bg-amber-50 rounded-lg transition-colors">
-                      <div className="font-semibold text-[#c9a227] text-sm">{topic}</div>
-                      <div className="text-xs text-gray-500">{Math.floor(Math.random() * 500) + 100} posts today</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <CommunityTab user={user} />
         )}
 
         {/* My Trading Tab */}

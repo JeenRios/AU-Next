@@ -1,0 +1,236 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - main [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: A
+          - generic [ref=e9]: AUNext
+        - generic [ref=e10]:
+          - link "Process" [ref=e11] [cursor=pointer]:
+            - /url: "#how-it-works"
+          - link "Features" [ref=e12] [cursor=pointer]:
+            - /url: "#features"
+          - link "Pricing" [ref=e13] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "Activity" [ref=e14] [cursor=pointer]:
+            - /url: "#activity"
+          - button "Sign In" [ref=e15] [cursor=pointer]
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e21]: Institutional Automated Trading
+        - heading "Master the Markets with Next-Gen Automation" [level=1] [ref=e23]
+        - paragraph [ref=e24]: Bridge your MetaTrader account with our high-performance EA infrastructure. Execute professional-grade strategies 24/7 with zero latency and enterprise security.
+        - generic [ref=e25]:
+          - button "Start Trading Now" [ref=e26] [cursor=pointer]
+          - link "View Process" [ref=e27] [cursor=pointer]:
+            - /url: "#how-it-works"
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - img [ref=e30]
+            - text: Encrypted Bridge
+          - generic [ref=e32]:
+            - img [ref=e33]
+            - text: 24/7 Uptime
+          - generic [ref=e35]:
+            - img [ref=e36]
+            - text: Verified EA Performance
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - heading "Intelligence Hub" [level=3] [ref=e43]
+            - paragraph [ref=e44]: Real-time stats
+          - generic [ref=e45]: Live Stream
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - paragraph [ref=e49]: Total Trades
+              - paragraph [ref=e50]: "0"
+            - generic [ref=e51]:
+              - paragraph [ref=e52]: Win Rate
+              - paragraph [ref=e53]: 0%
+            - generic [ref=e54]:
+              - paragraph [ref=e55]: Total Volume
+              - paragraph [ref=e56]: "0"
+            - generic [ref=e57]:
+              - paragraph [ref=e58]: Uptime
+              - paragraph [ref=e59]: 99.9%
+          - generic [ref=e61]:
+            - generic [ref=e62]: Recent Signals
+            - generic [ref=e63]: "Last updated: 8:03:43 PM"
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - heading "The Process" [level=2] [ref=e67]
+        - heading "Simple 3-Step Integration" [level=3] [ref=e68]
+        - paragraph [ref=e69]: Designed for simplicity, built for performance. Get started in minutes.
+      - generic [ref=e70]:
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - img [ref=e74]
+            - paragraph [ref=e76]: "01"
+            - heading "Register & Configure" [level=4] [ref=e77]
+            - paragraph [ref=e78]: Create your account and select your preferred trading parameters and risk level.
+          - img [ref=e80]
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - img [ref=e85]
+            - paragraph [ref=e87]: "02"
+            - heading "Bridge MT5" [level=4] [ref=e88]
+            - paragraph [ref=e89]: Connect your MT4/MT5 account through our secure, encrypted backend connection.
+          - img [ref=e91]
+        - generic [ref=e94]:
+          - img [ref=e96]
+          - paragraph [ref=e98]: "03"
+          - heading "Live Automation" [level=4] [ref=e99]
+          - paragraph [ref=e100]: Deploy our Expert Advisors and monitor your performance via our sleek analytics dashboard.
+    - generic [ref=e102]:
+      - generic [ref=e103]:
+        - generic [ref=e104]:
+          - heading "Capability" [level=2] [ref=e105]
+          - heading "The Edge You Need to Succeed." [level=3] [ref=e106]
+        - paragraph [ref=e107]: Built on top of a low-latency execution engine optimized for high-frequency algorithmic strategies.
+      - generic [ref=e108]:
+        - generic [ref=e109]:
+          - heading "Cloud Infrastructure" [level=4] [ref=e112]
+          - paragraph [ref=e113]: Enterprise-grade VPS hosting with direct fiber connection to major liquidity hubs.
+        - generic [ref=e114]:
+          - heading "Risk Intelligence" [level=4] [ref=e117]
+          - paragraph [ref=e118]: Advanced equity protection and drawdown controls built into the core engine.
+        - generic [ref=e119]:
+          - heading "Universal Connectivity" [level=4] [ref=e122]
+          - paragraph [ref=e123]: Seamlessly connect with any MT4/MT5 broker worldwide through our secure gateway.
+        - generic [ref=e124]:
+          - heading "Performance Metrics" [level=4] [ref=e127]
+          - paragraph [ref=e128]: Granular reporting on Sharpe ratios, recovery factors, and trade distribution.
+        - generic [ref=e129]:
+          - heading "Security First" [level=4] [ref=e132]
+          - paragraph [ref=e133]: Institutional-grade encryption for all account credentials and API keys.
+        - generic [ref=e134]:
+          - heading "Social Community" [level=4] [ref=e137]
+          - paragraph [ref=e138]: Share insights and copy strategies from the top performing traders in our network.
+    - generic [ref=e141]:
+      - generic [ref=e142]:
+        - heading "Pricing" [level=2] [ref=e143]
+        - heading "Built to Scale with You" [level=3] [ref=e144]
+        - paragraph [ref=e145]: Flexible plans designed for retail traders and institutional desks alike.
+      - generic [ref=e146]:
+        - generic [ref=e147]:
+          - paragraph [ref=e148]: Standard
+          - generic [ref=e149]: $99/month
+          - list [ref=e150]:
+            - listitem [ref=e151]:
+              - img [ref=e152]
+              - text: 1 Active MT5 Connection
+            - listitem [ref=e154]:
+              - img [ref=e155]
+              - text: Standard EA Portfolio
+            - listitem [ref=e157]:
+              - img [ref=e158]
+              - text: Email Support
+            - listitem [ref=e160]:
+              - img [ref=e161]
+              - text: Basic Analytics
+          - button "Select Plan" [ref=e163] [cursor=pointer]
+        - generic [ref=e164]:
+          - generic [ref=e165]: Recommended
+          - paragraph [ref=e166]: Professional
+          - generic [ref=e167]: $199/month
+          - list [ref=e168]:
+            - listitem [ref=e169]:
+              - img [ref=e170]
+              - text: 3 Active Connections
+            - listitem [ref=e172]:
+              - img [ref=e173]
+              - text: Full EA Suite
+            - listitem [ref=e175]:
+              - img [ref=e176]
+              - text: Priority Deployment
+            - listitem [ref=e178]:
+              - img [ref=e179]
+              - text: Advanced Institutional Stats
+            - listitem [ref=e181]:
+              - img [ref=e182]
+              - text: Community Access
+          - button "Get Started Now" [ref=e184] [cursor=pointer]
+        - generic [ref=e185]:
+          - paragraph [ref=e186]: Enterprise
+          - generic [ref=e187]: $499/month
+          - list [ref=e188]:
+            - listitem [ref=e189]:
+              - img [ref=e190]
+              - text: Unlimited Connections
+            - listitem [ref=e192]:
+              - img [ref=e193]
+              - text: Custom EA Development
+            - listitem [ref=e195]:
+              - img [ref=e196]
+              - text: Dedicated Account Manager
+            - listitem [ref=e198]:
+              - img [ref=e199]
+              - text: API Access
+            - listitem [ref=e201]:
+              - img [ref=e202]
+              - text: White-label Support
+          - button "Contact Sales" [ref=e204] [cursor=pointer]
+    - generic [ref=e206]:
+      - generic [ref=e207]:
+        - heading "Market Flow" [level=2] [ref=e208]
+        - heading "Transparent Performance" [level=3] [ref=e209]
+        - paragraph [ref=e210]: Real-time signals executed across our network
+      - generic [ref=e211]:
+        - generic [ref=e212]:
+          - generic [ref=e213]: Global Activity
+          - generic [ref=e214]: Active
+        - generic [ref=e217]: No recent activity detected.
+        - button "View Verified Audit Results" [ref=e219] [cursor=pointer]
+    - generic [ref=e221]:
+      - generic [ref=e222]:
+        - generic [ref=e223]:
+          - generic [ref=e224]:
+            - generic [ref=e225]: A
+            - generic [ref=e226]: AUNext
+          - paragraph [ref=e227]: Democratizing institutional-grade automated trading for retail investors globally. Built with precision, reliability, and security at its core.
+        - generic [ref=e228]:
+          - heading "Navigation" [level=5] [ref=e229]
+          - list [ref=e230]:
+            - listitem [ref=e231]:
+              - link "Process" [ref=e232] [cursor=pointer]:
+                - /url: "#how-it-works"
+            - listitem [ref=e233]:
+              - link "Features" [ref=e234] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=e235]:
+              - link "Pricing" [ref=e236] [cursor=pointer]:
+                - /url: "#pricing"
+            - listitem [ref=e237]:
+              - link "Live Feed" [ref=e238] [cursor=pointer]:
+                - /url: "#activity"
+        - generic [ref=e239]:
+          - heading "Support" [level=5] [ref=e240]
+          - list [ref=e241]:
+            - listitem [ref=e242]:
+              - link "Help Center" [ref=e243] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e244]:
+              - link "Legal Disclosure" [ref=e245] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e246]:
+              - link "Terms of Service" [ref=e247] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e248]:
+              - link "Privacy Policy" [ref=e249] [cursor=pointer]:
+                - /url: "#"
+      - generic [ref=e250]:
+        - generic [ref=e251]: © 2026 AU-Next Technologies. All rights reserved.
+        - generic [ref=e252]:
+          - link "Twitter" [ref=e253] [cursor=pointer]:
+            - /url: "#"
+          - link "LinkedIn" [ref=e254] [cursor=pointer]:
+            - /url: "#"
+          - link "Discord" [ref=e255] [cursor=pointer]:
+            - /url: "#"
+      - generic [ref=e256]: "High Risk Warning: Foreign exchange trading carries a high level of risk and may not be suitable for all investors. The high degree of leverage can work against you as well as for you. Past results do not guarantee future performance."
+```

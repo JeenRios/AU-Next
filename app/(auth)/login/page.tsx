@@ -15,15 +15,27 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    // Demo login - in production, call your auth API
-    if (email === 'admin@au.com' && password === 'admin') {
-      localStorage.setItem('user', JSON.stringify({ email, role: 'admin' }));
-      router.push('/admin');
-    } else if (email && password) {
-      localStorage.setItem('user', JSON.stringify({ email, role: 'user' }));
-      router.push('/dashboard');
-    } else {
-      setError('Invalid credentials');
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        if (data.user.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/dashboard');
+        }
+      } else {
+        setError(data.error || 'Invalid credentials');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
       setLoading(false);
     }
   };

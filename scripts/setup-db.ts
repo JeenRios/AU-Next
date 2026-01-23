@@ -274,6 +274,29 @@ async function setupDatabase() {
       );
     `);
 
+    // Community Comments table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS community_comments (
+        id SERIAL PRIMARY KEY,
+        post_id INTEGER REFERENCES community_posts(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // User Follows table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_follows (
+        id SERIAL PRIMARY KEY,
+        follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        following_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(follower_id, following_id)
+      );
+    `);
+
     console.log('✅ All tables created successfully!\n');
 
     // Add missing columns to user_profiles if they don't exist
@@ -323,6 +346,9 @@ async function setupDatabase() {
       CREATE INDEX IF NOT EXISTS idx_automation_jobs_vps_instance ON automation_jobs(vps_instance_id);
       CREATE INDEX IF NOT EXISTS idx_community_posts_user_id ON community_posts(user_id);
       CREATE INDEX IF NOT EXISTS idx_community_posts_created_at ON community_posts(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id);
+      CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
+      CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
     `);
 
     console.log('✅ Indexes created\n');
@@ -341,6 +367,8 @@ async function setupDatabase() {
     console.log('  ✓ automation_jobs - EA deployment & automation job tracking');
     console.log('  ✓ community_posts - Community feed posts');
     console.log('  ✓ community_post_likes - Post likes tracking');
+    console.log('  ✓ community_comments - Post comments tracking');
+    console.log('  ✓ user_follows - User social connection tracking');
     console.log('');
     console.log('🎉 Database schema setup complete!');
 

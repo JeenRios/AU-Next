@@ -269,6 +269,32 @@ export async function GET() {
       );
     `);
 
+    // Create community_comments table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS community_comments (
+        id SERIAL PRIMARY KEY,
+        post_id INTEGER REFERENCES community_posts(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id);
+    `);
+
+    // Create user_follows table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_follows (
+        id SERIAL PRIMARY KEY,
+        follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        following_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(follower_id, following_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
+      CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
+    `);
+
     // Add missing columns to mt5_accounts if they don't exist
     const mt5Columns = [
       { name: 'encrypted_password', type: 'TEXT' },
@@ -321,7 +347,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: 'Database schema created successfully! All tables are ready (users, user_profiles, trades, transactions, notifications, support_tickets, audit_logs, mt5_accounts, vps_instances, automation_jobs, community_posts, community_post_likes).'
+      message: 'Database schema created successfully! All tables are ready (users, user_profiles, trades, transactions, notifications, support_tickets, audit_logs, mt5_accounts, vps_instances, automation_jobs, community_posts, community_post_likes, community_comments, user_follows).'
     });
 
   } catch (error: any) {
