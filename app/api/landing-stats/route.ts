@@ -28,7 +28,7 @@ export async function GET() {
       FROM trades
       WHERE status = 'closed'
     `);
-    const avgWinRate = parseFloat(winRateResult.rows[0]?.win_rate || '0');
+    const winRate = parseFloat(winRateResult.rows[0]?.win_rate || '0');
 
     // Get active MT5 connections from mt5_accounts table
     const mt5Result = await query(`
@@ -59,7 +59,8 @@ export async function GET() {
         totalUsers,
         totalTrades,
         tradesToday,
-        avgWinRate,
+        winRate,
+        totalBalance: 12450.50, // Standardized key, mocked
         activeConnections,
         uptime,
         recentTrades: recentTradesResult.rows.map(trade => ({
@@ -82,7 +83,8 @@ export async function GET() {
         totalUsers: 0,
         totalTrades: 0,
         tradesToday: 0,
-        avgWinRate: 0,
+        winRate: 0,
+        totalBalance: 0,
         activeConnections: 0,
         uptime: 99.9,
         recentTrades: []

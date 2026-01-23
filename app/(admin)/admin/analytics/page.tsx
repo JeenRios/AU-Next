@@ -93,23 +93,23 @@ export default function AnalyticsPage() {
             <div className="text-3xl font-bold text-[#1a1a1d]">
               {trades.reduce((sum, t) => sum + parseFloat(t.amount), 0).toFixed(2)}
             </div>
-            <div className="text-green-400 text-sm mt-2">Units traded</div>
+            <div className="text-green-600 text-sm mt-2">Units traded</div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="text-gray-400 text-sm mb-2">Average Trade Value</div>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+            <div className="text-gray-600 text-sm mb-2">Average Trade Value</div>
             <div className="text-3xl font-bold text-[#c9a227]">{stats?.avgAmount || '0.00'}</div>
-            <div className="text-gray-400 text-sm mt-2">Per transaction</div>
+            <div className="text-gray-600 text-sm mt-2 font-medium">Per transaction</div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="text-gray-400 text-sm mb-2">Buy/Sell Ratio</div>
-            <div className="text-3xl font-bold text-white">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+            <div className="text-gray-600 text-sm mb-2">Buy/Sell Ratio</div>
+            <div className="text-3xl font-bold text-[#1a1a1d]">
               {stats?.buyTrades && stats?.sellTrades
                 ? (Number(stats.buyTrades) / Number(stats.sellTrades)).toFixed(2)
                 : '0.00'}
             </div>
-            <div className="text-gray-400 text-sm mt-2">Buy vs Sell</div>
+            <div className="text-gray-600 text-sm mt-2 font-medium">Buy vs Sell</div>
           </div>
         </div>
 
@@ -145,15 +145,15 @@ export default function AnalyticsPage() {
 
         {/* Trade Type Distribution */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-6">Trade Distribution</h2>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+            <h2 className="text-2xl font-bold text-[#1a1a1d] mb-6">Trade Distribution</h2>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-green-400 font-medium">Buy Orders</span>
-                  <span className="text-white">{stats?.buyTrades || 0}</span>
+                  <span className="text-green-600 font-bold">Buy Orders</span>
+                  <span className="text-[#1a1a1d] font-bold">{stats?.buyTrades || 0}</span>
                 </div>
-                <div className="w-full bg-white/10 rounded-full h-3">
+                <div className="w-full bg-gray-100 rounded-full h-3">
                   <div
                     className="bg-green-500 h-3 rounded-full"
                     style={{ width: `${(Number(stats?.buyTrades) / Number(stats?.totalTrades)) * 100}%` }}
@@ -162,12 +162,12 @@ export default function AnalyticsPage() {
               </div>
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-red-400 font-medium">Sell Orders</span>
-                  <span className="text-white">{stats?.sellTrades || 0}</span>
+                  <span className="text-rose-600 font-bold">Sell Orders</span>
+                  <span className="text-[#1a1a1d] font-bold">{stats?.sellTrades || 0}</span>
                 </div>
-                <div className="w-full bg-white/10 rounded-full h-3">
+                <div className="w-full bg-gray-100 rounded-full h-3">
                   <div
-                    className="bg-red-500 h-3 rounded-full"
+                    className="bg-rose-500 h-3 rounded-full"
                     style={{ width: `${(Number(stats?.sellTrades) / Number(stats?.totalTrades)) * 100}%` }}
                   />
                 </div>
@@ -175,24 +175,24 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-6">Recent Activity</h2>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+            <h2 className="text-2xl font-bold text-[#1a1a1d] mb-6">Recent Activity</h2>
             <div className="space-y-3">
-              {trades.slice(0, 5).map((trade) => (
-                <div key={trade.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+              {trades.slice(0, 5).map((trade: any) => (
+                <div key={trade.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
                   <div>
-                    <div className="text-white font-medium">{trade.symbol}</div>
-                    <div className="text-gray-400 text-sm">
+                    <div className="text-[#1a1a1d] font-bold">{trade.symbol}</div>
+                    <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
                       {new Date(trade.created_at).toLocaleTimeString()}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`font-medium ${
-                      trade.type === 'BUY' ? 'text-green-400' : 'text-red-400'
+                    <div className={`font-black text-sm ${
+                      trade.type === 'BUY' ? 'text-green-600' : 'text-rose-600'
                     }`}>
                       {trade.type}
                     </div>
-                    <div className="text-gray-400 text-sm">{parseFloat(trade.amount).toFixed(2)}</div>
+                    <div className="text-slate-500 text-xs font-bold">{parseFloat(trade.amount).toFixed(2)}</div>
                   </div>
                 </div>
               ))}
