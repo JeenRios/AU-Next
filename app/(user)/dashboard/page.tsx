@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/Toast';
-import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab, CommunityTab } from '@/components/dashboard';
+import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab, CommunityTab, JournalTab } from '@/components/dashboard';
 import { useDashboardData } from '@/lib/hooks/useFetch';
 import MT5AccountStatus from '@/components/dashboard/MT5AccountStatus';
 import TradingAnalytics from '@/components/dashboard/TradingAnalytics';
@@ -12,11 +12,11 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-trading' | 'community' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-trading' | 'community' | 'journal' | 'settings'>('dashboard');
 
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['dashboard', 'my-trading', 'community', 'settings'].includes(tab)) {
+    if (tab && ['dashboard', 'my-trading', 'community', 'journal', 'settings'].includes(tab)) {
       setActiveTab(tab as any);
     }
   }, [searchParams]);
@@ -202,12 +202,14 @@ function DashboardContent() {
                 {activeTab === 'dashboard' && 'Dashboard'}
                 {activeTab === 'my-trading' && 'My Trading'}
                 {activeTab === 'community' && 'Community'}
+                {activeTab === 'journal' && 'Trading Journal'}
                 {activeTab === 'settings' && 'Settings'}
               </h1>
               <p className="text-sm md:text-base text-gray-600">
                 {activeTab === 'dashboard' && 'Monitor your trading activity and account status'}
                 {activeTab === 'my-trading' && 'Manage your MT5 accounts and view trading performance'}
                 {activeTab === 'community' && 'Connect with fellow traders, share insights, and learn together'}
+                {activeTab === 'journal' && 'Document your trades, emotions, and lessons learned'}
                 {activeTab === 'settings' && 'Manage your account, billing, and subscription settings'}
               </p>
             </div>
@@ -294,6 +296,14 @@ function DashboardContent() {
                   onClick: () => setActiveTab('my-trading'),
                 },
                 {
+                  id: 'trading-journal',
+                  label: 'Trading Journal',
+                  sublabel: 'Log your trades',
+                  icon: <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+                  iconBg: 'bg-amber-50',
+                  onClick: () => setActiveTab('journal'),
+                },
+                {
                   id: 'view-analytics',
                   label: 'View Analytics',
                   sublabel: 'Performance charts',
@@ -320,6 +330,11 @@ function DashboardContent() {
         {/* Community Tab */}
         {activeTab === 'community' && (
           <CommunityTab user={user} />
+        )}
+
+        {/* Journal Tab */}
+        {activeTab === 'journal' && (
+          <JournalTab user={user} showToast={showToast} />
         )}
 
         {/* My Trading Tab */}
