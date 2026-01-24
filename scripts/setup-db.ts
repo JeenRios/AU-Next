@@ -67,6 +67,7 @@ async function setupDatabase() {
         push_notifications_enabled BOOLEAN DEFAULT true,
         sms_notifications_enabled BOOLEAN DEFAULT false,
         email_notifications_enabled BOOLEAN DEFAULT true,
+        is_public_profile BOOLEAN DEFAULT false,
         
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -100,7 +101,12 @@ async function setupDatabase() {
         opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         closed_at TIMESTAMP,
         
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        -- Journaling
+        notes TEXT,
+        tags VARCHAR(255),
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -308,6 +314,7 @@ async function setupDatabase() {
       { name: 'push_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
       { name: 'sms_notifications_enabled', type: 'BOOLEAN DEFAULT false' },
       { name: 'email_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
+      { name: 'is_public_profile', type: 'BOOLEAN DEFAULT false' },
       { name: 'first_name', type: 'VARCHAR(100)' },
       { name: 'last_name', type: 'VARCHAR(100)' },
       { name: 'phone', type: 'VARCHAR(50)' },
@@ -320,6 +327,20 @@ async function setupDatabase() {
     for (const col of profileColumns) {
       try {
         await pool.query(`ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
+      } catch (e) {
+        // Column might already exist, ignore error
+      }
+    }
+
+    // Add journaling columns to trades if they don't exist
+    const tradeJournalColumns = [
+      { name: 'notes', type: 'TEXT' },
+      { name: 'tags', type: 'VARCHAR(255)' },
+    ];
+
+    for (const col of tradeJournalColumns) {
+      try {
+        await pool.query(`ALTER TABLE trades ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
       } catch (e) {
         // Column might already exist, ignore error
       }

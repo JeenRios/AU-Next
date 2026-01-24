@@ -14,6 +14,8 @@ export async function GET() {
       SELECT
         t.*,
         t.profit_loss as profit,
+        t.notes,
+        t.tags,
         u.email as user_email,
         p.first_name,
         p.last_name,

@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/Toast';
-import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab, CommunityTab } from '@/components/dashboard';
+import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab, CommunityTab, JournalModal } from '@/components/dashboard';
 import { useDashboardData } from '@/lib/hooks/useFetch';
 import MT5AccountStatus from '@/components/dashboard/MT5AccountStatus';
 import TradingAnalytics from '@/components/dashboard/TradingAnalytics';
@@ -47,6 +47,9 @@ function DashboardContent() {
     phone: '',
     email: ''
   });
+
+  // Journaling
+  const [selectedTradeForJournal, setSelectedTradeForJournal] = useState<any>(null);
 
 
   // Use custom hook for data fetching with error handling
@@ -702,12 +705,22 @@ function DashboardContent() {
                         <th className="text-left py-4 px-6 text-gray-600 font-semibold">Profit/Loss</th>
                         <th className="text-left py-4 px-6 text-gray-600 font-semibold">Status</th>
                         <th className="text-left py-4 px-6 text-gray-600 font-semibold">Date</th>
+                        <th className="text-right py-4 px-6 text-gray-600 font-semibold">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredTrades.map((trade) => (
                         <tr key={trade.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6 font-mono text-sm text-gray-600">#{trade.id}</td>
+                          <td className="py-4 px-6 font-mono text-sm text-gray-600">
+                            <div className="flex flex-col">
+                              <span>#{trade.id}</span>
+                              {trade.tags && (
+                                <span className="text-[10px] text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded mt-1 w-fit uppercase">
+                                  {trade.tags.split(',')[0]}
+                                </span>
+                              )}
+                            </div>
+                          </td>
                           <td className="py-4 px-6 font-semibold text-[#1a1a1d]">{trade.symbol}</td>
                           <td className="py-4 px-6">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -731,6 +744,17 @@ function DashboardContent() {
                             </span>
                           </td>
                           <td className="py-4 px-6 text-sm text-gray-600">{new Date(trade.created_at).toLocaleDateString()}</td>
+                          <td className="py-4 px-6 text-right">
+                            <button
+                              onClick={() => setSelectedTradeForJournal(trade)}
+                              className={`p-2 rounded-lg transition-colors ${trade.notes ? 'text-[#c9a227] bg-amber-50 hover:bg-amber-100' : 'text-gray-400 hover:bg-gray-100'}`}
+                              title={trade.notes ? 'View/Edit Reflection' : 'Add Reflection'}
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -746,6 +770,26 @@ function DashboardContent() {
           <SettingsTab user={user} />
         )}
       </main>
+
+      {/* Modals */}
+      {selectedTradeForJournal && (
+        <JournalModal
+          trade={selectedTradeForJournal}
+          onClose={() => setSelectedTradeForJournal(null)}
+          onUpdate={(updated) => {
+            // Update the local dashboard data state
+            if (dashboardData) {
+              const updatedTrades = dashboardData.trades.map((t: any) =>
+                t.id === updated.id ? { ...t, notes: updated.notes, tags: updated.tags } : t
+              );
+              // Since we don't have a direct setter for dashboardData (it's from hook),
+              // we rely on the next refetch or we can manually patch if hook allowed.
+              // For now, let's trigger a refetch to be sure data is synced with DB
+              refetch();
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

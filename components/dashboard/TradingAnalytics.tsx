@@ -10,7 +10,9 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  Cell
+  Cell,
+  PieChart,
+  Pie
 } from 'recharts';
 
 interface TradingAnalyticsProps {
@@ -85,11 +87,22 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
       maxDrawdown: 12.8,
       winRate: 62.8,
       profitFactor: 1.67,
+      sharpeRatio: 1.84,
+      avgWin: 245.50,
+      avgLoss: 142.20,
       totalTrades: 156,
       winningTrades: 98,
-      losingTrades: 58
+      losingTrades: 58,
+      exposure: [
+        { name: 'XAUUSD', value: 45 },
+        { name: 'EURUSD', value: 25 },
+        { name: 'GBPUSD', value: 20 },
+        { name: 'Others', value: 10 },
+      ]
     };
   }, [performanceData]);
+
+  const COLORS = ['#c9a227', '#f0d78c', '#1a1a1d', '#9ca3af'];
 
   useEffect(() => {
     setLoading(true);
@@ -161,6 +174,10 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
               <div className="flex justify-between items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-primary-gold/20">
                 <span className="text-gray-300">Profit Factor</span>
                 <span className="font-semibold text-white">{stats.profitFactor}</span>
+              </div>
+              <div className="flex justify-between items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-primary-gold/20">
+                <span className="text-gray-300">Sharpe Ratio</span>
+                <span className="font-semibold text-white">{stats.sharpeRatio}</span>
               </div>
             </div>
 
@@ -239,6 +256,147 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
                   />
                 </AreaChart>
               </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Risk Metrics Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">Avg Performance</p>
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-xs text-green-600 font-bold mb-1">Winning</p>
+              <p className="text-xl font-black text-[#1a1a1d]">${stats.avgWin}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-red-600 font-bold mb-1">Losing</p>
+              <p className="text-xl font-black text-[#1a1a1d]">${stats.avgLoss}</p>
+            </div>
+          </div>
+          <div className="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden flex">
+            <div className="h-full bg-green-500" style={{ width: '63%' }}></div>
+            <div className="h-full bg-red-500" style={{ width: '37%' }}></div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">Recovery Factor</p>
+          <div className="flex items-center gap-4">
+            <div className="text-3xl font-black text-[#1a1a1d]">4.2</div>
+            <div className="flex-1">
+              <div className="text-[10px] text-gray-500 font-medium leading-tight">Excellent ability to recover from drawdowns.</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">Expectancy</p>
+          <div className="flex items-center gap-4">
+            <div className="text-3xl font-black text-[#1a1a1d]">$84.20</div>
+            <div className="flex-1">
+              <div className="text-[10px] text-gray-500 font-medium leading-tight">Average expected profit per trade.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Advanced Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        {/* Market Exposure */}
+        <div className="md:col-span-4 bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Market Exposure</p>
+          <div className="flex-1 h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.exposure}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={70}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {stats.exposure.map((entry: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1a1a1d', border: 'none', borderRadius: '8px', padding: '8px' }}
+                  itemStyle={{ color: '#fff', fontSize: 11 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {stats.exposure.map((entry: any, index: number) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                <span className="text-[10px] font-bold text-[#1a1a1d]">{entry.name} ({entry.value}%)</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Trade Statistics Detail */}
+        <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-[#1a1a1d] rounded-2xl p-6 text-white relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#c9a227]/10 rounded-full blur-2xl group-hover:bg-[#c9a227]/20 transition-all"></div>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-4">Performance Insights</p>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-xs mb-1.5">
+                  <span className="text-gray-400 font-bold uppercase">Profit Factor</span>
+                  <span className="text-[#c9a227] font-black">{stats.profitFactor}</span>
+                </div>
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#c9a227]" style={{ width: '75%' }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-xs mb-1.5">
+                  <span className="text-gray-400 font-bold uppercase">Win Ratio</span>
+                  <span className="text-[#c9a227] font-black">{stats.winRate}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#c9a227]" style={{ width: `${stats.winRate}%` }}></div>
+                </div>
+              </div>
+              <div className="pt-2 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase">Sharpe</p>
+                  <p className="text-lg font-black text-[#c9a227]">{stats.sharpeRatio}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-gray-500 font-bold uppercase">Expected</p>
+                  <p className="text-lg font-black text-green-500">+$84.20</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Account Growth</p>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-3xl font-black text-[#1a1a1d]">+{stats.gain.toFixed(1)}%</p>
+                <p className="text-[10px] text-green-600 font-bold uppercase tracking-wider mt-1">Steady Uptrend</p>
+              </div>
+              <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-[#c9a227]">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <span className="text-[10px] font-bold text-gray-500 uppercase">Avg Trade Win</span>
+                <span className="text-xs font-black text-green-600">+${stats.avgWin}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <span className="text-[10px] font-bold text-gray-500 uppercase">Avg Trade Loss</span>
+                <span className="text-xs font-black text-red-600">-${stats.avgLoss}</span>
+              </div>
             </div>
           </div>
         </div>
