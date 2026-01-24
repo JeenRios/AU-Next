@@ -295,6 +295,21 @@ export async function GET() {
       CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
     `);
 
+    // Create trading_journal table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trading_journal (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        content TEXT,
+        emotion VARCHAR(50),
+        tags TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_trading_journal_user_id ON trading_journal(user_id);
+    `);
+
     // Add missing columns to mt5_accounts if they don't exist
     const mt5Columns = [
       { name: 'encrypted_password', type: 'TEXT' },
@@ -347,7 +362,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: 'Database schema created successfully! All tables are ready (users, user_profiles, trades, transactions, notifications, support_tickets, audit_logs, mt5_accounts, vps_instances, automation_jobs, community_posts, community_post_likes, community_comments, user_follows).'
+      message: 'Database schema created successfully! All tables are ready (users, user_profiles, trades, transactions, notifications, support_tickets, audit_logs, mt5_accounts, vps_instances, automation_jobs, community_posts, community_post_likes, community_comments, user_follows, trading_journal).'
     });
 
   } catch (error: any) {
