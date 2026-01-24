@@ -79,6 +79,18 @@ export async function initDatabase() {
       ('GBPUSD', 'SELL', 0.8, 1.2745, 'COMPLETED')
     ) AS v(symbol, type, amount, price, status)
     WHERE NOT EXISTS (SELECT 1 FROM trades LIMIT 1);
+
+    CREATE TABLE IF NOT EXISTS trading_journal (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      title VARCHAR(255) NOT NULL,
+      content TEXT NOT NULL,
+      emotion VARCHAR(50),
+      tags TEXT[],
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_trading_journal_user_id ON trading_journal(user_id);
   `;
 
   try {

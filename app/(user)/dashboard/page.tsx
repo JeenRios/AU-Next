@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
-import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState } from '@/components/dashboard';
+import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, TradingJournal } from '@/components/dashboard';
 import { useDashboardData } from '@/lib/hooks/useFetch';
 import MT5AccountStatus from '@/components/dashboard/MT5AccountStatus';
 import TradingAnalytics from '@/components/dashboard/TradingAnalytics';
@@ -11,7 +11,7 @@ import TradingAnalytics from '@/components/dashboard/TradingAnalytics';
 export default function UserDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-trading' | 'community' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-trading' | 'community' | 'journal' | 'settings'>('dashboard');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { showToast, ToastContainer } = useToast();
   
@@ -265,12 +265,14 @@ export default function UserDashboard() {
                 {activeTab === 'dashboard' && 'Dashboard'}
                 {activeTab === 'my-trading' && 'My Trading'}
                 {activeTab === 'community' && 'Community'}
+                {activeTab === 'journal' && 'Trading Journal'}
                 {activeTab === 'settings' && 'Settings'}
               </h1>
               <p className="text-sm md:text-base text-gray-600">
                 {activeTab === 'dashboard' && 'Monitor your trading activity and account status'}
                 {activeTab === 'my-trading' && 'Manage your MT5 accounts and view trading performance'}
                 {activeTab === 'community' && 'Connect with fellow traders, share insights, and learn together'}
+                {activeTab === 'journal' && 'Document your trading journey, notes, and psychology'}
                 {activeTab === 'settings' && 'Manage your account, billing, and subscription settings'}
               </p>
             </div>
@@ -365,11 +367,19 @@ export default function UserDashboard() {
                   onClick: () => setActiveTab('my-trading'),
                 },
                 {
+                  id: 'trading-journal',
+                  label: 'Trading Journal',
+                  sublabel: 'Log your trades',
+                  icon: QuickActionIcons.journal,
+                  iconBg: 'bg-orange-50',
+                  onClick: () => setActiveTab('journal'),
+                },
+                {
                   id: 'manage-plan',
                   label: 'Manage Plan',
-                  sublabel: 'Billing & subscription',
-                  icon: QuickActionIcons.billing,
-                  iconBg: 'bg-green-50',
+                  sublabel: 'Update subscription',
+                  icon: QuickActionIcons.settings,
+                  iconBg: 'bg-gray-50',
                   onClick: () => setActiveTab('settings'),
                 },
               ]}
@@ -578,6 +588,11 @@ export default function UserDashboard() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Journal Tab */}
+        {activeTab === 'journal' && (
+          <TradingJournal />
         )}
 
         {/* My Trading Tab */}

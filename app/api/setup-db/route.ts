@@ -262,6 +262,21 @@ export async function GET() {
       );
     `);
 
+    // Create trading_journal table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trading_journal (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        emotion VARCHAR(50),
+        tags TEXT[],
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_trading_journal_user_id ON trading_journal(user_id);
+    `);
+
     // Add missing columns to mt5_accounts if they don't exist
     const mt5Columns = [
       { name: 'encrypted_password', type: 'TEXT' },
