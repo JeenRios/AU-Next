@@ -150,6 +150,34 @@ export async function GET() {
        CREATE INDEX IF NOT EXISTS idx_automation_jobs_status ON automation_jobs(status)`
     ));
 
+    // Migration: Add provider-agnostic fields to vps_instances table
+    // Supports Vultr, DigitalOcean, Linode, Hetzner, AWS, etc.
+    results.push(await runMigration(
+      'Add provider to vps_instances',
+      `ALTER TABLE vps_instances ADD COLUMN IF NOT EXISTS provider VARCHAR(50)`
+    ));
+    results.push(await runMigration(
+      'Add provider_instance_id to vps_instances',
+      `ALTER TABLE vps_instances ADD COLUMN IF NOT EXISTS provider_instance_id VARCHAR(100)`
+    ));
+    results.push(await runMigration(
+      'Add provider_region to vps_instances',
+      `ALTER TABLE vps_instances ADD COLUMN IF NOT EXISTS provider_region VARCHAR(50)`
+    ));
+    results.push(await runMigration(
+      'Add provider_plan to vps_instances',
+      `ALTER TABLE vps_instances ADD COLUMN IF NOT EXISTS provider_plan VARCHAR(50)`
+    ));
+    results.push(await runMigration(
+      'Add provider_metadata to vps_instances',
+      `ALTER TABLE vps_instances ADD COLUMN IF NOT EXISTS provider_metadata JSONB`
+    ));
+    results.push(await runMigration(
+      'Create provider indexes',
+      `CREATE INDEX IF NOT EXISTS idx_vps_instances_provider ON vps_instances(provider);
+       CREATE INDEX IF NOT EXISTS idx_vps_instances_provider_id ON vps_instances(provider_instance_id)`
+    ));
+
     // Add more migrations here as needed
 
     const successful = results.filter(r => r.success);

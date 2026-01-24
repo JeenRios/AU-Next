@@ -93,7 +93,11 @@ export async function POST(request: NextRequest) {
       os_type = 'windows',
       mt5_path,
       ea_path,
-      notes
+      notes,
+      provider,
+      provider_instance_id,
+      provider_region,
+      provider_plan,
     } = await request.json();
 
     // Validate required fields
@@ -124,10 +128,10 @@ export async function POST(request: NextRequest) {
     // Create VPS instance
     const result = await query(
       `INSERT INTO vps_instances
-       (mt5_account_id, name, ip_address, ssh_port, ssh_username, encrypted_ssh_password, encrypted_ssh_key, os_type, mt5_path, ea_path, notes, created_by, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'pending')
-       RETURNING id, mt5_account_id, name, ip_address, ssh_port, ssh_username, os_type, mt5_path, ea_path, notes, status, created_at`,
-      [mt5_account_id, name, ip_address, ssh_port, ssh_username, encryptedPassword, encryptedKey, os_type, mt5_path, ea_path, notes, session.user.id]
+       (mt5_account_id, name, ip_address, ssh_port, ssh_username, encrypted_ssh_password, encrypted_ssh_key, os_type, mt5_path, ea_path, notes, created_by, status, provider, provider_instance_id, provider_region, provider_plan)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'pending', $13, $14, $15, $16)
+       RETURNING id, mt5_account_id, name, ip_address, ssh_port, ssh_username, os_type, mt5_path, ea_path, notes, status, provider, provider_instance_id, provider_region, provider_plan, created_at`,
+      [mt5_account_id, name, ip_address, ssh_port, ssh_username, encryptedPassword, encryptedKey, os_type, mt5_path, ea_path, notes, session.user.id, provider || null, provider_instance_id || null, provider_region || null, provider_plan || null]
     );
 
     // Get MT5 account details for notification
@@ -186,7 +190,11 @@ export async function PATCH(request: NextRequest) {
       mt5_path,
       ea_path,
       notes,
-      health_status
+      health_status,
+      provider,
+      provider_instance_id,
+      provider_region,
+      provider_plan,
     } = await request.json();
 
     if (!id) {
@@ -233,6 +241,10 @@ export async function PATCH(request: NextRequest) {
       values.push(health_status);
       updates.push(`last_health_check = NOW()`);
     }
+    if (provider !== undefined) { updates.push(`provider = $${paramIndex++}`); values.push(provider || null); }
+    if (provider_instance_id !== undefined) { updates.push(`provider_instance_id = $${paramIndex++}`); values.push(provider_instance_id || null); }
+    if (provider_region !== undefined) { updates.push(`provider_region = $${paramIndex++}`); values.push(provider_region || null); }
+    if (provider_plan !== undefined) { updates.push(`provider_plan = $${paramIndex++}`); values.push(provider_plan || null); }
 
     if (updates.length === 0) {
       return NextResponse.json(
@@ -246,7 +258,7 @@ export async function PATCH(request: NextRequest) {
 
     const result = await query(
       `UPDATE vps_instances SET ${updates.join(', ')} WHERE id = $${paramIndex}
-       RETURNING id, mt5_account_id, name, ip_address, ssh_port, ssh_username, os_type, mt5_path, ea_path, notes, status, health_status, last_health_check, updated_at`,
+       RETURNING id, mt5_account_id, name, ip_address, ssh_port, ssh_username, os_type, mt5_path, ea_path, notes, status, health_status, last_health_check, provider, provider_instance_id, provider_region, provider_plan, updated_at`,
       values
     );
 

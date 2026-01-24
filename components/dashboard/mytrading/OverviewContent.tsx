@@ -45,8 +45,8 @@ export default function OverviewContent({
   const recentTrades = trades.slice(0, 5);
 
   // Calculate quick stats
-  const totalProfit = trades.reduce((sum, trade) => sum + (trade.profit || 0), 0);
-  const profitableTrades = trades.filter(t => t.profit > 0).length;
+  const totalProfit = trades.reduce((sum, trade) => sum + parseFloat(String(trade.profit || 0)), 0);
+  const profitableTrades = trades.filter(t => parseFloat(String(t.profit || 0)) > 0).length;
   const winRate = trades.length > 0 ? ((profitableTrades / trades.length) * 100).toFixed(1) : '0';
 
   return (
@@ -151,9 +151,9 @@ export default function OverviewContent({
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-[#1a1a1d]">${(account.balance || 0).toFixed(2)}</p>
-                  <p className={`text-xs ${(account.profit || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(account.profit || 0) >= 0 ? '+' : ''}${(account.profit || 0).toFixed(2)}
+                  <p className="font-semibold text-[#1a1a1d]">${parseFloat(String(account.balance || 0)).toFixed(2)}</p>
+                  <p className={`text-xs ${parseFloat(String(account.profit || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {parseFloat(String(account.profit || 0)) >= 0 ? '+' : ''}${parseFloat(String(account.profit || 0)).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -189,8 +189,8 @@ export default function OverviewContent({
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <span className={`font-semibold ${trade.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {trade.profit >= 0 ? '+' : ''}${(trade.profit || 0).toFixed(2)}
+                      <span className={`font-semibold ${parseFloat(String(trade.profit || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {parseFloat(String(trade.profit || 0)) >= 0 ? '+' : ''}${parseFloat(String(trade.profit || 0)).toFixed(2)}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right text-xs text-gray-500">

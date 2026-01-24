@@ -28,14 +28,15 @@ export default function PerformanceContent({
 }: PerformanceContentProps) {
   const filteredTrades = trades.filter((trade) => {
     if (performanceFilter === 'all') return true;
-    if (performanceFilter === 'profit') return trade.profit > 0;
-    if (performanceFilter === 'loss') return trade.profit < 0;
+    const profit = parseFloat(String(trade.profit || 0));
+    if (performanceFilter === 'profit') return profit > 0;
+    if (performanceFilter === 'loss') return profit < 0;
     return true;
   });
 
   // Calculate summary stats
-  const totalProfitLoss = filteredTrades.reduce((sum, trade) => sum + (trade.profit || 0), 0);
-  const profitableTrades = filteredTrades.filter(t => t.profit > 0).length;
+  const totalProfitLoss = filteredTrades.reduce((sum, trade) => sum + parseFloat(String(trade.profit || 0)), 0);
+  const profitableTrades = filteredTrades.filter(t => parseFloat(String(t.profit || 0)) > 0).length;
   const winRate = filteredTrades.length > 0 ? ((profitableTrades / filteredTrades.length) * 100).toFixed(1) : '0';
   const avgTrade = filteredTrades.length > 0
     ? (totalProfitLoss / filteredTrades.length).toFixed(2)
@@ -185,8 +186,8 @@ export default function PerformanceContent({
                     <td className="py-4 px-6 font-semibold text-[#1a1a1d]">${parseFloat(trade.amount).toFixed(2)}</td>
                     <td className="py-4 px-6 text-gray-600">${parseFloat(trade.price).toFixed(4)}</td>
                     <td className="py-4 px-6">
-                      <span className={`font-semibold ${trade.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {trade.profit >= 0 ? '+' : ''}{trade.profit ? `$${parseFloat(String(trade.profit)).toFixed(2)}` : '-'}
+                      <span className={`font-semibold ${parseFloat(String(trade.profit || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {parseFloat(String(trade.profit || 0)) >= 0 ? '+' : ''}{trade.profit ? `$${parseFloat(String(trade.profit)).toFixed(2)}` : '-'}
                       </span>
                     </td>
                     <td className="py-4 px-6">

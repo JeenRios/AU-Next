@@ -45,6 +45,7 @@ API routes are in `app/api/` with each endpoint in its own folder:
 - `/api/landing-stats` - Public stats for landing page
 - `/api/migrate-db` - Database migrations (admin only)
 - `/api/vps` - VPS instance management (admin only, CRUD operations)
+- `/api/vps/provision` - Auto-provision VPS via providers like Vultr (admin only)
 - `/api/automation/jobs` - Automation job tracking (admin CRUD, user read)
 - `/api/automation/deploy-ea` - EA deployment trigger (admin only)
 
@@ -71,7 +72,7 @@ Key tables (created by `npm run db:setup`):
 - `trades` - Trading history with `profit_loss` column (aliased as `profit` in API responses)
 - `transactions` - Deposits and withdrawals
 - `mt5_accounts` - Connected MT5/MT4 trading accounts with automation fields (automation_status, gain_percentage, etc.)
-- `vps_instances` - VPS tracking for automated trading (linked to mt5_accounts)
+- `vps_instances` - VPS tracking for automated trading (linked to mt5_accounts, provider-agnostic with `provider`, `provider_instance_id`, `provider_region`, `provider_plan`, `provider_metadata` columns)
 - `automation_jobs` - EA deployment and automation job tracking
 - `community_posts` - Social feed posts
 - `notifications`, `support_tickets`, `audit_logs`
@@ -83,6 +84,7 @@ Required:
 
 Optional:
 - `ENCRYPTION_KEY` - 32-byte hex key for MT5 credential encryption (auto-generated if not set)
+- `VULTR_API_KEY` - Vultr API key for auto-provisioning VPS instances
 
 ### Path Aliases
 Uses `@/*` alias mapping to project root (configured in tsconfig.json).
@@ -169,6 +171,15 @@ none → vps_provisioning → vps_ready → ea_deploying → active
 - `components/admin/VPSManagement.tsx` - VPS instance management UI
 - `components/admin/AutomationJobs.tsx` - Job tracking UI
 - `components/dashboard/MT5AccountStatus.tsx` - User account status with timeline
+
+### VPS Provider Integration
+The system supports multiple VPS providers with a provider-agnostic database schema:
+- `lib/vultr.ts` - Vultr API client (currently implemented)
+- `app/api/vps/provision/route.ts` - Auto-provisioning API endpoint
+- Database columns: `provider`, `provider_instance_id`, `provider_region`, `provider_plan`, `provider_metadata`
+
+To add a new provider, create a client library in `lib/` and add provider-specific logic to the provisioning API.
+See `docs/VULTR_INTEGRATION.md` for detailed documentation.
 
 ### Notification Types
 - `mt5_request` - Admin: New connection request
