@@ -26,14 +26,40 @@ export async function GET() {
   }
 }
 
+const VALID_EMOTIONS = ['happy', 'confident', 'neutral', 'anxious', 'frustrated', 'fearful', 'greedy', 'disciplined'];
+
 export async function POST(request: NextRequest) {
   try {
     const session = await requireAuth();
     const userId = session.user.id;
     const { title, content, emotion, tags } = await request.json();
 
-    if (!title) {
+    if (!title || typeof title !== 'string') {
       return NextResponse.json({ success: false, error: 'Title is required' }, { status: 400 });
+    }
+
+    if (title.length > 255) {
+      return NextResponse.json({ success: false, error: 'Title must be 255 characters or less' }, { status: 400 });
+    }
+
+    if (content && typeof content !== 'string') {
+      return NextResponse.json({ success: false, error: 'Content must be a string' }, { status: 400 });
+    }
+
+    if (content && content.length > 10000) {
+      return NextResponse.json({ success: false, error: 'Content must be 10000 characters or less' }, { status: 400 });
+    }
+
+    if (emotion && !VALID_EMOTIONS.includes(emotion)) {
+      return NextResponse.json({ success: false, error: `Invalid emotion. Must be one of: ${VALID_EMOTIONS.join(', ')}` }, { status: 400 });
+    }
+
+    if (tags && !Array.isArray(tags)) {
+      return NextResponse.json({ success: false, error: 'Tags must be an array' }, { status: 400 });
+    }
+
+    if (tags && tags.length > 10) {
+      return NextResponse.json({ success: false, error: 'Maximum 10 tags allowed' }, { status: 400 });
     }
 
     const result = await query(

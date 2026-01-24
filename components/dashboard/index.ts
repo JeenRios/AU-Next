@@ -9,3 +9,6 @@ export { default as ErrorState, EmptyState } from './ErrorState';
 export { default as SettingsTab } from './SettingsTab';
 export { default as CommunityTab } from './CommunityTab';
 export { default as JournalTab } from './JournalTab';
+export { default as MyTradingTab } from './MyTradingTab';
+export { default as TabLayout, TabIcons } from './TabLayout';
+export type { TabItem } from './TabLayout';

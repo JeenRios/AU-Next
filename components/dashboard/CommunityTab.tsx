@@ -17,6 +17,14 @@ export default function CommunityTab({ user }: { user: any }) {
     fetchCommunityData();
   }, []);
 
+  // Refetch when user name changes (e.g., after profile update)
+  useEffect(() => {
+    if (user?.name) {
+      fetchCommunityData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.name]);
+
   const fetchCommunityData = async () => {
     try {
       setLoading(true);

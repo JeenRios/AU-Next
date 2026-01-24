@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/Toast';
-import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab, CommunityTab, JournalTab } from '@/components/dashboard';
+import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab, CommunityTab, JournalTab, MyTradingTab } from '@/components/dashboard';
 import { useDashboardData } from '@/lib/hooks/useFetch';
-import MT5AccountStatus from '@/components/dashboard/MT5AccountStatus';
-import TradingAnalytics from '@/components/dashboard/TradingAnalytics';
 
 function DashboardContent() {
   const router = useRouter();
@@ -23,30 +21,8 @@ function DashboardContent() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { showToast, ToastContainer } = useToast();
   
-  // MT5 and EA Management
-  const [showMT5Form, setShowMT5Form] = useState(false);
+  // MT5 Accounts (needed for dashboard stats)
   const [mt5Accounts, setMt5Accounts] = useState<any[]>([]);
-  const [mt5Submitting, setMt5Submitting] = useState(false);
-  const [selectedAccountForAnalytics, setSelectedAccountForAnalytics] = useState<any>(null);
-  const [mt5Data, setMt5Data] = useState({
-    account_number: '',
-    server: '',
-    platform: 'MT5'
-  });
-  const passwordRef = useRef<HTMLInputElement | null>(null);
-  
-  // Performance filters
-  const [performanceFilter, setPerformanceFilter] = useState<'all' | 'profit' | 'loss'>('all');
-  const [dateRange, setDateRange] = useState<'week' | 'month' | 'year'>('month');
-  
-  // Profile edit
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileData, setProfileData] = useState({
-    first_name: '',
-    last_name: '',
-    phone: '',
-    email: ''
-  });
 
 
   // Use custom hook for data fetching with error handling
@@ -97,34 +73,6 @@ function DashboardContent() {
     router.push('/');
   };
 
-  const handleMT5Submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMt5Submitting(true);
-    try {
-      const res = await fetch('/api/mt5/connect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ account_number: mt5Data.account_number, server: mt5Data.server, platform: mt5Data.platform })
-      });
-      const data = await res.json();
-      if (data?.success) {
-        setShowMT5Form(false);
-        setMt5Data({ account_number: '', server: '', platform: 'MT5' });
-        if (passwordRef.current) passwordRef.current.value = '';
-        showToast('MT5 account connection requested! Admin will review shortly.', 'success');
-        // Refresh accounts list from API
-        fetchMT5Accounts();
-      } else {
-        showToast(data?.error || data?.message || 'Failed to request MT5 connection.', 'error');
-      }
-    } catch (err) {
-      console.error('MT5 connect error:', err);
-      showToast('Error connecting MT5 account', 'error');
-    } finally {
-      setMt5Submitting(false);
-    }
-  };
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && mobileSidebarOpen) setMobileSidebarOpen(false);
@@ -133,26 +81,10 @@ function DashboardContent() {
     return () => window.removeEventListener('keydown', onKey);
   }, [mobileSidebarOpen]);
 
-  const toggleEA = (accountId: number) => {
-    setMt5Accounts(mt5Accounts.map(acc => 
-      acc.id === accountId 
-        ? { ...acc, ea_status: acc.ea_status === 'active' ? 'inactive' : 'active' }
-        : acc
-    ));
-  };
-
   // Derive data from hook
   const stats = dashboardData?.stats;
   const trades = dashboardData?.trades || [];
-  const transactions = dashboardData?.transactions || [];
   const notifications = dashboardData?.notifications || [];
-
-  const filteredTrades = trades.filter((trade: any) => {
-    if (performanceFilter === 'all') return true;
-    if (performanceFilter === 'profit') return trade.profit > 0;
-    if (performanceFilter === 'loss') return trade.profit < 0;
-    return true;
-  });
 
 
   // Show error state with retry
@@ -339,426 +271,18 @@ function DashboardContent() {
 
         {/* My Trading Tab */}
         {activeTab === 'my-trading' && (
-          <div className="space-y-6">
-            {/* MT5 Connection Form */}
-            {showMT5Form && (
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-[#1a1a1d]">Connect MT5 Account</h3>
-                  <button
-                    onClick={() => setShowMT5Form(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                <form onSubmit={handleMT5Submit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Account Number</label>
-                      <input
-                        type="text"
-                        value={mt5Data.account_number}
-                        onChange={(e) => setMt5Data({ ...mt5Data, account_number: e.target.value })}
-                        placeholder="Enter account number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Server</label>
-                      <input
-                        type="text"
-                        value={mt5Data.server}
-                        onChange={(e) => setMt5Data({ ...mt5Data, server: e.target.value })}
-                        placeholder="e.g., Broker-Server"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-                      <input
-                        type="password"
-                        ref={passwordRef}
-                        placeholder="Trading account password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
-                        aria-label="MT5 account password"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Platform</label>
-                      <select
-                        value={mt5Data.platform}
-                        onChange={(e) => setMt5Data({ ...mt5Data, platform: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
-                      >
-                        <option value="MT5">MetaTrader 5</option>
-                        <option value="MT4">MetaTrader 4</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="bg-amber-50 border border-[#f0d78c] rounded-xl p-4 flex items-start gap-3">
-                    <svg className="w-5 h-5 text-[#c9a227] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p className="text-sm text-gray-700">Your credentials are encrypted and secure. Admin will review and activate your EA within 24 hours.</p>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      type="submit"
-                      className="flex-1 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all"
-                    >
-                      Submit Connection Request
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowMT5Form(false)}
-                      className="px-6 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-all"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            {/* Add Account Button */}
-            {!showMT5Form && mt5Accounts.length === 0 && (
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-[#f0d78c] p-12 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-[#1a1a1d] mb-3">No MT5 Accounts Connected</h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">Connect your MetaTrader 5 account to start automated trading with our Expert Advisors.</p>
-                <button
-                  onClick={() => setShowMT5Form(true)}
-                  className="px-8 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all inline-flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Connect MT5 Account
-                </button>
-              </div>
-            )}
-
-            {/* Connected Accounts */}
-            {!showMT5Form && mt5Accounts.length > 0 && (
-              <div className="space-y-6">
-                {/* Account Selector Bar */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-xl font-bold text-[#1a1a1d]">My Accounts</h3>
-                    <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                      {mt5Accounts.filter(a => a.status === 'active').map((account) => (
-                        <button
-                          key={account.id}
-                          onClick={() => setSelectedAccountForAnalytics(account)}
-                          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                            selectedAccountForAnalytics?.id === account.id
-                              ? 'bg-white text-[#1a1a1d] shadow-sm'
-                              : 'text-gray-500 hover:text-[#1a1a1d]'
-                          }`}
-                        >
-                          #{account.account_number}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={fetchMT5Accounts}
-                      className="p-2 text-gray-500 hover:text-[#c9a227] hover:bg-amber-50 rounded-lg transition-colors"
-                      title="Refresh"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setShowMT5Form(true)}
-                      className="px-4 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all inline-flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      Add
-                    </button>
-                  </div>
-                </div>
-
-                {/* Trading Analytics - Show for selected or first active account */}
-                {(selectedAccountForAnalytics || mt5Accounts.find(a => a.status === 'active')) && (
-                  <TradingAnalytics
-                    accountId={(selectedAccountForAnalytics || mt5Accounts.find(a => a.status === 'active'))?.id}
-                    accountNumber={(selectedAccountForAnalytics || mt5Accounts.find(a => a.status === 'active'))?.account_number}
-                  />
-                )}
-
-                {/* Pending Accounts */}
-                {mt5Accounts.filter(a => a.status !== 'active').length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-500">Pending Approval</h4>
-                    {mt5Accounts.filter(a => a.status !== 'active').map((account) => (
-                      <div key={account.id} className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-lg flex items-center justify-center">
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-[#1a1a1d]">#{account.account_number}</p>
-                            <p className="text-xs text-gray-500">{account.server} · {account.platform}</p>
-                          </div>
-                        </div>
-                        <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">
-                          Pending Review
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Legacy account cards removed - now using MT5AccountStatus component */}
-            {/* The old toggleEA functionality is now handled automatically through the automation system */}
-            {false && mt5Accounts.map((account: any) => (
-              <div key={account.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hidden">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-xl flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="font-bold text-[#1a1a1d]">Account #{account.account_number}</div>
-                      <div className="text-sm text-gray-600">{account.server}</div>
-                    </div>
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    account.status === 'active' ? 'bg-green-100 text-green-700' :
-                    account.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
-                    {account.status.toUpperCase()}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <div className="text-xs text-gray-600 mb-1">Balance</div>
-                    <div className="font-bold text-[#1a1a1d]">${(account.balance || 0).toFixed(2)}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-600 mb-1">Equity</div>
-                    <div className="font-bold text-[#1a1a1d]">${(account.equity || 0).toFixed(2)}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-600 mb-1">Profit</div>
-                    <div className={`font-bold ${(account.profit || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {(account.profit || 0) >= 0 ? '+' : ''}${(account.profit || 0).toFixed(2)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl mb-4">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                    </svg>
-                    <span className="text-sm font-semibold text-purple-900">EA Status</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {account.ea_status === 'active' && (
-                      <>
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-semibold text-green-700">ACTIVE</span>
-                      </>
-                    )}
-                    {account.ea_status === 'inactive' && (
-                      <>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                        <span className="text-sm font-semibold text-gray-600">INACTIVE</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => toggleEA(account.id)}
-                  disabled={account.status !== 'active'}
-                  className={`w-full py-3 rounded-xl font-semibold transition-all ${
-                    account.ea_status === 'active'
-                      ? 'bg-red-500 hover:bg-red-600 text-white'
-                      : 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d]'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        {account.ea_status === 'active' ? 'Stop EA' : 'Start EA'}
-                      </button>
-                    </div>
-                  ))}
-
-            {/* Performance Section */}
-            <div className="mt-8 space-y-6">
-              {/* Filters */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-700">Filter:</span>
-                  <button
-                    onClick={() => setPerformanceFilter('all')}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      performanceFilter === 'all'
-                        ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d]'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    All Trades
-                  </button>
-                  <button
-                    onClick={() => setPerformanceFilter('profit')}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      performanceFilter === 'profit'
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Profitable
-                  </button>
-                  <button
-                    onClick={() => setPerformanceFilter('loss')}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      performanceFilter === 'loss'
-                        ? 'bg-red-500 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Loss
-                  </button>
-                </div>
-                <div className="border-l border-gray-300 pl-4 flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-700">Period:</span>
-                  <button
-                    onClick={() => setDateRange('week')}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      dateRange === 'week'
-                        ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d]'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Week
-                  </button>
-                  <button
-                    onClick={() => setDateRange('month')}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      dateRange === 'month'
-                        ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d]'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Month
-                  </button>
-                  <button
-                    onClick={() => setDateRange('year')}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      dateRange === 'year'
-                        ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d]'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Year
-                  </button>
-                </div>
-              </div>
-
-              {/* Performance Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                  <div className="text-sm text-gray-600 mb-2">Total Profit/Loss</div>
-                  <div className="text-3xl font-bold text-green-600">+$1,245.50</div>
-                  <div className="text-xs text-gray-500 mt-1">+15.2% ROI</div>
-                </div>
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                  <div className="text-sm text-gray-600 mb-2">Win Rate</div>
-                  <div className="text-3xl font-bold text-[#1a1a1d]">68.5%</div>
-                  <div className="text-xs text-green-600 mt-1">Above average</div>
-                </div>
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                  <div className="text-sm text-gray-600 mb-2">Total Trades</div>
-                  <div className="text-3xl font-bold text-[#1a1a1d]">{filteredTrades.length}</div>
-                  <div className="text-xs text-gray-500 mt-1">This period</div>
-                </div>
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                  <div className="text-sm text-gray-600 mb-2">Avg Trade</div>
-                  <div className="text-3xl font-bold text-[#1a1a1d]">$52.50</div>
-                  <div className="text-xs text-green-600 mt-1">+8% vs last period</div>
-                </div>
-              </div>
-
-              {/* Trades Table */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200 bg-gray-50">
-                        <th className="text-left py-4 px-6 text-gray-600 font-semibold">Trade ID</th>
-                        <th className="text-left py-4 px-6 text-gray-600 font-semibold">Symbol</th>
-                        <th className="text-left py-4 px-6 text-gray-600 font-semibold">Type</th>
-                        <th className="text-left py-4 px-6 text-gray-600 font-semibold">Amount</th>
-                        <th className="text-left py-4 px-6 text-gray-600 font-semibold">Price</th>
-                        <th className="text-left py-4 px-6 text-gray-600 font-semibold">Profit/Loss</th>
-                        <th className="text-left py-4 px-6 text-gray-600 font-semibold">Status</th>
-                        <th className="text-left py-4 px-6 text-gray-600 font-semibold">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredTrades.map((trade) => (
-                        <tr key={trade.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6 font-mono text-sm text-gray-600">#{trade.id}</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">{trade.symbol}</td>
-                          <td className="py-4 px-6">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              trade.type === 'BUY' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                            }`}>
-                              {trade.type}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">${parseFloat(trade.amount).toFixed(2)}</td>
-                          <td className="py-4 px-6 text-gray-600">${parseFloat(trade.price).toFixed(4)}</td>
-                          <td className="py-4 px-6">
-                            <span className={`font-semibold ${trade.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {trade.profit >= 0 ? '+' : ''}{trade.profit ? `$${parseFloat(trade.profit).toFixed(2)}` : '-'}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              trade.status === 'COMPLETED' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
-                            }`}>
-                              {trade.status}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 text-sm text-gray-600">{new Date(trade.created_at).toLocaleDateString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
+          <MyTradingTab
+            mt5Accounts={mt5Accounts}
+            trades={trades}
+            stats={stats}
+            showToast={showToast}
+            fetchMT5Accounts={fetchMT5Accounts}
+          />
         )}
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <SettingsTab user={user} />
+          <SettingsTab user={user} onUserUpdate={setUser} />
         )}
       </main>
     </div>

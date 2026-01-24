@@ -78,25 +78,50 @@ export async function POST(request: NextRequest) {
     const session = await requireAuth();
     const { content, image_url, profit_amount } = await request.json();
 
-    if (!content) {
+    if (!content || typeof content !== 'string') {
       return NextResponse.json(
         { success: false, error: 'Content is required' },
         { status: 400 }
       );
     }
 
-    if (content.length > 500) {
+    const trimmedContent = content.trim();
+    if (trimmedContent.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Content cannot be empty' },
+        { status: 400 }
+      );
+    }
+
+    if (trimmedContent.length > 500) {
       return NextResponse.json(
         { success: false, error: 'Content must be 500 characters or less' },
         { status: 400 }
       );
     }
 
+    if (image_url && typeof image_url !== 'string') {
+      return NextResponse.json(
+        { success: false, error: 'Image URL must be a string' },
+        { status: 400 }
+      );
+    }
+
+    if (profit_amount !== undefined && profit_amount !== null) {
+      const numericProfit = Number(profit_amount);
+      if (isNaN(numericProfit)) {
+        return NextResponse.json(
+          { success: false, error: 'Profit amount must be a number' },
+          { status: 400 }
+        );
+      }
+    }
+
     const result = await query(
       `INSERT INTO community_posts (user_id, content, image_url, profit_amount)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [session.user.id, content, image_url || null, profit_amount || null]
+      [session.user.id, trimmedContent, image_url || null, profit_amount || null]
     );
 
     return NextResponse.json({

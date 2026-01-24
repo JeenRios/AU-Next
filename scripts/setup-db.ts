@@ -297,6 +297,20 @@ async function setupDatabase() {
       );
     `);
 
+    // Trading Journal table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trading_journal (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        content TEXT,
+        emotion VARCHAR(50),
+        tags TEXT[],
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     console.log('✅ All tables created successfully!\n');
 
     // Add missing columns to user_profiles if they don't exist
@@ -349,6 +363,8 @@ async function setupDatabase() {
       CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id);
       CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
       CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
+      CREATE INDEX IF NOT EXISTS idx_trading_journal_user_id ON trading_journal(user_id);
+      CREATE INDEX IF NOT EXISTS idx_trading_journal_created_at ON trading_journal(created_at DESC);
     `);
 
     console.log('✅ Indexes created\n');
@@ -369,6 +385,7 @@ async function setupDatabase() {
     console.log('  ✓ community_post_likes - Post likes tracking');
     console.log('  ✓ community_comments - Post comments tracking');
     console.log('  ✓ user_follows - User social connection tracking');
+    console.log('  ✓ trading_journal - Personal trading journal entries');
     console.log('');
     console.log('🎉 Database schema setup complete!');
 

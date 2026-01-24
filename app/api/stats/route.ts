@@ -48,6 +48,36 @@ export async function GET() {
 
     const stats = result.rows[0];
 
+    // Get balance from user_profiles.account_balance or MT5 accounts
+    let totalBalance = 0;
+    if (!isAdmin) {
+      // For regular users, get their account balance from user_profiles or sum of MT5 accounts
+      const balanceResult = await query(
+        `SELECT
+          COALESCE(up.account_balance, 0) as profile_balance,
+          COALESCE(SUM(mt5.balance), 0) as mt5_balance
+        FROM users u
+        LEFT JOIN user_profiles up ON u.id = up.user_id
+        LEFT JOIN mt5_accounts mt5 ON u.id = mt5.user_id AND mt5.status = 'approved'
+        WHERE u.id = $1
+        GROUP BY up.account_balance`,
+        [userId]
+      );
+      if (balanceResult.rows.length > 0) {
+        const row = balanceResult.rows[0];
+        // Use MT5 balance if available, otherwise use profile balance
+        totalBalance = Number(row.mt5_balance) > 0
+          ? Number(row.mt5_balance)
+          : Number(row.profile_balance);
+      }
+    } else {
+      // For admin, show total platform balance from all approved MT5 accounts
+      const balanceResult = await query(
+        `SELECT COALESCE(SUM(balance), 0) as total_balance FROM mt5_accounts WHERE status = 'approved'`
+      );
+      totalBalance = Number(balanceResult.rows[0]?.total_balance || 0);
+    }
+
     // Convert BigInt to Number for JSON serialization
     const formattedStats = {
       totalTrades: Number(stats.total_trades || 0),
@@ -57,7 +87,7 @@ export async function GET() {
       avgPrice: Number(stats.avg_price || 0),
       uniqueSymbols: Number(stats.unique_symbols || 0),
       winRate: Number(stats.win_rate || 0),
-      totalBalance: 12450.50, // TODO: Replace with real balance from a dedicated table once implemented
+      totalBalance,
     };
 
     // Cache for 60 seconds

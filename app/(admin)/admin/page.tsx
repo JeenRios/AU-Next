@@ -363,7 +363,7 @@ export default function AdminDashboard() {
                       <p className="text-[#f0d78c] text-xs font-medium mb-1">
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                       </p>
-                      <h1 className="text-xl font-bold">Welcome back, {user?.email?.split('@')[0] || 'Admin'}</h1>
+                      <h1 className="text-xl font-bold">Welcome back, {user?.name || user?.email?.split('@')[0] || 'Admin'}</h1>
                     </div>
                   </div>
                   {/* Search & Quick Actions Bar */}
@@ -1680,9 +1680,29 @@ export default function AdminDashboard() {
         isOpen={showNotificationDetails}
         onClose={closeNotificationDetails}
         notification={selectedNotification as NotificationDetail}
-        onMarkAsRead={(notificationId) => {
-          // TODO: Implement mark as read API call
-          console.log('Mark as read:', notificationId);
+        onMarkAsRead={async (notificationId) => {
+          try {
+            const res = await fetch('/api/notifications', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: notificationId }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              // Update local state
+              setNotifications((prev) =>
+                prev.map((n) =>
+                  n.id === notificationId ? { ...n, is_read: true } : n
+                )
+              );
+              // Update selected notification
+              setSelectedNotification((prev: any) =>
+                prev ? { ...prev, is_read: true } : prev
+              );
+            }
+          } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+          }
         }}
       />
     </div>
