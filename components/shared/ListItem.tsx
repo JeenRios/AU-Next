@@ -23,12 +23,16 @@ export interface ListItemProps {
   badges?: ReactNode[];
   /** An array of data attributes to display as columns in the row */
   attributes?: ListItemAttribute[];
+  /** Whether to show labels above attribute values. Set to false when used with ListContainer column headers. */
+  showAttributeLabels?: boolean;
   /** Action buttons to display on the right side of the row */
   actionButtons?: ReactNode;
   /** The content to show within the collapsible area. If null, the expand button is hidden. */
   collapsibleContent?: ReactNode;
-  /** Optional click handler for the entire row */
-  onClick?: () => void;
+  /** Controls the expanded state from parent. If provided, parent manages expansion. */
+  isExpanded?: boolean;
+  /** Callback to toggle expanded state from parent. Must be provided with `isExpanded`. */
+  onToggleExpand?: () => void;
   /** The background color of the component */
   className?: string;
 }
@@ -53,13 +57,22 @@ export default function ListItem({
   subtitle,
   badges = [],
   attributes = [],
+  showAttributeLabels = true,
   actionButtons,
   collapsibleContent,
-  onClick,
+  isExpanded: controlledIsExpanded, // Rename to avoid conflict with internal state
+  onToggleExpand: controlledOnToggleExpand, // Rename
   className = '',
 }: ListItemProps) {
   // ========== STATE ==========
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Use internal state if not controlled by parent
+  const [internalIsExpanded, setInternalIsExpanded] = useState(false);
+  
+  // Determine the effective expanded state and toggle handler
+  const isControlled = controlledIsExpanded !== undefined && controlledOnToggleExpand !== undefined;
+  const effectiveIsExpanded = isControlled ? controlledIsExpanded : internalIsExpanded;
+  const effectiveOnToggleExpand = isControlled ? controlledOnToggleExpand : () => setInternalIsExpanded(prev => !prev);
+
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
 
@@ -67,100 +80,86 @@ export default function ListItem({
   // Update content height for smooth animation when expanded state changes
   useEffect(() => {
     if (contentRef.current) {
-      setContentHeight(isExpanded ? contentRef.current.scrollHeight : 0);
+      setContentHeight(effectiveIsExpanded ? contentRef.current.scrollHeight : 0);
     }
-  }, [isExpanded, collapsibleContent]);
+  }, [effectiveIsExpanded, collapsibleContent]); // Depend on effectiveIsExpanded
 
   // ========== HANDLERS ==========
   const handleToggleExpand = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (collapsibleContent) {
-      setIsExpanded(!isExpanded);
-    }
-  };
-
-  const handleRowClick = () => {
-    if (onClick) {
-      onClick();
-    } else if (collapsibleContent) {
-      setIsExpanded(!isExpanded);
-    }
+    e?.stopPropagation(); // Prevent event bubbling if a child is clicked
+    if (!collapsibleContent) return;
+    effectiveOnToggleExpand();
   };
 
   const rowClasses = [
     'relative transition-all duration-200 ease-out',
     className,
-    isExpanded ? 'bg-gray-50' : 'bg-white hover:bg-stone-50 border-b border-stone-100',
-    onClick || collapsibleContent ? 'cursor-pointer' : ''
+    effectiveIsExpanded
+      ? 'bg-amber-50 border border-amber-200 rounded-xl mx-2 my-1'  // Expanded: amber card style
+      : 'bg-white hover:bg-stone-50 border-b border-stone-100',     // Collapsed: clean style
+    collapsibleContent ? 'cursor-pointer' : '' // Only show pointer if it can be expanded
   ].filter(Boolean).join(' ');
 
   return (
     <div className={rowClasses}>
       {/* ===== MAIN ROW ===== */}
-      <div className="px-4 py-3" onClick={handleRowClick}>
+      <div className="px-4 py-4" onClick={handleToggleExpand}>
         <div className="flex items-center gap-4">
-          {/* Expand Toggle, Icon, or Placeholder */}
-          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-            {collapsibleContent ? (
-              <button
-                onClick={handleToggleExpand}
-                className={`w-full h-full flex items-center justify-center rounded-lg transition-all duration-200 ${
-                  isExpanded
-                    ? 'bg-[#c9a227]/15 text-[#c9a227]'
-                    : 'text-stone-400 hover:text-stone-600 hover:bg-stone-100'
-                }`}
-                aria-label={isExpanded ? 'Collapse' : 'Expand'}
+          {/* Icon and/or Expand Toggle */}
+          <div className={`flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-200 ${
+            effectiveIsExpanded
+              ? 'w-12 h-12 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-white font-bold text-lg'  // Expanded: gold gradient
+              : 'w-8 h-8'  // Collapsed: simple
+          }`}>
+            {icon ? (
+              icon
+            ) : collapsibleContent ? (
+              <svg
+                className={`transition-transform duration-200 ease-out ${effectiveIsExpanded ? 'w-5 h-5 rotate-90' : 'w-4 h-4 text-stone-400'}`}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
               >
-                <svg
-                  className={`w-4 h-4 transition-transform duration-200 ease-out ${isExpanded ? 'rotate-90' : ''}`}
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            ) : icon ? (
-              <div className="w-full h-full flex items-center justify-center">{icon}</div>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             ) : null}
           </div>
-          
-          {/* Icon (if expand toggle is also present) */}
-          {collapsibleContent && icon && (
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
-              {icon}
-            </div>
-          )}
 
           {/* Title, Subtitle, and Badges */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className={`font-medium text-sm truncate transition-colors duration-200 ${isExpanded ? 'text-[#c9a227]' : 'text-stone-800'}`}>
+              <span className={`truncate transition-colors duration-200 ${
+                effectiveIsExpanded
+                  ? 'font-bold text-[#1a1a1d]'      // Expanded: bold dark
+                  : 'font-medium text-sm text-stone-800'  // Collapsed: medium
+              }`}>
                 {title}
               </span>
               {badges.map((badge, i) => <div key={i}>{badge}</div>)}
             </div>
             {subtitle && (
-              <p className="text-xs text-stone-500 truncate mt-0.5">{subtitle}</p>
+              <p className={`truncate mt-0.5 ${effectiveIsExpanded ? 'text-sm text-gray-600' : 'text-xs text-stone-500'}`}>
+                {subtitle}
+              </p>
             )}
           </div>
 
           {/* Attributes */}
-          <div className="hidden md:flex flex-1 items-center justify-end gap-6 text-sm">
+          <div className="hidden md:flex items-center gap-6 flex-shrink-0">
             {attributes.map((attr, i) => (
-              <div key={i} className="min-w-[120px] text-left">
-                <p className="text-xs text-stone-500">{attr.label}</p>
-                <div className={`text-sm text-stone-700 truncate ${attr.isSensitive ? 'font-mono' : ''}`}>
+              <div key={i} className="w-[120px] text-left">
+                {showAttributeLabels && <p className={`text-xs ${effectiveIsExpanded ? 'text-gray-500' : 'text-stone-500'}`}>{attr.label}</p>}
+                <div className={`text-sm truncate ${attr.isSensitive ? 'font-mono' : ''} ${
+                  effectiveIsExpanded ? 'font-semibold text-[#1a1a1d]' : 'text-stone-700'
+                }`}>
                   {attr.value}
                 </div>
               </div>
             ))}
           </div>
-          
+
           {/* Action Buttons */}
-          {actionButtons && (
-            <div className="flex items-center gap-1 flex-shrink-0 ml-4">
-              {actionButtons}
-            </div>
-          )}
+          <div className="flex items-center gap-1 flex-shrink-0 w-[100px] justify-end">
+            {actionButtons}
+          </div>
         </div>
       </div>
 
@@ -171,8 +170,12 @@ export default function ListItem({
           style={{ height: contentHeight }}
           className="overflow-hidden transition-[height] duration-300 ease-in-out"
         >
-          <div className={`transition-opacity duration-300 ease-in-out ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
-            {isExpanded && collapsibleContent}
+          <div className={`transition-all duration-300 ease-in-out ${
+            effectiveIsExpanded
+              ? 'border-t border-amber-200 opacity-100 pointer-events-auto visible'  // Expanded: amber border
+              : 'border-t border-stone-200 opacity-0 pointer-events-none invisible'   // Collapsed
+          }`}>
+            {collapsibleContent}
           </div>
         </div>
       )}

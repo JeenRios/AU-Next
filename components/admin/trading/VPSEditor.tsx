@@ -67,6 +67,8 @@ interface VPSEditorProps {
 // ============================================================================
 
 export default function VPSEditor({ vps, formData, setFormData, onSave, onCancel, isLoading }: VPSEditorProps) {
+  if (!formData) return null; // Add this line to handle null formData
+  
   return (
     // Highlighted expanded content with gold accent
     <div className="bg-[#c9a227]/10 border-t border-stone-200 shadow-inner-top">

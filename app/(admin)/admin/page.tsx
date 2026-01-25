@@ -8,7 +8,8 @@ import ListItem from '@/components/shared/ListItem';
 import MT5Trading from '@/components/admin/trading/MT5Trading';
 import VPSManagement from '@/components/admin/trading/VPSManagement';
 import AutomationJobs from '@/components/admin/trading/AutomationJobs';
-import UserDetailDrawer, { UserDetail } from '@/components/admin/users/UserDetailDrawer';
+import UserDetailDrawer from '@/components/admin/users/UserDetailDrawer';
+import UserDetailContent from '@/components/admin/users/UserDetailContent';
 import TicketDetailDrawer, { TicketDetail } from '@/components/admin/support/TicketDetailDrawer';
 import NotificationDetailDrawer, { NotificationDetail } from '@/components/admin/support/NotificationDetailDrawer';
 import SlideOutPanel from '@/components/admin/shared/SlideOutPanel';
@@ -67,6 +68,7 @@ export default function AdminDashboard() {
   const [supportSubTab, setSupportSubTab] = useState<'tickets' | 'notifications'>('tickets');
   const [systemSubTab, setSystemSubTab] = useState<'settings' | 'audit'>('settings');
   const [showAddUser, setShowAddUser] = useState(false);
+  const [expandedUserId, setExpandedUserId] = useState<number | null>(null); // New state for inline expansion
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [editingUser, setEditingUser] = useState(false);
@@ -1061,9 +1063,16 @@ export default function AdminDashboard() {
           {activeTab === 'users' && (
             <ListContainer
               items={users}
+              columnHeaders={[
+                { label: 'User' },
+                { label: 'Role' },
+                { label: 'Created' },
+                { label: 'Last Login' },
+              ]}
               renderItem={(userItem) => {
                 const userName = [userItem.first_name, userItem.last_name].filter(Boolean).join(' ') || userItem.name || 'N/A';
                 const userInitial = userItem.first_name?.[0] || userItem.email[0].toUpperCase();
+                const isExpanded = selectedUser?.id === userItem.id;
 
                 const RoleBadge = ({ role }: { role: string }) => {
                   const baseClasses = 'px-2.5 py-1 text-xs font-medium rounded-full';
@@ -1074,10 +1083,8 @@ export default function AdminDashboard() {
                 return (
                   <ListItem
                     key={userItem.id}
-                    onClick={() => {
-                      setSelectedUser(userItem);
-                      setShowUserDetails(true);
-                    }}
+                    isExpanded={expandedUserId === userItem.id}
+                    onToggleExpand={() => setExpandedUserId(expandedUserId === userItem.id ? null : userItem.id)}
                     icon={
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a227]/20 to-[#f0d78c]/30 flex items-center justify-center font-bold text-[#c9a227]">
                         {userInitial}
@@ -1085,6 +1092,7 @@ export default function AdminDashboard() {
                     }
                     title={userName}
                     subtitle={userItem.email}
+                    showAttributeLabels={false}
                     attributes={[
                       { label: 'Role', value: <RoleBadge role={userItem.role} /> },
                       { label: 'Created', value: new Date(userItem.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
@@ -1100,7 +1108,26 @@ export default function AdminDashboard() {
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
+                        <button
+                          onClick={() => {
+                            setSelectedUser(userItem);
+                            setShowUserDetails(true);
+                          }}
+                          className="p-2 text-stone-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="View Details (Opens Drawer)"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        </button>
                       </div>
+                    }
+                    collapsibleContent={
+                      <div className="bg-[#c9a227]/10 border-t border-stone-200 shadow-inner-top">
+                          <UserDetailContent
+                            user={userItem as UserDetail}
+                            onEdit={() => modal.alert('Edit functionality coming soon!', 'Feature')}
+                            onDelete={handleDeleteUser}
+                          />
+                        </div>
                     }
                   />
                 );

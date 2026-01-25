@@ -23,6 +23,8 @@ export interface ListContainerProps<T> {
   getFilterValue: (item: T) => string;
   /** Available filter options */
   filterOptions: FilterOption[];
+  /** Optional column headers for list items, typically for table-like layouts */
+  columnHeaders?: { label: ReactNode; className?: string; }[];
   /** Default filter value */
   defaultFilter?: string;
   /** Items per page */
@@ -168,6 +170,7 @@ export default function ListContainer<T>({
   getSearchableText,
   getFilterValue,
   filterOptions,
+  columnHeaders,
   defaultFilter = 'all',
   pageSize = 10,
   loading = false,
@@ -229,26 +232,50 @@ export default function ListContainer<T>({
     return counts;
   }, [items, getFilterValue]);
 
+  // Generate skeleton items for loading state
+  const skeletonItems = Array.from({ length: pageSize }).map((_, i) => (
+    <div key={i} className="flex items-center gap-4 px-4 py-3 border-b border-stone-100 bg-white animate-pulse">
+      <div className="w-8 h-8 rounded bg-gray-200 flex-shrink-0"></div> {/* Icon/Expand Toggle */}
+      <div className="flex-1 min-w-0 space-y-1">
+        <div className="h-4 bg-gray-200 rounded w-3/4"></div> {/* Title */}
+        <div className="h-3 bg-gray-100 rounded w-1/2"></div> {/* Subtitle */}
+      </div>
+      {columnHeaders && (
+        <div className="hidden md:flex items-center gap-6 flex-shrink-0">
+          {columnHeaders.slice(1).map((_, idx) => (
+            <div key={idx} className="w-[120px] space-y-1">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="flex items-center gap-1 flex-shrink-0 w-[100px] justify-end">
+        <div className="w-6 h-6 rounded-lg bg-gray-200"></div>
+        <div className="w-6 h-6 rounded-lg bg-gray-200"></div>
+      </div>
+    </div>
+  ));
+
   // ========== RENDER ==========
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 overflow-hidden ${className}`}>
-      {/* ===== HEADER (Gold bar) ===== */}
-      <div className="px-4 py-3 bg-[#c9a227]">
+    <div className={`bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden ${className}`}>
+      {/* ===== HEADER ===== */}
+      <div className="px-6 py-5 border-b border-gray-200">
         {/* Title Row */}
         {(title || headerActions) && (
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <div>
               {title && (
-                <h2 className="text-lg font-semibold text-white">
+                <h2 className="text-xl font-bold text-[#1a1a1d]">
                   {title}
                   {showCount && (
-                    <span className="ml-2 text-sm font-normal text-white/70">
+                    <span className="ml-2 text-sm font-normal text-gray-500">
                       ({filteredItems.length})
                     </span>
                   )}
                 </h2>
               )}
-              {subtitle && <p className="text-sm text-white/80 mt-0.5">{subtitle}</p>}
+              {subtitle && <p className="text-sm text-gray-600 mt-0.5">{subtitle}</p>}
             </div>
             {headerActions && (
               <div className="flex items-center gap-2">{headerActions}</div>
@@ -261,7 +288,7 @@ export default function ListContainer<T>({
           {/* Search Input */}
           <div className="relative flex-1">
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -278,12 +305,12 @@ export default function ListContainer<T>({
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-white/90 border-0 rounded-lg focus:ring-2 focus:ring-white/50 focus:bg-white transition-colors placeholder:text-stone-400"
+              className="w-full pl-10 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#c9a227]/50 focus:border-[#c9a227] focus:bg-white transition-colors placeholder:text-gray-400"
             />
             {searchQuery && (
               <button
                 onClick={() => handleSearchChange('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -302,15 +329,15 @@ export default function ListContainer<T>({
                 <button
                   key={option.value}
                   onClick={() => handleFilterChange(option.value)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-all duration-300 ${
                     isActive
-                      ? 'bg-white text-[#c9a227]'
-                      : 'bg-white/20 text-white hover:bg-white/30'
+                      ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] shadow-md shadow-[#c9a227]/30'
+                      : 'text-gray-600 hover:bg-amber-50 hover:text-[#1a1a1d]'
                   }`}
                 >
                   {option.label}
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-[#c9a227]/20 text-[#c9a227]' : 'bg-white/20'
+                    isActive ? 'bg-white/30' : 'bg-gray-100'
                   }`}>
                     {count}
                   </span>
@@ -324,7 +351,7 @@ export default function ListContainer<T>({
             <button
               onClick={onRefresh}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-white/20 hover:bg-white/30 rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-amber-50 hover:text-[#1a1a1d] rounded-lg transition-colors disabled:opacity-50"
             >
               <svg
                 className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
@@ -345,19 +372,33 @@ export default function ListContainer<T>({
         </div>
       </div>
 
-      {/* ===== LIST CONTENT (Level 2: Clean white background for rows) ===== */}
-      <div className="bg-white">
-        {loading ? (
-          // Loading skeleton
-          <div className="p-8 text-center">
-            <div className="inline-flex items-center gap-2 text-gray-500">
-              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Loading...
+      {/* ===== COLUMN HEADERS ===== */}
+      {columnHeaders && (
+        <div className="px-4 py-2 bg-gray-50 border-b border-stone-100 text-xs font-medium text-stone-500 uppercase tracking-wider">
+          <div className="flex items-center gap-4">
+            <div className="w-8 flex-shrink-0"></div> {/* Placeholder for expand toggle/icon */}
+            <div className="flex-1 min-w-0">
+              {columnHeaders[0] && <span className={columnHeaders[0].className}>{columnHeaders[0].label}</span>}
+            </div>
+            <div className="hidden md:flex items-center gap-6 flex-shrink-0">
+              {columnHeaders.slice(1).map((header, idx) => (
+                <div key={idx} className={`w-[120px] text-left ${header.className || ''}`}>
+                  {header.label}
+                </div>
+              ))}
+            </div>
+            <div className="flex-shrink-0 w-[100px]">
+              {/* Placeholder for action buttons */}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ===== LIST CONTENT ===== */}
+      <div className="bg-white">
+        {loading && items.length === 0 ? (
+          // Initial Loading skeleton
+          skeletonItems
         ) : paginatedItems.length === 0 ? (
           // Empty state
           <div className="p-8 text-center">

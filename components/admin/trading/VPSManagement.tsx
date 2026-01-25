@@ -454,6 +454,12 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
     <div className="space-y-4">
       <ListContainer
         items={vpsInstances}
+        columnHeaders={[
+          { label: 'VPS' },
+          { label: 'Connection' },
+          { label: 'Status' },
+          { label: 'Last Updated' },
+        ]}
         renderItem={(vps) => {
           const isExpanded = expandedId === vps.id;
           const updatedDate = new Date(vps.updated_at).toLocaleDateString('en-US', {
@@ -463,9 +469,11 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
           return (
             <ListItem
               key={vps.id}
-              onClick={() => handleExpand(vps)}
+              isExpanded={isExpanded}
+              onToggleExpand={() => handleExpand(vps)}
               title={vps.name}
-              subtitle={`${vps.account_number} • ${vps.mt5_server}`}
+              subtitle={`${vps.account_number} • ${vps.user_email}`}
+              showAttributeLabels={false}
               badges={[
                 vps.ea_path && (
                   <span key="ea" className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-semibold bg-[#c9a227]/10 text-[#c9a227] rounded">
@@ -558,16 +566,14 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
                 </div>
               }
               collapsibleContent={
-                isExpanded && editorFormData && (
-                  <VPSEditor
-                    vps={vps}
-                    formData={editorFormData}
-                    setFormData={setEditorFormData}
-                    onSave={() => handleUpdate(vps.id)}
-                    onCancel={() => setExpandedId(null)}
-                    isLoading={actionLoading}
-                  />
-                )
+                <VPSEditor
+                  vps={vps}
+                  formData={editorFormData}
+                  setFormData={setEditorFormData}
+                  onSave={() => handleUpdate(vps.id)}
+                  onCancel={() => setExpandedId(null)}
+                  isLoading={actionLoading}
+                />
               }
             />
           );
