@@ -178,6 +178,24 @@ export async function GET() {
        CREATE INDEX IF NOT EXISTS idx_vps_instances_provider_id ON vps_instances(provider_instance_id)`
     ));
 
+    // Migration: Add updated_at to automation_jobs table
+    results.push(await runMigration(
+      'Add updated_at to automation_jobs',
+      `ALTER TABLE automation_jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`
+    ));
+
+    // Migration: Create index for automation_jobs job_type
+    results.push(await runMigration(
+      'Create automation_jobs job_type index',
+      `CREATE INDEX IF NOT EXISTS idx_automation_jobs_job_type ON automation_jobs(job_type)`
+    ));
+
+    // Migration: Create index for automation_jobs vps_instance_id
+    results.push(await runMigration(
+      'Create automation_jobs vps_instance_id index',
+      `CREATE INDEX IF NOT EXISTS idx_automation_jobs_vps_instance ON automation_jobs(vps_instance_id)`
+    ));
+
     // Add more migrations here as needed
 
     const successful = results.filter(r => r.success);

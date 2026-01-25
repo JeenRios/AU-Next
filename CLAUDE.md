@@ -46,6 +46,7 @@ API routes are in `app/api/` with each endpoint in its own folder:
 - `/api/migrate-db` - Database migrations (admin only)
 - `/api/vps` - VPS instance management (admin only, CRUD operations)
 - `/api/vps/provision` - Auto-provision VPS via providers like Vultr (admin only)
+- `/api/vps/provision-vps` - Provision MT5 + EA on VPS (admin only, POST start, GET status, PATCH test connection)
 - `/api/automation/jobs` - Automation job tracking (admin CRUD, user read)
 - `/api/automation/deploy-ea` - EA deployment trigger (admin only)
 
@@ -85,6 +86,8 @@ Required:
 Optional:
 - `ENCRYPTION_KEY` - 32-byte hex key for MT5 credential encryption (auto-generated if not set)
 - `VULTR_API_KEY` - Vultr API key for auto-provisioning VPS instances
+- `EA_FILE_PATH` - Path to EA file for provisioning (default: `private/ea/AutoTrader.ex5`)
+- `EA_FILE_NAME` - Target filename for EA on VPS (default: `AutoTrader.ex5`)
 
 ### Path Aliases
 Uses `@/*` alias mapping to project root (configured in tsconfig.json).
@@ -180,6 +183,32 @@ The system supports multiple VPS providers with a provider-agnostic database sch
 
 To add a new provider, create a client library in `lib/` and add provider-specific logic to the provisioning API.
 See `docs/VULTR_INTEGRATION.md` for detailed documentation.
+
+### VPS Provisioning (MT5 + EA Installation)
+Phase 1 provisioning system for setting up MT5 and copying EA files:
+
+**Components:**
+- `lib/vps-provisioning/` - Provisioning service library
+  - `index.ts` - Main orchestrator
+  - `ssh-client.ts` - SSH client wrapper for Windows
+  - `types.ts` - TypeScript definitions
+  - `scripts/` - PowerShell scripts (install_mt5.ps1, find_mt5_path.ps1, copy_ea.ps1, cleanup.ps1)
+- `app/api/vps/provision-vps/route.ts` - Provisioning API
+
+**Requirements:**
+- `npm install ssh2 @types/ssh2` - SSH connectivity
+- OpenSSH Server enabled on Windows VPS
+- EA file stored in `private/ea/` directory
+
+**Provisioning Flow:**
+1. Connect to VPS via SSH
+2. Upload PowerShell scripts
+3. Install MT5 silently
+4. Find MT5 data directory dynamically
+5. Copy EA to Experts folder
+6. Cleanup temporary files
+
+See `docs/VPS_PROVISIONING.md` for detailed documentation.
 
 ### Notification Types
 - `mt5_request` - Admin: New connection request
