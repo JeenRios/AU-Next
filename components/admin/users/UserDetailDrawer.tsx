@@ -1,6 +1,6 @@
 'use client';
 
-import SlideOutPanel from './SlideOutPanel';
+import SlideOutPanel from '../shared/SlideOutPanel';
 
 export interface UserDetail {
   id: number;

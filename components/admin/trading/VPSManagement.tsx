@@ -13,9 +13,10 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import ListContainer, { FilterOption } from './ListContainer';
-import VPSRow, { VPSInstance, VPSFormData } from './VPSRow';
-import SlideOutPanel from './SlideOutPanel';
+import ListContainer, { FilterOption } from '../shared/ListContainer';
+import ListItem from '../../shared/ListItem';
+import VPSEditor, { VPSInstance, VPSFormData } from './VPSEditor';
+import SlideOutPanel from '../shared/SlideOutPanel';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -41,6 +42,31 @@ interface VultrConfig {
 interface VPSManagementProps {
   onError?: (message: string) => void;
   onSuccess?: (message: string) => void;
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const config: Record<string, { bg: string; text: string; dot: string }> = {
+    active: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
+    provisioning: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500' },
+    pending: { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
+    error: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500' },
+    decommissioned: { bg: 'bg-gray-100', text: 'text-gray-500', dot: 'bg-gray-400' },
+  };
+
+  const style = config[status] || config.pending;
+  const isAnimated = status === 'active' || status === 'provisioning';
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full ${style.bg} ${style.text}`}>
+      <span className="relative flex h-2 w-2">
+        {isAnimated && (
+          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${style.dot} opacity-75`} />
+        )}
+        <span className={`relative inline-flex rounded-full h-2 w-2 ${style.dot}`} />
+      </span>
+      <span className="capitalize">{status}</span>
+    </span>
+  );
 }
 
 // ============================================================================
@@ -71,8 +97,11 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
   const [testingConnection, setTestingConnection] = useState<number | null>(null);
   const [showCreatePanel, setShowCreatePanel] = useState(false);
   const [showVultrPanel, setShowVultrPanel] = useState(false);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   // ========== FORM STATE ==========
+  const [editorFormData, setEditorFormData] = useState<VPSFormData | null>(null);
+
   const [createFormData, setCreateFormData] = useState({
     mt5_account_id: '',
     name: '',
@@ -171,13 +200,14 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
     }
   };
 
-  const handleUpdate = async (id: number, data: Partial<VPSFormData>) => {
+  const handleUpdate = async (id: number) => {
+    if (!editorFormData) return;
     setActionLoading(true);
 
     try {
-      const payload: Record<string, unknown> = { ...data };
-      if (data.ssh_port) payload.ssh_port = parseInt(data.ssh_port);
-      if (!data.ssh_password) delete payload.ssh_password;
+      const payload: Record<string, unknown> = { ...editorFormData };
+      if (editorFormData.ssh_port) payload.ssh_port = parseInt(editorFormData.ssh_port, 10);
+      if (!editorFormData.ssh_password) delete payload.ssh_password;
 
       const res = await fetch(`/api/vps?id=${id}`, {
         method: 'PATCH',
@@ -188,6 +218,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
       if (res.ok) {
         onSuccess?.('VPS updated successfully');
         fetchData();
+        setExpandedId(null);
       } else {
         const responseData = await res.json();
         onError?.(responseData.error || 'Failed to update VPS');
@@ -196,6 +227,31 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
       onError?.('Failed to update VPS');
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleExpand = (vps: VPSInstance) => {
+    const isCurrentlyExpanded = expandedId === vps.id;
+    if (!isCurrentlyExpanded) {
+      setExpandedId(vps.id);
+      setEditorFormData({
+        name: vps.name,
+        status: vps.status,
+        ip_address: vps.ip_address || '',
+        ssh_port: String(vps.ssh_port),
+        ssh_username: vps.ssh_username || '',
+        ssh_password: '', // Always clear password for security
+        mt5_path: vps.mt5_path || '',
+        ea_path: vps.ea_path || '',
+        notes: vps.notes || '',
+        provider: vps.provider || '',
+        provider_instance_id: vps.provider_instance_id || '',
+        provider_region: vps.provider_region || '',
+        provider_plan: vps.provider_plan || '',
+      });
+    } else {
+      setExpandedId(null);
+      setEditorFormData(null);
     }
   };
 
@@ -398,21 +454,124 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
     <div className="space-y-4">
       <ListContainer
         items={vpsInstances}
-        renderItem={(vps) => (
-          <VPSRow
-            key={vps.id}
-            vps={vps}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
-            onTestConnection={handleTestConnection}
-            onDeploy={handleDeploy}
-            onHealthCheck={handleHealthCheck}
-            onStatusChange={handleStatusChange}
-            onSyncVultr={handleSyncVultr}
-            isTestingConnection={testingConnection === vps.id}
-            isLoading={actionLoading}
-          />
-        )}
+        renderItem={(vps) => {
+          const isExpanded = expandedId === vps.id;
+          const updatedDate = new Date(vps.updated_at).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+          });
+
+          return (
+            <ListItem
+              key={vps.id}
+              onClick={() => handleExpand(vps)}
+              title={vps.name}
+              subtitle={`${vps.account_number} • ${vps.mt5_server}`}
+              badges={[
+                vps.ea_path && (
+                  <span key="ea" className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-semibold bg-[#c9a227]/10 text-[#c9a227] rounded">
+                    EA
+                  </span>
+                ),
+                vps.provider && (
+                  <span key="provider" className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-medium bg-indigo-50 text-indigo-600 rounded capitalize">
+                    {vps.provider}
+                  </span>
+                ),
+              ]}
+              attributes={[
+                { label: 'Connection', value: vps.ip_address ? `${vps.ip_address}:${vps.ssh_port}` : '—', isSensitive: true },
+                { label: 'Status', value: <StatusBadge status={vps.status} /> },
+                { label: 'Last Updated', value: updatedDate },
+              ]}
+              actionButtons={
+                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  {/* Test SSH */}
+                  {vps.ip_address && vps.has_ssh_password && (
+                    <button
+                      onClick={() => handleTestConnection(vps.id)}
+                      disabled={(testingConnection === vps.id) || actionLoading}
+                      className="p-1.5 text-stone-400 hover:text-[#c9a227] hover:bg-[#c9a227]/10 rounded-lg transition-colors disabled:opacity-50"
+                      title="Test SSH Connection"
+                    >
+                      {testingConnection === vps.id ? (
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
+                  {/* Deploy EA */}
+                  {vps.ip_address && vps.has_ssh_password && !vps.ea_path && vps.status !== 'provisioning' && (
+                    <button
+                      onClick={() => handleDeploy(vps)}
+                      disabled={actionLoading}
+                      className="p-1.5 text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
+                      title="Deploy EA"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                    </button>
+                  )}
+                  {/* Sync (Vultr) */}
+                  {vps.provider === 'vultr' && vps.provider_instance_id && vps.status === 'provisioning' && (
+                    <button
+                      onClick={() => handleSyncVultr(vps.id)}
+                      disabled={actionLoading}
+                      className="p-1.5 text-stone-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
+                      title="Sync Status"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                  )}
+                  {/* Health Check */}
+                  {vps.status === 'active' && (
+                     <button
+                      onClick={() => handleHealthCheck(vps.id)}
+                      disabled={actionLoading}
+                      className="p-1.5 text-stone-400 hover:text-pink-600 hover:bg-pink-50 rounded-lg transition-colors disabled:opacity-50"
+                      title="Health Check"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </button>
+                  )}
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDelete(vps.id)}
+                    disabled={actionLoading}
+                    className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                    title="Delete"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              }
+              collapsibleContent={
+                isExpanded && editorFormData && (
+                  <VPSEditor
+                    vps={vps}
+                    formData={editorFormData}
+                    setFormData={setEditorFormData}
+                    onSave={() => handleUpdate(vps.id)}
+                    onCancel={() => setExpandedId(null)}
+                    isLoading={actionLoading}
+                  />
+                )
+              }
+            />
+          );
+        }}
         getSearchableText={getSearchableText}
         getFilterValue={getFilterValue}
         filterOptions={VPS_FILTER_OPTIONS}

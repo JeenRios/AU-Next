@@ -3,24 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useModal } from '@/components/ModalProvider';
-import MT5Trading from '@/components/admin/MT5Trading';
-import VPSManagement from '@/components/admin/VPSManagement';
-import AutomationJobs from '@/components/admin/AutomationJobs';
-import UserDetailDrawer, { UserDetail } from '@/components/admin/UserDetailDrawer';
-import TicketDetailDrawer, { TicketDetail } from '@/components/admin/TicketDetailDrawer';
-import NotificationDetailDrawer, { NotificationDetail } from '@/components/admin/NotificationDetailDrawer';
-import SlideOutPanel from '@/components/admin/SlideOutPanel';
-
-interface User {
-  id: number;
-  email: string;
-  role: string;
-  name?: string;
-  first_name?: string;
-  last_name?: string;
-  created_at: string;
-  last_login?: string;
-}
+import ListContainer, { FilterOption } from '@/components/admin/shared/ListContainer';
+import ListItem from '@/components/shared/ListItem';
+import MT5Trading from '@/components/admin/trading/MT5Trading';
+import VPSManagement from '@/components/admin/trading/VPSManagement';
+import AutomationJobs from '@/components/admin/trading/AutomationJobs';
+import UserDetailDrawer, { UserDetail } from '@/components/admin/users/UserDetailDrawer';
+import TicketDetailDrawer, { TicketDetail } from '@/components/admin/support/TicketDetailDrawer';
+import NotificationDetailDrawer, { NotificationDetail } from '@/components/admin/support/NotificationDetailDrawer';
+import SlideOutPanel from '@/components/admin/shared/SlideOutPanel';
 
 interface Trade {
   id: number;
@@ -32,6 +23,29 @@ interface Trade {
   created_at: string;
   opened_at?: string;
 }
+
+export interface User {
+  id: number;
+  email: string;
+  role: string;
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  created_at: string;
+  last_login?: string;
+}
+
+const USER_FILTER_OPTIONS: FilterOption[] = [
+  { value: 'all', label: 'All' },
+  { value: 'admin', label: 'Admins' },
+  { value: 'user', label: 'Users' },
+];
+
+const getUserSearchableText = (user: User) => {
+  return [user.email, user.name, user.first_name, user.last_name].filter(Boolean).join(' ');
+};
+
+const getUserFilterValue = (user: User) => user.role;
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -52,7 +66,6 @@ export default function AdminDashboard() {
   const [tradingSubTab, setTradingSubTab] = useState<'history' | 'accounts' | 'vps' | 'jobs'>('accounts');
   const [supportSubTab, setSupportSubTab] = useState<'tickets' | 'notifications'>('tickets');
   const [systemSubTab, setSystemSubTab] = useState<'settings' | 'audit'>('settings');
-  const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [showAddUser, setShowAddUser] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
@@ -1046,117 +1059,87 @@ export default function AdminDashboard() {
 
           {/* Users Tab */}
           {activeTab === 'users' && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-[#1a1a1d] mb-2">User Management</h2>
-                  <p className="text-gray-600 text-sm">Manage system users and permissions</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  {/* Filter Buttons */}
-                  <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
-                    <button
-                      onClick={() => setUserRoleFilter('all')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        userRoleFilter === 'all'
-                          ? 'bg-white text-[#1a1a1d] shadow-sm'
-                          : 'text-gray-600 hover:text-[#1a1a1d]'
-                      }`}
-                    >
-                      All ({users.length})
-                    </button>
-                    <button
-                      onClick={() => setUserRoleFilter('admin')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        userRoleFilter === 'admin'
-                          ? 'bg-white text-[#1a1a1d] shadow-sm'
-                          : 'text-gray-600 hover:text-[#1a1a1d]'
-                      }`}
-                    >
-                      Admins ({users.filter(u => u.role === 'admin').length})
-                    </button>
-                    <button
-                      onClick={() => setUserRoleFilter('user')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        userRoleFilter === 'user'
-                          ? 'bg-white text-[#1a1a1d] shadow-sm'
-                          : 'text-gray-600 hover:text-[#1a1a1d]'
-                      }`}
-                    >
-                      Users ({users.filter(u => u.role === 'user').length})
-                    </button>
-                  </div>
-                  
+            <ListContainer
+              items={users}
+              renderItem={(userItem) => {
+                const userName = [userItem.first_name, userItem.last_name].filter(Boolean).join(' ') || userItem.name || 'N/A';
+                const userInitial = userItem.first_name?.[0] || userItem.email[0].toUpperCase();
+
+                const RoleBadge = ({ role }: { role: string }) => {
+                  const baseClasses = 'px-2.5 py-1 text-xs font-medium rounded-full';
+                  if (role === 'admin') return <span className={`bg-amber-100 text-amber-700 ${baseClasses}`}>Admin</span>;
+                  return <span className={`bg-gray-100 text-gray-600 ${baseClasses}`}>User</span>;
+                };
+
+                return (
+                  <ListItem
+                    key={userItem.id}
+                    onClick={() => {
+                      setSelectedUser(userItem);
+                      setShowUserDetails(true);
+                    }}
+                    icon={
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a227]/20 to-[#f0d78c]/30 flex items-center justify-center font-bold text-[#c9a227]">
+                        {userInitial}
+                      </div>
+                    }
+                    title={userName}
+                    subtitle={userItem.email}
+                    attributes={[
+                      { label: 'Role', value: <RoleBadge role={userItem.role} /> },
+                      { label: 'Created', value: new Date(userItem.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
+                      { label: 'Last Login', value: userItem.last_login ? new Date(userItem.last_login).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Never' },
+                    ]}
+                    actionButtons={
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleDeleteUser(userItem.id)}
+                          disabled={refreshing}
+                          className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          title="Delete User"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
+                    }
+                  />
+                );
+              }}
+              getSearchableText={getUserSearchableText}
+              getFilterValue={getUserFilterValue}
+              filterOptions={USER_FILTER_OPTIONS}
+              title="User Management"
+              subtitle="Manage system users and permissions"
+              searchPlaceholder="Search by name, email..."
+              loading={loading}
+              onRefresh={fetchData}
+              headerActions={
+                <button
+                  onClick={() => setShowAddUser(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#c9a227] hover:bg-[#b8922a] rounded-lg transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add User
+                </button>
+              }
+              emptyState={
+                <div className="text-center py-8">
+                  <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <p className="font-medium text-gray-600">No users found</p>
+                  <p className="text-sm text-gray-400 mt-1">Click "Add User" to create the first user.</p>
                   <button
                     onClick={() => setShowAddUser(true)}
-                    className="px-4 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-semibold rounded-lg transition-all duration-300 shadow-md shadow-[#c9a227]/30 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 text-sm"
+                    className="mt-4 px-4 py-2 text-sm font-medium text-white bg-[#c9a227] hover:bg-[#b8922a] rounded-lg transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Add New User
+                    Add User
                   </button>
                 </div>
-              </div>
-
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                      <tr>
-                        <th className="text-left py-3 px-4 text-gray-600 font-semibold text-xs">ID</th>
-                        <th className="text-left py-3 px-4 text-gray-600 font-semibold text-xs">Email</th>
-                        <th className="text-left py-3 px-4 text-gray-600 font-semibold text-xs">Name</th>
-                        <th className="text-left py-3 px-4 text-gray-600 font-semibold text-xs">Role</th>
-                        <th className="text-left py-3 px-4 text-gray-600 font-semibold text-xs">Created</th>
-                        <th className="text-left py-3 px-4 text-gray-600 font-semibold text-xs">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {users
-                        .filter(u => userRoleFilter === 'all' || u.role === userRoleFilter)
-                        .map((u) => (
-                        <tr 
-                          key={u.id} 
-                          onClick={() => {
-                            setSelectedUser(u);
-                            setShowUserDetails(true);
-                          }}
-                          className="hover:bg-amber-50 transition-colors cursor-pointer"
-                        >
-                          <td className="py-3 px-4 text-gray-600 font-medium text-sm">#{u.id}</td>
-                          <td className="py-3 px-4 text-[#1a1a1d] font-semibold text-sm">{u.email}</td>
-                          <td className="py-3 px-4 text-gray-700 text-sm">{u.name || u.first_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : '-'}</td>
-                          <td className="py-3 px-4">
-                            <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${
-                              u.role === 'admin' 
-                                ? 'bg-purple-100 text-purple-700' 
-                                : 'bg-gray-100 text-gray-700'
-                            }`}>
-                              {u.role}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-gray-600 text-xs">
-                            {new Date(u.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="py-3 px-4">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteUser(u.id);
-                              }}
-                              className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-all duration-300"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+              }
+            />
           )}
 
           {/* System Tab */}
