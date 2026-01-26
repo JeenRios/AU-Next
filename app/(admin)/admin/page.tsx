@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useModal } from '@/components/ModalProvider';
+import { useModal } from '@/components/shared/ModalProvider';
 import ListContainer, { FilterOption } from '@/components/admin/shared/ListContainer';
 import ListItem from '@/components/shared/ListItem';
 import MT5Trading from '@/components/admin/trading/MT5Trading';

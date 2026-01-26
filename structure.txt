@@ -1,0 +1,128 @@
+app/
+├── layout.tsx                     # Global providers (Theme, Toast, Modal)
+├── page.tsx                       # Landing entry
+│
+├── dashboard/                     # USER dashboard (tab-driven)
+│   └── page.tsx                   # Reads ?tab= and renders feature roots
+│
+├── admin/                         # ADMIN dashboard (tab-driven)
+│   └── page.tsx                   # Reads ?tab= and renders feature roots
+│
+└── auth/
+    ├── login/
+    │   └── page.tsx
+    └── register/
+        └── page.tsx
+
+
+components/
+├── admin/                                   # ADMIN FEATURES
+│   ├── navigation/
+│   │   └── adminMenu.ts                     # Sidebar menu config (DATA)
+│   │
+│   ├── overview/
+│   │   └── AdminOverviewPage.tsx
+│   │
+│   ├── users/
+│   │   └── AdminUsersPage.tsx
+│   │       ├── UserList.tsx
+│   │       └── UserDetailDrawer.tsx
+│   │
+│   ├── trading/
+│   │   └── AdminTradingPage.tsx
+│   │       ├── TradingTabs.tsx
+│   │       ├── MT5Trading.tsx
+│   │
+│   │ ──┬ VPSManagement/
+│   │   │ ├── VPSList.tsx
+│   │   │ ├── VPSRow.tsx
+│   │   │ ├── VPSDetailsForm.tsx
+│   │   │ └── useVPSList.ts
+│   │
+│   │       └── AutomationJobs.tsx
+│   │
+│   ├── support/
+│   │   └── AdminSupportPage.tsx
+│   │       ├── TicketsTab.tsx
+│   │       └── NotificationsTab.tsx
+│   │
+│   └── system/
+│       └── AdminSystemPage.tsx
+│           ├── SettingsTab.tsx
+│           └── AuditLogTab.tsx
+│
+├── user/                                    # USER FEATURES
+│   ├── navigation/
+│   │   └── userMenu.ts                      # Sidebar menu config (DATA)
+│   │
+│   ├── dashboard/
+│   │   └── UserDashboardHome.tsx
+│   │
+│   ├── trading/
+│   │   └── UserTradingPage.tsx
+│   │       ├── OverviewSection.tsx
+│   │       ├── AccountsSection.tsx
+│   │       └── PerformanceSection.tsx
+│   │
+│   ├── settings/
+│   │   └── UserSettingsPage.tsx
+│   │       ├── GeneralSettings.tsx
+│   │       ├── SecuritySettings.tsx
+│   │       └── PreferencesSettings.tsx
+│   │
+│   └── community/
+│       ├── CommunityTab.tsx
+│       └── JournalTab.tsx
+│
+├── landing/                                 # MARKETING UI
+│   ├── LoginModal.tsx
+│   ├── MobileNav.tsx
+│   └── LiveFeed.tsx
+│
+└── shared/                                  # PURE REUSABLE INFRA + UI
+    ├── layout/
+    │   ├── SideNavLayout/
+    │   │   └── SideNavLayout.tsx            # Composes Sidebar + Header
+    │   │
+    │   ├── TabLayout/
+    │   │   └── TabLayout.tsx
+    │   │
+    │   └── Header/
+    │       └── Header.tsx
+    │
+    ├── containers/
+    │   ├── MainContentContainer/
+    │   ├── ListContainer/                   # search / filter / pagination
+    │   └── TabContentContainer/
+    │
+    ├── ui/
+    │   ├── Sidebar/
+    │   │   ├── Sidebar.tsx
+    │   │   ├── SidebarItem.tsx
+    │   │   └── SidebarSection.tsx
+    │   │
+    │   ├── Table/
+    │   │   ├── Table.tsx
+    │   │   ├── TableHeader.tsx
+    │   │   ├── TableRow.tsx
+    │   │   ├── TableCell.tsx
+    │   │   └── ExpandableRow.tsx
+    │   │
+    │   ├── Button/
+    │   ├── Input/
+    │   ├── Badge/
+    │   ├── Tabs/
+    │   ├── Modal/
+    │   ├── Toast/
+    │   ├── SlideOutPanel/
+    │   └── Spinner/
+    │
+    ├── providers/
+    │   ├── ModalProvider/
+    │   ├── ToastProvider/
+    │   └── ThemeProvider/
+    │
+    └── hooks/
+        ├── useModal.ts
+        ├── useToast.ts
+        └── useOutsideClick.ts

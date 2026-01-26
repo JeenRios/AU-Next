@@ -1,4 +1,4 @@
-// Dashboard components barrel export
+// User dashboard components barrel export
 export { default as Sidebar } from './Sidebar';
 export { default as StatsCard, StatsCardSkeleton } from './StatsCard';
 export { default as PerformanceChart, ChartSkeleton } from './PerformanceChart';

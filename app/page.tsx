@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import LoginModal from '@/components/LoginModal';
+import LoginModal from '@/components/landing/LoginModal';
 
 interface PlatformStats {
   totalUsers: number;
