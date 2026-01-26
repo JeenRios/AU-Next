@@ -18,7 +18,7 @@ interface QuickActionsProps {
 
 export default function QuickActions({ actions }: QuickActionsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4" role="group" aria-label="Quick actions">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" role="group" aria-label="Quick actions">
       {actions.map((action) => (
         <button
           key={action.id}
@@ -70,6 +70,11 @@ export const QuickActionIcons = {
   support: (
     <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+  ),
+  journal: (
+    <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
     </svg>
   ),
 };

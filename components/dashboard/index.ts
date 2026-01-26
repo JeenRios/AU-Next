@@ -6,3 +6,4 @@ export { default as RecentActivity, ActivitySkeleton } from './RecentActivity';
 export { NotificationsPanel } from './NotificationsPanel';
 export { default as QuickActions, QuickActionIcons } from './QuickActions';
 export { default as ErrorState, EmptyState } from './ErrorState';
+export { default as TradingJournal } from './TradingJournal';

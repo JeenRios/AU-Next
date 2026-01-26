@@ -267,6 +267,20 @@ async function setupDatabase() {
       );
     `);
 
+    // Trading Journal table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trading_journal (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        emotion VARCHAR(50),
+        tags TEXT[],
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     console.log('✅ All tables created successfully!\n');
 
     // Create indexes for better performance
@@ -290,6 +304,7 @@ async function setupDatabase() {
       CREATE INDEX IF NOT EXISTS idx_automation_jobs_vps_instance ON automation_jobs(vps_instance_id);
       CREATE INDEX IF NOT EXISTS idx_community_posts_user_id ON community_posts(user_id);
       CREATE INDEX IF NOT EXISTS idx_community_posts_created_at ON community_posts(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_trading_journal_user_id ON trading_journal(user_id);
     `);
 
     console.log('✅ Indexes created\n');
@@ -308,6 +323,7 @@ async function setupDatabase() {
     console.log('  ✓ automation_jobs - EA deployment & automation job tracking');
     console.log('  ✓ community_posts - Community feed posts');
     console.log('  ✓ community_post_likes - Post likes tracking');
+    console.log('  ✓ trading_journal - User trading notes and psychology logs');
     console.log('');
     console.log('🎉 Database schema setup complete!');
 
