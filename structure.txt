@@ -2,7 +2,7 @@ app/
 ├── layout.tsx                     # Global providers (Theme, Toast, Modal)
 ├── page.tsx                       # Landing entry
 │
-├── dashboard/                     # USER dashboard (tab-driven)
+├── user/                     # USER dashboard (tab-driven)
 │   └── page.tsx                   # Reads ?tab= and renders feature roots
 │
 ├── admin/                         # ADMIN dashboard (tab-driven)
@@ -26,7 +26,6 @@ components/
 │   ├── users/
 │   │   └── AdminUsersPage.tsx
 │   │       ├── UserList.tsx
-│   │       └── UserDetailDrawer.tsx
 │   │
 │   ├── trading/
 │   │   └── AdminTradingPage.tsx
