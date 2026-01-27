@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { requireAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await requireAuth();
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
     const result = await query(`
       SELECT
         p.id,
+        p.user_id,
         p.content,
         p.image_url,
         p.profit_amount,
@@ -23,22 +25,26 @@ export async function GET(request: NextRequest) {
         COALESCE(up.first_name || ' ' || up.last_name, u.email) as user_name,
         COALESCE(UPPER(LEFT(up.first_name, 1)), UPPER(LEFT(u.email, 1))) as avatar,
         CASE WHEN up.kyc_status = 'verified' THEN true ELSE false END as verified,
-        CASE WHEN pl.id IS NOT NULL THEN true ELSE false END as liked
+        CASE WHEN pl.id IS NOT NULL THEN true ELSE false END as liked,
+        CASE WHEN f.id IS NOT NULL THEN true ELSE false END as following
       FROM community_posts p
       JOIN users u ON p.user_id = u.id
       LEFT JOIN user_profiles up ON u.id = up.user_id
       LEFT JOIN community_post_likes pl ON p.id = pl.post_id AND pl.user_id = $1
+      LEFT JOIN user_follows f ON p.user_id = f.following_id AND f.follower_id = $1
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3
-    `, [userId || 0, limit, offset]);
+    `, [session.user.id, limit, offset]);
 
     // Format the response
     const posts = result.rows.map(post => ({
       id: post.id,
       user: {
+        id: post.user_id,
         name: post.user_name,
         avatar: post.avatar,
-        verified: post.verified
+        verified: post.verified,
+        following: post.following
       },
       content: post.content,
       image: post.image_url,
@@ -56,6 +62,9 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
     console.error('Community fetch error:', error);
     return NextResponse.json(
       { success: false, error: error.message },
@@ -66,11 +75,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { user_id, content, image_url, profit_amount } = await request.json();
+    const session = await requireAuth();
+    const { content, image_url, profit_amount } = await request.json();
 
-    if (!user_id || !content) {
+    if (!content) {
       return NextResponse.json(
-        { success: false, error: 'User ID and content are required' },
+        { success: false, error: 'Content is required' },
         { status: 400 }
       );
     }
@@ -86,7 +96,7 @@ export async function POST(request: NextRequest) {
       `INSERT INTO community_posts (user_id, content, image_url, profit_amount)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [user_id, content, image_url || null, profit_amount || null]
+      [session.user.id, content, image_url || null, profit_amount || null]
     );
 
     return NextResponse.json({
@@ -96,6 +106,9 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
     console.error('Community post error:', error);
     return NextResponse.json(
       { success: false, error: error.message },
@@ -107,11 +120,13 @@ export async function POST(request: NextRequest) {
 // Like/unlike a post
 export async function PATCH(request: NextRequest) {
   try {
-    const { post_id, user_id, action } = await request.json();
+    const session = await requireAuth();
+    const { post_id, action } = await request.json();
+    const userId = session.user.id;
 
-    if (!post_id || !user_id || !action) {
+    if (!post_id || !action) {
       return NextResponse.json(
-        { success: false, error: 'Post ID, user ID, and action are required' },
+        { success: false, error: 'Post ID and action are required' },
         { status: 400 }
       );
     }
@@ -122,7 +137,7 @@ export async function PATCH(request: NextRequest) {
         `INSERT INTO community_post_likes (post_id, user_id)
          VALUES ($1, $2)
          ON CONFLICT DO NOTHING`,
-        [post_id, user_id]
+        [post_id, userId]
       );
 
       // Update likes count
@@ -136,7 +151,7 @@ export async function PATCH(request: NextRequest) {
       // Remove like
       await query(
         `DELETE FROM community_post_likes WHERE post_id = $1 AND user_id = $2`,
-        [post_id, user_id]
+        [post_id, userId]
       );
 
       // Update likes count
@@ -160,6 +175,9 @@ export async function PATCH(request: NextRequest) {
     });
 
   } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
     console.error('Community like error:', error);
     return NextResponse.json(
       { success: false, error: error.message },

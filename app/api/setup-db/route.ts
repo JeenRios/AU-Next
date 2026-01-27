@@ -50,6 +50,14 @@ export async function GET() {
         avatar_url TEXT,
         timezone VARCHAR(50) DEFAULT 'UTC',
         language VARCHAR(10) DEFAULT 'en',
+        two_factor_enabled BOOLEAN DEFAULT false,
+        trading_risk_level VARCHAR(50) DEFAULT 'moderate',
+        default_stop_loss DECIMAL(15, 4),
+        default_take_profit DECIMAL(15, 4),
+        push_notifications_enabled BOOLEAN DEFAULT true,
+        sms_notifications_enabled BOOLEAN DEFAULT false,
+        email_notifications_enabled BOOLEAN DEFAULT true,
+        is_public_profile BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       );
@@ -77,7 +85,10 @@ export async function GET() {
         status VARCHAR(50) DEFAULT 'open',
         opened_at TIMESTAMP DEFAULT NOW(),
         closed_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT NOW()
+        notes TEXT,
+        tags VARCHAR(255),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
       );
       CREATE INDEX IF NOT EXISTS idx_trades_user_id ON trades(user_id);
       CREATE INDEX IF NOT EXISTS idx_trades_status ON trades(status);
@@ -262,6 +273,32 @@ export async function GET() {
       );
     `);
 
+    // Create community_comments table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS community_comments (
+        id SERIAL PRIMARY KEY,
+        post_id INTEGER REFERENCES community_posts(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id);
+    `);
+
+    // Create user_follows table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_follows (
+        id SERIAL PRIMARY KEY,
+        follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        following_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(follower_id, following_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
+      CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
+    `);
+
     // Add missing columns to mt5_accounts if they don't exist
     const mt5Columns = [
       { name: 'encrypted_password', type: 'TEXT' },
@@ -284,18 +321,60 @@ export async function GET() {
       }
     }
 
+    // Add missing columns to user_profiles
+    const profileColumns = [
+      { name: 'two_factor_enabled', type: 'BOOLEAN DEFAULT false' },
+      { name: 'trading_risk_level', type: "VARCHAR(50) DEFAULT 'moderate'" },
+      { name: 'default_stop_loss', type: 'DECIMAL(15, 4)' },
+      { name: 'default_take_profit', type: 'DECIMAL(15, 4)' },
+      { name: 'push_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
+      { name: 'sms_notifications_enabled', type: 'BOOLEAN DEFAULT false' },
+      { name: 'email_notifications_enabled', type: 'BOOLEAN DEFAULT true' },
+      { name: 'is_public_profile', type: 'BOOLEAN DEFAULT false' },
+      { name: 'first_name', type: 'VARCHAR(100)' },
+      { name: 'last_name', type: 'VARCHAR(100)' },
+      { name: 'phone', type: 'VARCHAR(50)' },
+      { name: 'country', type: 'VARCHAR(100)' },
+      { name: 'city', type: 'VARCHAR(100)' },
+      { name: 'address', type: 'TEXT' },
+      { name: 'postal_code', type: 'VARCHAR(20)' },
+    ];
+
+    for (const col of profileColumns) {
+      try {
+        await pool.query(`ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
+      } catch (e) {
+        // Column might already exist, ignore error
+      }
+    }
+
+    // Add journaling columns to trades if they don't exist
+    const tradeJournalColumns = [
+      { name: 'notes', type: 'TEXT' },
+      { name: 'tags', type: 'VARCHAR(255)' },
+    ];
+
+    for (const col of tradeJournalColumns) {
+      try {
+        await pool.query(`ALTER TABLE trades ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
+      } catch (e) {
+        // Column might already exist, ignore error
+      }
+    }
+
     await pool.end();
 
     return NextResponse.json({
       success: true,
-      message: 'Database schema created successfully! All tables are ready (users, user_profiles, trades, transactions, notifications, support_tickets, audit_logs, mt5_accounts, vps_instances, automation_jobs, community_posts, community_post_likes).'
+      message: 'Database schema created successfully! All tables are ready (users, user_profiles, trades, transactions, notifications, support_tickets, audit_logs, mt5_accounts, vps_instances, automation_jobs, community_posts, community_post_likes, community_comments, user_follows).'
     });
 
   } catch (error: any) {
-    await pool.end();
+    console.error('Setup DB Error:', error);
+    try { await pool.end(); } catch (e) {}
     return NextResponse.json({ 
       success: false, 
-      error: error.message 
+      error: error.message || 'Unknown error occurred'
     }, { status: 500 });
   }
 }

@@ -1,17 +1,25 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/Toast';
-import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState } from '@/components/dashboard';
+import { Sidebar, StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState, SettingsTab, CommunityTab, JournalModal } from '@/components/dashboard';
 import { useDashboardData } from '@/lib/hooks/useFetch';
 import MT5AccountStatus from '@/components/dashboard/MT5AccountStatus';
 import TradingAnalytics from '@/components/dashboard/TradingAnalytics';
 
-export default function UserDashboard() {
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'my-trading' | 'community' | 'settings'>('dashboard');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['dashboard', 'my-trading', 'community', 'settings'].includes(tab)) {
+      setActiveTab(tab as any);
+    }
+  }, [searchParams]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { showToast, ToastContainer } = useToast();
   
@@ -40,50 +48,9 @@ export default function UserDashboard() {
     email: ''
   });
 
-  // Community/Social
-  const [newPost, setNewPost] = useState('');
-  const [communityPosts, setCommunityPosts] = useState<any[]>([
-    {
-      id: 1,
-      user: { name: 'Alex Trader', avatar: 'A', verified: true },
-      content: 'Just hit my monthly target! 🎯 XAUUSD has been treating me well this week. Remember: patience is key in trading!',
-      image: null,
-      profit: '+$2,450',
-      likes: 24,
-      comments: 8,
-      liked: false,
-      timestamp: '2 hours ago'
-    },
-    {
-      id: 2,
-      user: { name: 'Sarah Gold', avatar: 'S', verified: true },
-      content: 'New strategy working great! Sharing my GBPUSD analysis for those interested 📊',
-      image: null,
-      profit: '+$890',
-      likes: 45,
-      comments: 12,
-      liked: true,
-      timestamp: '4 hours ago'
-    },
-    {
-      id: 3,
-      user: { name: 'Mike Reynolds', avatar: 'M', verified: false },
-      content: 'Learning from my losses today. Down $150 on EURUSD but the lesson was worth more than that. Stay humble! 💪',
-      image: null,
-      profit: '-$150',
-      likes: 67,
-      comments: 23,
-      liked: false,
-      timestamp: '6 hours ago'
-    }
-  ]);
-  const [leaderboard] = useState([
-    { rank: 1, name: 'GoldMaster99', profit: '+$12,450', winRate: '78%', trades: 156 },
-    { rank: 2, name: 'ForexQueen', profit: '+$9,230', winRate: '72%', trades: 203 },
-    { rank: 3, name: 'Alex Trader', profit: '+$8,100', winRate: '69%', trades: 178 },
-    { rank: 4, name: 'TradingPro', profit: '+$6,890', winRate: '65%', trades: 142 },
-    { rank: 5, name: 'Sarah Gold', profit: '+$5,670', winRate: '71%', trades: 98 },
-  ]);
+  // Journaling
+  const [selectedTradeForJournal, setSelectedTradeForJournal] = useState<any>(null);
+
 
   // Use custom hook for data fetching with error handling
   const { data: dashboardData, loading: dataLoading, error: dataError, refetch } = useDashboardData();
@@ -190,33 +157,6 @@ export default function UserDashboard() {
     return true;
   });
 
-  // Community functions
-  const handleLikePost = (postId: number) => {
-    setCommunityPosts(communityPosts.map(post => 
-      post.id === postId 
-        ? { ...post, liked: !post.liked, likes: post.liked ? post.likes - 1 : post.likes + 1 }
-        : post
-    ));
-  };
-
-  const handleCreatePost = () => {
-    if (!newPost.trim()) return;
-    
-    const post = {
-      id: Date.now(),
-      user: { name: user?.name || 'Anonymous', avatar: user?.name?.charAt(0) || 'U', verified: false },
-      content: newPost,
-      image: null,
-      profit: null,
-      likes: 0,
-      comments: 0,
-      liked: false,
-      timestamp: 'Just now'
-    };
-    
-    setCommunityPosts([post, ...communityPosts]);
-    setNewPost('');
-  };
 
   // Show error state with retry
   if (dataError && !dataLoading) {
@@ -305,7 +245,7 @@ export default function UserDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatsCard
                 title="Account Balance"
-                value={`$${stats?.total_balance || '0.00'}`}
+                value={`$${stats?.totalBalance || '0.00'}`}
                 icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                 variant="gold"
                 badge="Live"
@@ -313,7 +253,7 @@ export default function UserDashboard() {
               />
               <StatsCard
                 title="Total Trades"
-                value={stats?.total_trades || 0}
+                value={stats?.totalTrades || 0}
                 subtitle="+12% this month"
                 icon={<svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>}
                 iconBg="bg-blue-50"
@@ -321,7 +261,7 @@ export default function UserDashboard() {
               />
               <StatsCard
                 title="Win Rate"
-                value={`${stats?.win_rate || 0}%`}
+                value={`${stats?.winRate || 0}%`}
                 subtitle="Above average"
                 icon={<svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                 iconBg="bg-green-50"
@@ -382,202 +322,7 @@ export default function UserDashboard() {
 
         {/* Community Tab */}
         {activeTab === 'community' && (
-          <div className="grid grid-cols-12 gap-6">
-            {/* Main Feed Column */}
-            <div className="col-span-12 lg:col-span-8 space-y-4">
-              {/* Create Post */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                    {user?.name?.charAt(0) || 'U'}
-                  </div>
-                  <div className="flex-1">
-                    <textarea
-                      value={newPost}
-                      onChange={(e) => setNewPost(e.target.value)}
-                      placeholder="Share your trading insights, wins, or lessons learned..."
-                      className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#c9a227] focus:border-transparent resize-none h-24"
-                    />
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex gap-2">
-                        <button className="p-2 text-gray-500 hover:text-[#c9a227] hover:bg-amber-50 rounded-lg transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </button>
-                        <button className="p-2 text-gray-500 hover:text-[#c9a227] hover:bg-amber-50 rounded-lg transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                          </svg>
-                        </button>
-                      </div>
-                      <button
-                        onClick={handleCreatePost}
-                        disabled={!newPost.trim()}
-                        className="px-6 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all disabled:opacity-50"
-                      >
-                        Post
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feed Posts */}
-              {communityPosts.map((post) => (
-                <div key={post.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                  {/* Post Header */}
-                  <div className="p-5 flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white font-bold">
-                      {post.user.avatar}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-[#1a1a1d]">{post.user.name}</span>
-                        {post.user.verified && (
-                          <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-500">{post.timestamp}</div>
-                    </div>
-                    {post.profit && (
-                      <div className={`px-4 py-2 rounded-xl font-bold ${
-                        post.profit.startsWith('+') 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-red-100 text-red-700'
-                      }`}>
-                        {post.profit}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Post Content */}
-                  <div className="px-5 pb-4">
-                    <p className="text-[#1a1a1d] text-base leading-relaxed">{post.content}</p>
-                  </div>
-
-                  {/* Post Actions */}
-                  <div className="px-5 py-3 border-t border-gray-100 flex items-center gap-6">
-                    <button
-                      onClick={() => handleLikePost(post.id)}
-                      className={`flex items-center gap-2 transition-colors ${
-                        post.liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-                      }`}
-                    >
-                      <svg className="w-5 h-5" fill={post.liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                      <span className="font-medium">{post.likes}</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-gray-500 hover:text-[#c9a227] transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
-                      <span className="font-medium">{post.comments}</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-gray-500 hover:text-[#c9a227] transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                      </svg>
-                      <span className="font-medium">Share</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Right Sidebar */}
-            <div className="col-span-12 lg:col-span-4 space-y-4">
-              {/* Leaderboard */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sticky top-4">
-                <h3 className="font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                  Top Traders This Month
-                </h3>
-
-                <div className="space-y-3">
-                  {leaderboard.map((trader, idx) => (
-                    <div key={idx} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                      idx === 0 ? 'bg-gradient-to-r from-[#c9a227]/10 to-[#f0d78c]/10 border border-[#f0d78c]' :
-                      idx === 1 ? 'bg-gray-100' :
-                      idx === 2 ? 'bg-orange-50' : 'hover:bg-gray-50'
-                    }`}>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                        idx === 0 ? 'bg-[#c9a227] text-white' :
-                        idx === 1 ? 'bg-gray-400 text-white' :
-                        idx === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        {trader.rank}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-[#1a1a1d] text-sm">{trader.name}</div>
-                        <div className="text-xs text-gray-500">{trader.trades} trades • {trader.winRate} win</div>
-                      </div>
-                      <div className="text-green-600 font-bold text-sm">{trader.profit}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <button className="w-full mt-4 py-2.5 border border-[#c9a227] text-[#c9a227] hover:bg-amber-50 font-semibold rounded-xl transition-all text-sm">
-                  View Full Leaderboard
-                </button>
-              </div>
-
-              {/* Suggested Traders */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <h3 className="font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                  Suggested to Follow
-                </h3>
-
-                <div className="space-y-3">
-                  {[
-                    { name: 'CryptoKing', followers: '2.5k', winRate: '75%' },
-                    { name: 'GoldTrader_Pro', followers: '1.8k', winRate: '71%' },
-                    { name: 'ForexMaster', followers: '3.2k', winRate: '68%' },
-                  ].map((trader, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white font-bold">
-                        {trader.name.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-[#1a1a1d] text-sm">{trader.name}</div>
-                        <div className="text-xs text-gray-500">{trader.followers} followers • {trader.winRate} win</div>
-                      </div>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] text-xs font-semibold rounded-lg hover:shadow-md transition-all">
-                        Follow
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Trending Topics */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <h3 className="font-bold text-[#1a1a1d] mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                  Trending Topics
-                </h3>
-
-                <div className="space-y-2">
-                  {['#XAUUSD', '#NFP', '#GoldTrading', '#ForexSignals', '#TradingPsychology'].map((topic, idx) => (
-                    <button key={idx} className="w-full text-left px-3 py-2 hover:bg-amber-50 rounded-lg transition-colors">
-                      <div className="font-semibold text-[#c9a227] text-sm">{topic}</div>
-                      <div className="text-xs text-gray-500">{Math.floor(Math.random() * 500) + 100} posts today</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <CommunityTab user={user} />
         )}
 
         {/* My Trading Tab */}
@@ -960,12 +705,22 @@ export default function UserDashboard() {
                         <th className="text-left py-4 px-6 text-gray-600 font-semibold">Profit/Loss</th>
                         <th className="text-left py-4 px-6 text-gray-600 font-semibold">Status</th>
                         <th className="text-left py-4 px-6 text-gray-600 font-semibold">Date</th>
+                        <th className="text-right py-4 px-6 text-gray-600 font-semibold">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredTrades.map((trade) => (
                         <tr key={trade.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6 font-mono text-sm text-gray-600">#{trade.id}</td>
+                          <td className="py-4 px-6 font-mono text-sm text-gray-600">
+                            <div className="flex flex-col">
+                              <span>#{trade.id}</span>
+                              {trade.tags && (
+                                <span className="text-[10px] text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded mt-1 w-fit uppercase">
+                                  {trade.tags.split(',')[0]}
+                                </span>
+                              )}
+                            </div>
+                          </td>
                           <td className="py-4 px-6 font-semibold text-[#1a1a1d]">{trade.symbol}</td>
                           <td className="py-4 px-6">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -989,6 +744,17 @@ export default function UserDashboard() {
                             </span>
                           </td>
                           <td className="py-4 px-6 text-sm text-gray-600">{new Date(trade.created_at).toLocaleDateString()}</td>
+                          <td className="py-4 px-6 text-right">
+                            <button
+                              onClick={() => setSelectedTradeForJournal(trade)}
+                              className={`p-2 rounded-lg transition-colors ${trade.notes ? 'text-[#c9a227] bg-amber-50 hover:bg-amber-100' : 'text-gray-400 hover:bg-gray-100'}`}
+                              title={trade.notes ? 'View/Edit Reflection' : 'Add Reflection'}
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -999,267 +765,39 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* Billing Tab */}
-
+        {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="space-y-8">
-            {/* Account Information Section */}
-            <div className="max-w-2xl">
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
-                <h2 className="text-2xl font-bold text-[#1a1a1d] mb-6">Account Information</h2>
-                
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-600 mb-2">Email Address</label>
-                    <input
-                      type="email"
-                      value={user?.email || ''}
-                      disabled
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-[#1a1a1d] disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-600 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={user?.name || ''}
-                      disabled
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-[#1a1a1d] disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-600 mb-2">Account Role</label>
-                    <input
-                      type="text"
-                      value={user?.role || 'User'}
-                      disabled
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-[#1a1a1d] disabled:opacity-50 capitalize"
-                    />
-                  </div>
-
-                  <div className="pt-4">
-                    <button
-                      className="px-6 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all"
-                    >
-                      Edit Profile
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Billing Section */}
-            <div className="space-y-6">
-              {/* Current Plan */}
-              <div className="bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl p-8 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm opacity-90 mb-2">Current Plan</div>
-                    <h2 className="text-4xl font-bold mb-2">Pro Plan</h2>
-                    <div className="text-2xl font-semibold">$199<span className="text-lg opacity-75">/month</span></div>
-                  </div>
-                  <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center">
-                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="mt-6 pt-6 border-t border-white/20">
-                  <div className="text-sm opacity-90 mb-2">Next billing date</div>
-                  <div className="font-semibold">February 16, 2026</div>
-                </div>
-              </div>
-
-              {/* Upgrade Options */}
-              <div>
-                <h3 className="text-xl font-bold text-[#1a1a1d] mb-4">Upgrade Your Plan</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Basic Plan */}
-                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow">
-                    <div className="text-center mb-6">
-                      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                      </div>
-                      <h4 className="text-2xl font-bold text-[#1a1a1d] mb-2">Basic</h4>
-                      <div className="text-3xl font-bold text-[#1a1a1d] mb-1">$99</div>
-                      <div className="text-sm text-gray-600">per month</div>
-                    </div>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        1 MT5 Account
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Basic EA
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Email Support
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-400">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Advanced Analytics
-                      </li>
-                    </ul>
-                    <button className="w-full py-3 border-2 border-gray-300 hover:border-[#c9a227] text-gray-700 hover:text-[#1a1a1d] font-semibold rounded-xl transition-all">
-                      Select Plan
-                    </button>
-                  </div>
-
-                  {/* Pro Plan - Current */}
-                  <div className="bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                    <div className="absolute top-4 right-4 bg-white text-[#c9a227] px-3 py-1 rounded-full text-xs font-bold">
-                      CURRENT
-                    </div>
-                    <div className="text-center mb-6">
-                      <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                      </div>
-                      <h4 className="text-2xl font-bold mb-2">Pro</h4>
-                      <div className="text-3xl font-bold mb-1">$199</div>
-                      <div className="text-sm opacity-75">per month</div>
-                    </div>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        3 MT5 Accounts
-                      </li>
-                      <li className="flex items-center gap-2 text-sm">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Advanced EA
-                      </li>
-                      <li className="flex items-center gap-2 text-sm">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Priority Support
-                      </li>
-                      <li className="flex items-center gap-2 text-sm">
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Advanced Analytics
-                      </li>
-                    </ul>
-                    <button className="w-full py-3 bg-white text-[#c9a227] font-bold rounded-xl">
-                      Current Plan
-                    </button>
-                  </div>
-
-                  {/* Premium Plan */}
-                  <div className="bg-white rounded-2xl border-2 border-[#c9a227] shadow-sm p-6 hover:shadow-lg transition-shadow">
-                    <div className="text-center mb-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                        </svg>
-                      </div>
-                      <h4 className="text-2xl font-bold text-[#1a1a1d] mb-2">Premium</h4>
-                      <div className="text-3xl font-bold text-[#1a1a1d] mb-1">$499</div>
-                      <div className="text-sm text-gray-600">per month</div>
-                    </div>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Unlimited MT5 Accounts
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Premium EA Suite
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        24/7 VIP Support
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Custom EA Development
-                      </li>
-                    </ul>
-                    <button className="w-full py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all">
-                      Upgrade Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment History */}
-              <div>
-                <h3 className="text-xl font-bold text-[#1a1a1d] mb-4">Payment History</h3>
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50">
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Invoice</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Plan</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Amount</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Status</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Date</th>
-                          <th className="text-left py-4 px-6 text-gray-600 font-semibold">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6 font-mono text-sm text-gray-600">#INV-2026-001</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">Pro Plan</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">$199.00</td>
-                          <td className="py-4 px-6">
-                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">PAID</span>
-                          </td>
-                          <td className="py-4 px-6 text-sm text-gray-600">Jan 16, 2026</td>
-                          <td className="py-4 px-6">
-                            <button className="text-[#c9a227] hover:text-[#1a1a1d] text-sm font-semibold">Download</button>
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6 font-mono text-sm text-gray-600">#INV-2025-012</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">Pro Plan</td>
-                          <td className="py-4 px-6 font-semibold text-[#1a1a1d]">$199.00</td>
-                          <td className="py-4 px-6">
-                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">PAID</span>
-                          </td>
-                          <td className="py-4 px-6 text-sm text-gray-600">Dec 16, 2025</td>
-                          <td className="py-4 px-6">
-                            <button className="text-[#c9a227] hover:text-[#1a1a1d] text-sm font-semibold">Download</button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SettingsTab user={user} />
         )}
       </main>
+
+      {/* Modals */}
+      {selectedTradeForJournal && (
+        <JournalModal
+          trade={selectedTradeForJournal}
+          onClose={() => setSelectedTradeForJournal(null)}
+          onUpdate={(updated) => {
+            // Update the local dashboard data state
+            if (dashboardData) {
+              const updatedTrades = dashboardData.trades.map((t: any) =>
+                t.id === updated.id ? { ...t, notes: updated.notes, tags: updated.tags } : t
+              );
+              // Since we don't have a direct setter for dashboardData (it's from hook),
+              // we rely on the next refetch or we can manually patch if hook allowed.
+              // For now, let's trigger a refetch to be sure data is synced with DB
+              refetch();
+            }
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+export default function UserDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c9a227]"></div></div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
