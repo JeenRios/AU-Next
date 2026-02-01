@@ -2,22 +2,59 @@
 
 import { useState, ReactNode, useRef, useEffect } from 'react';
 
-export interface TabItem {
+export interface ContentTab {
   id: string;
   label: string;
   icon: string; // SVG path
   badge?: number;
 }
 
-interface TabLayoutProps {
-  tabs: TabItem[];
+interface ContentTabsPropsBase {
+  /** Array of tab definitions */
+  tabs: ContentTab[];
+  /** Default active tab id (only used in uncontrolled mode) */
   defaultTab?: string;
-  children: (activeTab: string) => ReactNode;
+  /** Additional className for the container */
   className?: string;
 }
 
-export default function TabLayout({ tabs, defaultTab, children, className = '' }: TabLayoutProps) {
-  const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id || '');
+interface ContentTabsUncontrolledProps extends ContentTabsPropsBase {
+  /** Render function for tab content (uncontrolled mode) */
+  children: (activeTab: string) => ReactNode;
+  /** Controlled active tab - not used in uncontrolled mode */
+  activeTab?: never;
+  /** Controlled onChange callback - not used in uncontrolled mode */
+  onTabChange?: never;
+}
+
+interface ContentTabsControlledProps extends ContentTabsPropsBase {
+  /** Direct ReactNode children (controlled mode) */
+  children: ReactNode;
+  /** Controlled active tab */
+  activeTab: string;
+  /** Controlled onChange callback */
+  onTabChange: (tab: string) => void;
+}
+
+type ContentTabsProps = ContentTabsUncontrolledProps | ContentTabsControlledProps;
+
+export default function ContentTabs(props: ContentTabsProps) {
+  const { tabs, className = '' } = props;
+  
+  // Determine if controlled or uncontrolled mode
+  const isControlled = 'activeTab' in props && props.activeTab !== undefined;
+  
+  // Internal state for uncontrolled mode
+  const [internalActiveTab, setInternalActiveTab] = useState(
+    props.defaultTab || tabs[0]?.id || ''
+  );
+  
+  // Use controlled or internal state
+  const activeTab = isControlled ? (props as ContentTabsControlledProps).activeTab : internalActiveTab;
+  const handleTabChange = isControlled 
+    ? (props as ContentTabsControlledProps).onTabChange 
+    : setInternalActiveTab;
+  
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,10 +83,10 @@ export default function TabLayout({ tabs, defaultTab, children, className = '' }
 
   return (
     <div className={className}>
-      {/* Horizontal Tab Bar with Gold Accent */}
+      {/* Horizontal Tab Bar */}
       <div 
         ref={containerRef}
-        className="relative inline-flex items-center bg-amber-50/80 border border-[#f0d78c]/30 rounded-xl p-1 mb-6"
+        className="relative inline-flex items-center bg-amber-50/80 border border-[#f0d78c]/30 rounded-xl p-1 mb-6 overflow-x-auto scrollbar-hide"
       >
         {/* Sliding gold indicator */}
         <div
@@ -64,8 +101,8 @@ export default function TabLayout({ tabs, defaultTab, children, className = '' }
           <button
             key={tab.id}
             ref={(el) => { tabRefs.current[index] = el; }}
-            onClick={() => setActiveTab(tab.id)}
-            className={`relative z-10 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+            onClick={() => handleTabChange(tab.id)}
+            className={`relative z-10 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
               activeTab === tab.id
                 ? 'text-[#1a1a1d]'
                 : 'text-gray-600 hover:text-[#1a1a1d]'
@@ -90,12 +127,16 @@ export default function TabLayout({ tabs, defaultTab, children, className = '' }
         ))}
       </div>
 
-      {/* Content Area with Gold Accent */}
+      {/* Content Area */}
       <div className="bg-white rounded-2xl border border-[#f0d78c]/20 shadow-sm overflow-hidden">
         {/* Top gold accent line */}
         <div className="h-1 bg-gradient-to-r from-[#c9a227] via-[#f0d78c] to-[#c9a227]" />
         <div className="p-6">
-          {children(activeTab)}
+          {/* Render based on controlled or uncontrolled mode */}
+          {typeof props.children === 'function' 
+            ? (props.children as (activeTab: string) => ReactNode)(activeTab)
+            : props.children
+          }
         </div>
       </div>
     </div>
@@ -103,7 +144,7 @@ export default function TabLayout({ tabs, defaultTab, children, className = '' }
 }
 
 // Common icon paths for reuse
-export const TabIcons = {
+export const ContentTabIcons = {
   // General/Profile
   user: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
   // Security/Lock
@@ -116,8 +157,6 @@ export const TabIcons = {
   billing: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
   // History/Clock
   history: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
-  // Wallet
-  wallet: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
   // Overview/Dashboard
   overview: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
   // Accounts/Users
@@ -128,12 +167,10 @@ export const TabIcons = {
   document: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
   // Link/Connect
   connect: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1',
-  // Sparkles/Premium
-  sparkles: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z',
-  // Shield
-  shield: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
   // Trending up
   trending: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-  // Lightning
-  lightning: 'M13 10V3L4 14h7v7l9-11h-7z',
-}
+  // Support
+  support: 'M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z',
+  // System
+  system: 'M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01',
+};

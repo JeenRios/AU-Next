@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import TabLayout, { TabItem, TabIcons } from './TabLayout';
+import { SectionHeader, ContentTabs, ContentTab, ContentTabIcons } from '@/components/shared';
 import { OverviewContent, AccountsContent, PerformanceContent } from './mytrading';
 
 interface MT5Account {
@@ -37,12 +37,14 @@ interface MyTradingTabProps {
   } | null;
   showToast: (message: string, type: 'success' | 'error' | 'info') => void;
   fetchMT5Accounts: () => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
-const tradingTabs: TabItem[] = [
-  { id: 'overview', label: 'Overview', icon: TabIcons.overview },
-  { id: 'accounts', label: 'Accounts', icon: TabIcons.accounts },
-  { id: 'performance', label: 'Performance', icon: TabIcons.chart },
+const tradingTabs: ContentTab[] = [
+  { id: 'overview', label: 'Overview', icon: ContentTabIcons.overview },
+  { id: 'accounts', label: 'Accounts', icon: ContentTabIcons.accounts },
+  { id: 'performance', label: 'Performance', icon: ContentTabIcons.chart },
 ];
 
 export default function MyTradingTab({
@@ -51,6 +53,8 @@ export default function MyTradingTab({
   stats,
   showToast,
   fetchMT5Accounts,
+  onRefresh,
+  isRefreshing = false,
 }: MyTradingTabProps) {
   // MT5 Connection Form State
   const [showMT5Form, setShowMT5Form] = useState(false);
@@ -160,17 +164,47 @@ export default function MyTradingTab({
   };
 
   return (
-    <TabLayout
-      tabs={tradingTabs}
-      defaultTab="overview"
-    >
-      {(activeTab) => {
-        // Reset internal navigation when main tab changes
-        if (activeTab !== activeSubTab && tradingTabs.some(t => t.id === activeTab)) {
-          setActiveSubTab(activeTab);
+    <>
+      <SectionHeader
+        title="My Trading"
+        subtitle="Manage your MT5 accounts and view trading performance"
+        actions={
+          onRefresh && (
+            <button
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="px-4 py-2.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              <svg
+                className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+          )
         }
-        return renderContent(activeTab);
-      }}
-    </TabLayout>
+      />
+      <ContentTabs
+        tabs={tradingTabs}
+        defaultTab="overview"
+      >
+        {(activeTab) => {
+          // Reset internal navigation when main tab changes
+          if (activeTab !== activeSubTab && tradingTabs.some(t => t.id === activeTab)) {
+            setActiveSubTab(activeTab);
+          }
+          return renderContent(activeTab);
+        }}
+      </ContentTabs>
+    </>
   );
 }

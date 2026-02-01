@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import TabLayout, { TabItem, TabIcons } from './TabLayout';
+import { SectionHeader, ContentTabs, ContentTab, ContentTabIcons } from '@/components/shared';
 import {
   GeneralContent,
   SecurityContent,
@@ -16,12 +16,12 @@ interface SettingsTabProps {
   onUserUpdate?: (user: any) => void;
 }
 
-const settingsTabs: TabItem[] = [
-  { id: 'general', label: 'Profile Info', icon: TabIcons.user },
-  { id: 'security', label: 'Security', icon: TabIcons.security },
-  { id: 'preferences', label: 'Preferences', icon: TabIcons.settings },
-  { id: 'trading', label: 'Trading Defaults', icon: TabIcons.chart },
-  { id: 'billing', label: 'Billing & Plan', icon: TabIcons.billing },
+const settingsTabs: ContentTab[] = [
+  { id: 'general', label: 'Profile Info', icon: ContentTabIcons.user },
+  { id: 'security', label: 'Security', icon: ContentTabIcons.security },
+  { id: 'preferences', label: 'Preferences', icon: ContentTabIcons.settings },
+  { id: 'trading', label: 'Trading Defaults', icon: ContentTabIcons.chart },
+  { id: 'billing', label: 'Billing & Plan', icon: ContentTabIcons.billing },
 ];
 
 export default function SettingsTab({ user, onUserUpdate }: SettingsTabProps) {
@@ -247,8 +247,13 @@ export default function SettingsTab({ user, onUserUpdate }: SettingsTabProps) {
 
   return (
     <div className="space-y-6">
+      <SectionHeader
+        title="Settings"
+        subtitle="Manage your account, preferences, and subscription"
+      />
+
       {message.text && (
-        <div className={`p-4 rounded-xl border ${
+        <div className={`p-4 rounded-xl border mb-6 ${
           message.type === 'success' ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'
         } flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300`}>
           {message.type === 'success' ? (
@@ -264,9 +269,9 @@ export default function SettingsTab({ user, onUserUpdate }: SettingsTabProps) {
         </div>
       )}
 
-      <TabLayout tabs={settingsTabs} defaultTab="general">
+      <ContentTabs tabs={settingsTabs} defaultTab="general">
         {renderContent}
-      </TabLayout>
+      </ContentTabs>
 
       {/* Danger Zone */}
       <div className="mt-8 pt-8 border-t border-gray-100">

@@ -4,3 +4,12 @@ export type { ListItemProps, ListItemAttribute } from './ListItem';
 export { Toast, useToast } from './Toast';
 export type { ToastType } from './Toast';
 export { ModalProvider, useModal } from './ModalProvider';
+
+// Layout components
+export { default as SideNavLayout, SideNavIcons } from './layout/SideNavLayout';
+export type { SideNavLayoutProps, NavItem } from './layout/SideNavLayout';
+
+// UI components
+export { default as SectionHeader } from './ui/SectionHeader';
+export { default as ContentTabs, ContentTabIcons } from './ui/ContentTabs';
+export type { ContentTab } from './ui/ContentTabs';

@@ -2,8 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { SectionHeader } from '@/components/shared';
 
-export default function CommunityTab({ user }: { user: any }) {
+interface CommunityTabProps {
+  user: any;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+}
+
+export default function CommunityTab({ user, onRefresh, isRefreshing }: CommunityTabProps) {
   const [posts, setPosts] = useState<any[]>([]);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [suggested, setSuggested] = useState<any[]>([]);
@@ -161,16 +168,38 @@ export default function CommunityTab({ user }: { user: any }) {
     }
   };
 
+  const handleRefresh = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
+    fetchCommunityData();
+  };
+
   if (loading && posts.length === 0) {
     return (
-      <div className="h-96 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c9a227]"></div>
-      </div>
+      <>
+        <SectionHeader
+          title="Community"
+          subtitle="Connect with fellow traders, share insights, and learn together"
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing || loading}
+        />
+        <div className="h-96 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c9a227]"></div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="grid grid-cols-12 gap-6 animate-in fade-in duration-500">
+    <>
+      <SectionHeader
+        title="Community"
+        subtitle="Connect with fellow traders, share insights, and learn together"
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing || loading}
+      />
+      <div className="grid grid-cols-12 gap-6 animate-in fade-in duration-500">
       {/* Main Feed Column */}
       <div className="col-span-12 lg:col-span-8 space-y-6">
         {/* Create Post */}
@@ -467,5 +496,6 @@ export default function CommunityTab({ user }: { user: any }) {
         </div>
       </div>
     </div>
+    </>
   );
 }

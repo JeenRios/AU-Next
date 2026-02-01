@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { SectionHeader } from '@/components/shared';
 
 interface JournalEntry {
   id: number;
@@ -12,7 +13,14 @@ interface JournalEntry {
   updated_at: string;
 }
 
-export default function JournalTab({ user, showToast }: { user: any; showToast: (msg: string, type: 'success' | 'error' | 'info') => void }) {
+interface JournalTabProps {
+  user: any;
+  showToast: (msg: string, type: 'success' | 'error' | 'info') => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+}
+
+export default function JournalTab({ user, showToast, onRefresh, isRefreshing }: JournalTabProps) {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -113,38 +121,62 @@ export default function JournalTab({ user, showToast }: { user: any; showToast: 
     }
   };
 
+  const handleRefresh = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
+    fetchEntries();
+  };
+
+  // Action button for creating new entry
+  const newEntryButton = (
+    <button
+      onClick={() => {
+        setEditingEntry(null);
+        setFormData({ title: '', content: '', emotion: 'Neutral', tags: '' });
+        setIsFormOpen(true);
+      }}
+      className="px-5 py-2.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all flex items-center gap-2"
+    >
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+      </svg>
+      New Entry
+    </button>
+  );
+
   if (loading && entries.length === 0) {
     return (
-      <div className="h-96 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c9a227]"></div>
-      </div>
+      <>
+        <SectionHeader
+          title="Trading Journal"
+          subtitle="Document your trades, emotions, and lessons learned"
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing || loading}
+          actions={newEntryButton}
+        />
+        <div className="h-96 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c9a227]"></div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-[#1a1a1d]">Trading Journal</h2>
-        <button
-          onClick={() => {
-            setEditingEntry(null);
-            setFormData({ title: '', content: '', emotion: 'Neutral', tags: '' });
-            setIsFormOpen(true);
-          }}
-          className="px-6 py-2.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-bold rounded-xl transition-all flex items-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
-          New Entry
-        </button>
-      </div>
-
-      {isFormOpen && (
-        <div className="bg-white rounded-3xl border border-amber-100 shadow-xl p-6 mb-8 animate-in slide-in-from-top-4 duration-300">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-[#1a1a1d]">
-              {editingEntry ? 'Edit Journal Entry' : 'New Journal Entry'}
+    <>
+      <SectionHeader
+        title="Trading Journal"
+        subtitle="Document your trades, emotions, and lessons learned"
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing || loading}
+        actions={newEntryButton}
+      />
+      <div className="space-y-6 animate-in fade-in duration-500">
+        {isFormOpen && (
+          <div className="bg-white rounded-3xl border border-amber-100 shadow-xl p-6 mb-8 animate-in slide-in-from-top-4 duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-[#1a1a1d]">
+                {editingEntry ? 'Edit Journal Entry' : 'New Journal Entry'}
             </h3>
             <button onClick={() => setIsFormOpen(false)} className="text-gray-400 hover:text-gray-600">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,6 +327,7 @@ export default function JournalTab({ user, showToast }: { user: any; showToast: 
           </button>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
