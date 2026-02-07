@@ -80,7 +80,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   }, [mobileSidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-50 flex">
+    <div className="min-h-screen bg-gray-50/50 flex flex-col md:flex-row">
       {/* Skip link for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#c9a227] focus:text-[#1a1a1d] focus:rounded-lg focus:font-semibold">
         Skip to main content
@@ -100,19 +100,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         welcomeText="Welcome back"
       />
 
-      {/* Main Content - Adjusted for Left Vertical Dock */}
-      <main id="main-content" className="flex-1 p-4 md:p-8 pl-32 min-h-screen bg-gray-50/50">
-        {/* Mobile hamburger - hidden as we switch to floating nav */}
-        <button
-          onClick={() => setMobileSidebarOpen(true)}
-          className="hidden p-2 rounded-lg hover:bg-gray-100 mb-4"
-          aria-label="Open menu"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-
+      {/* Main Content - Resetted to normal flow */}
+      <main id="main-content" className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50/50">
         {children}
       </main>
     </div>

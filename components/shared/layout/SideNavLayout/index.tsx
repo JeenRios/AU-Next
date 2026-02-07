@@ -48,27 +48,27 @@ export default function SideNavLayout<T extends string = string>({
 
   return (
     <>
-      {/* Floating Left Vertical Dock */}
-      <div className="fixed left-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-4">
+      {/* Responsive Sticky Dock (Horizontal Mobile / Vertical Desktop) */}
+      <aside className="sticky top-0 z-50 p-4 md:h-screen md:p-6 md:flex md:flex-col md:justify-center pointer-events-none md:pointer-events-auto w-full md:w-auto">
         
         {/* Dock Container */}
         <nav 
-          className="flex flex-col items-center gap-3 px-2.5 py-5 bg-white/70 backdrop-blur-2xl rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1),0_0_0_1px_rgba(255,255,255,0.6)_inset] border border-white/40 group/dock isolate transition-all duration-300 hover:bg-white/80 hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(255,255,255,0.8)_inset]"
+          className="pointer-events-auto flex md:flex-col items-center justify-between md:justify-center gap-3 px-4 py-3 md:px-2.5 md:py-5 bg-white/70 backdrop-blur-2xl rounded-2xl md:rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1),0_0_0_1px_rgba(255,255,255,0.6)_inset] border border-white/40 group/dock isolate transition-all duration-300 hover:bg-white/80 hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(255,255,255,0.8)_inset] max-w-lg mx-auto md:max-w-none md:mx-0"
           role="menubar"
         >
           {/* User Profile Marker */}
-          <div className="relative group/user z-50">
-            <button className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-lg shadow-[#c9a227]/30 mb-2 shrink-0 group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300 group-hover/user:scale-110 group-hover/user:!blur-none overflow-hidden dock-trigger">
+          <div className="relative group/user z-50 order-3 md:order-1 md:mb-2">
+            <button className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-lg shadow-[#c9a227]/30 shrink-0 group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300 group-hover/user:scale-110 group-hover/user:!blur-none overflow-hidden dock-trigger">
                {/* Initials or Placeholder */}
-               <span className="text-[#1a1a1d] font-bold text-sm">
+               <span className="text-[#1a1a1d] font-bold text-xs md:text-sm">
                 {user?.name 
                   ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
                   : 'AU'}
               </span>
             </button>
-
-            {/* User Options Tooltip (Interactive Menu) */}
-            <div className="absolute left-full top-0 ml-4 opacity-0 group-hover/user:opacity-100 transition-all duration-300 invisible group-hover/user:visible pointer-events-none group-hover/user:pointer-events-auto">
+            
+            {/* User Options Tooltip (Interactive Menu) - Desktop Only for now */}
+            <div className="absolute left-full top-0 ml-4 opacity-0 group-hover/user:opacity-100 transition-all duration-300 invisible group-hover/user:visible pointer-events-none group-hover/user:pointer-events-auto hidden md:block">
                 {/* Invisible hover bridge */}
                 <div className="absolute -left-6 top-0 w-6 h-full bg-transparent" />
                 
@@ -93,7 +93,6 @@ export default function SideNavLayout<T extends string = string>({
                    </button>
                    
                    {/* Logout Option */}
-                    {/* Note: Logic duplicated from bottom button, might want to remove bottom trigger later */}
                    <button onClick={onLogout} className="flex items-center gap-3 p-2 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors text-left w-full mt-1 text-gray-400 group/logout">
                        <svg className="w-4 h-4 group-hover/logout:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                       Logout
@@ -102,52 +101,54 @@ export default function SideNavLayout<T extends string = string>({
             </div>
           </div>
 
-          <div className="w-6 h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300" />
+          <div className="hidden md:block w-full h-px md:w-6 md:h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300" />
 
-          {/* Navigation Items */}
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              role="menuitem"
-              title={item.label}
-              aria-current={activeTab === item.id ? 'page' : undefined}
-              className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-125 dock-trigger ${
-                activeTab === item.id
-                  ? 'bg-[#1a1a1d] text-white shadow-lg shadow-black/20 scale-110'
-                  : 'text-gray-500 hover:text-[#1a1a1d]'
-              }`}
-            >
-              <div className="w-5 h-5 flex items-center justify-center">
-                {item.icon}
-              </div>
-              
-              {/* Badge */}
-              {item.badge !== undefined && item.badge > 0 && (
-                <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold border-2 border-white transition-all ${
-                  activeTab === item.id ? 'bg-[#c9a227] text-white' : 'bg-red-500 text-white'
-                }`}>
-                  {item.badge}
-                </span>
-              )}
-              
-              {/* Tooltip on Hover (Right Side) */}
-              <div className="absolute left-full ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
-                <div className="bg-[#1a1a1d] text-white text-xs px-2 py-1 rounded-md shadow-xl flex items-center">
-                  <div className="w-0 h-0 border-t-[4px] border-t-transparent border-r-[4px] border-r-[#1a1a1d] border-b-[4px] border-b-transparent absolute -left-1" />
-                  {item.label}
-                </div>
-              </div>
-            </button>
-          ))}
+          {/* Navigation Items - Horizontal on Mobile, Vertical on Desktop */}
+          <div className="flex md:flex-col items-center gap-1 md:gap-0 order-1 md:order-2 flex-1 justify-around w-full md:w-auto">
+             {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  role="menuitem"
+                  title={item.label}
+                  aria-current={activeTab === item.id ? 'page' : undefined}
+                  className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-125 dock-trigger ${
+                    activeTab === item.id
+                      ? 'bg-[#1a1a1d] text-white shadow-lg shadow-black/20 scale-110'
+                      : 'text-gray-500 hover:text-[#1a1a1d]'
+                  }`}
+                >
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    {item.icon}
+                  </div>
+                  
+                  {/* Badge */}
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold border-2 border-white transition-all ${
+                      activeTab === item.id ? 'bg-[#c9a227] text-white' : 'bg-red-500 text-white'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                  
+                  {/* Tooltip on Hover (Right Side - Desktop Only) */}
+                  <div className="hidden md:block absolute left-full ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
+                    <div className="bg-[#1a1a1d] text-white text-xs px-2 py-1 rounded-md shadow-xl flex items-center">
+                      <div className="w-0 h-0 border-t-[4px] border-t-transparent border-r-[4px] border-r-[#1a1a1d] border-b-[4px] border-b-transparent absolute -left-1" />
+                      {item.label}
+                    </div>
+                  </div>
+                </button>
+              ))}
+          </div>
 
-          <div className="w-6 h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[button:hover]/dock:blur-[3px] transition-all duration-300" />
+          <div className="hidden md:block w-6 h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[button:hover]/dock:blur-[3px] transition-all duration-300 max-md:hidden order-3" />
 
-          {/* Logout Button */}
+          {/* Logout Button (Desktop only at bottom) */}
           <button
             onClick={onLogout}
             title="Logout"
-            className="relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:!scale-125 group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none dock-trigger"
+            className="relative w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all duration-300 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:!scale-125 group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none dock-trigger order-3"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -161,7 +162,7 @@ export default function SideNavLayout<T extends string = string>({
           </button>
 
         </nav>
-      </div>
+      </aside>
     </>
   );
 }
