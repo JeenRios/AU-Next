@@ -48,93 +48,78 @@ export default function SideNavLayout<T extends string = string>({
 
   return (
     <>
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Sidebar Container with Glow Effect */}
-      <div className={`fixed top-4 left-4 z-50 transform transition-all duration-300 ${
-        mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'
-      } lg:translate-x-0`}>
-        {/* Ambient glow */}
-        <div className="absolute -inset-1 bg-gradient-to-b from-[#c9a227]/20 via-[#c9a227]/5 to-transparent rounded-3xl blur-xl pointer-events-none" />
+      {/* Floating Left Vertical Dock */}
+      <div className="fixed left-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-4">
         
-        {/* Sidebar */}
-        <aside
-          className="relative w-72 bg-white h-[calc(100vh-32px)] flex flex-col rounded-2xl border border-gray-200/80 overflow-hidden group/sidebar"
-          style={{
-            boxShadow: '0 0 0 1px rgba(0,0,0,0.03), 0 4px 6px -1px rgba(0,0,0,0.05), 0 20px 40px -8px rgba(0,0,0,0.1), 0 40px 60px -12px rgba(201,162,39,0.08)'
-          }}
-          role="navigation"
-          aria-label="Main navigation"
+        {/* Dock Container */}
+        <nav 
+          className="flex flex-col items-center gap-3 px-2.5 py-5 bg-white/70 backdrop-blur-2xl rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1),0_0_0_1px_rgba(255,255,255,0.6)_inset] border border-white/40 group/dock isolate transition-all duration-300 hover:bg-white/80 hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(255,255,255,0.8)_inset]"
+          role="menubar"
         >
-        {/* Logo Section */}
-        <div className="p-6 border-b border-gray-100 transition-all duration-300 group-has-[button:hover]/sidebar:blur-[2px] group-has-[button:hover]/sidebar:opacity-60">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-lg shadow-[#c9a227]/30">
-              <span className="text-[#1a1a1d] font-bold text-xl">A</span>
-            </div>
-            <h1 className="text-2xl font-bold text-[#1a1a1d]">
-              AU<span className="text-[#c9a227]">{brandSuffix}</span>
-            </h1>
+          {/* Logo Marker */}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-lg shadow-[#c9a227]/30 mb-2 shrink-0 group-has-[button:hover]/dock:blur-[3px] transition-all duration-300">
+            <span className="text-[#1a1a1d] font-bold text-lg">A</span>
           </div>
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-3 border border-[#f0d78c]/30">
-            <p className="text-xs text-gray-600 mb-1">{welcomeText}</p>
-            <p className="text-sm text-[#1a1a1d] font-semibold truncate">
-              {user?.name || user?.email || 'User'}
-            </p>
-          </div>
-        </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2" role="menubar">
+          <div className="w-6 h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[button:hover]/dock:blur-[3px] transition-all duration-300" />
+
+          {/* Navigation Items */}
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavClick(item.id)}
               role="menuitem"
+              title={item.label}
               aria-current={activeTab === item.id ? 'page' : undefined}
-              className={`w-full text-left px-4 py-3.5 rounded-xl transition-all duration-300 flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227] group-has-[button:hover]/sidebar:blur-[2px] group-has-[button:hover]/sidebar:opacity-60 hover:!blur-none hover:!opacity-100 hover:scale-105 ${
+              className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[button:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-125 ${
                 activeTab === item.id
-                  ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] font-semibold shadow-lg shadow-[#c9a227]/30'
-                  : 'text-gray-600 hover:bg-amber-50 hover:text-[#1a1a1d]'
+                  ? 'bg-[#1a1a1d] text-white shadow-lg shadow-black/20 scale-110'
+                  : 'text-gray-500 hover:text-[#1a1a1d]'
               }`}
             >
-              <div
-                className={`p-2 rounded-lg relative ${
-                  activeTab === item.id ? 'bg-white/20' : 'bg-white group-hover:bg-amber-100/50'
-                }`}
-              >
+              <div className="w-5 h-5 flex items-center justify-center">
                 {item.icon}
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold">
-                    {item.badge}
-                  </span>
-                )}
               </div>
-              <span>{item.label}</span>
+              
+              {/* Badge */}
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold border-2 border-white transition-all ${
+                  activeTab === item.id ? 'bg-[#c9a227] text-white' : 'bg-red-500 text-white'
+                }`}>
+                  {item.badge}
+                </span>
+              )}
+              
+              {/* Tooltip on Hover (Right Side) */}
+              <div className="absolute left-full ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
+                <div className="bg-[#1a1a1d] text-white text-xs px-2 py-1 rounded-md shadow-xl flex items-center">
+                  <div className="w-0 h-0 border-t-[4px] border-t-transparent border-r-[4px] border-r-[#1a1a1d] border-b-[4px] border-b-transparent absolute -left-1" />
+                  {item.label}
+                </div>
+              </div>
             </button>
           ))}
-        </nav>
 
-        {/* Logout Button */}
-        <div className="p-4 border-t border-gray-100">
+          <div className="w-6 h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[button:hover]/dock:blur-[3px] transition-all duration-300" />
+
+          {/* Logout Button */}
           <button
             onClick={onLogout}
-            className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 text-[#1a1a1d] rounded-xl transition-all duration-300 flex items-center justify-center gap-3 border border-gray-200 hover:border-[#c9a227] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227] group-has-[button:hover]/sidebar:blur-[2px] group-has-[button:hover]/sidebar:opacity-60 hover:!blur-none hover:!opacity-100 hover:scale-105"
+            title="Logout"
+            className="relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:!scale-125 group-has-[button:hover]/dock:blur-[3px] hover:!blur-none"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span>Logout</span>
+             <div className="absolute left-full ml-4 opacity-0 hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
+                <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-md shadow-xl flex items-center">
+                   <div className="w-0 h-0 border-t-[4px] border-t-transparent border-r-[4px] border-r-red-500 border-b-[4px] border-b-transparent absolute -left-1" />
+                  Logout
+                </div>
+              </div>
           </button>
-        </div>
-        </aside>
+
+        </nav>
       </div>
     </>
   );

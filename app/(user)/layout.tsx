@@ -34,8 +34,17 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { showToast, ToastContainer } = useToast();
 
-  // Determine active tab from pathname (accounts is default)
-  const activeTab = pathToTab[pathname] || 'accounts';
+  // Optimistic UI state for active tab
+  // Initialize from current path, default to 'accounts'
+  const [activeTab, setActiveTab] = useState<UserTab>(() => pathToTab[pathname] || 'accounts');
+
+  // Sync state with URL changes (e.g. back button, deep links)
+  useEffect(() => {
+    const tab = pathToTab[pathname];
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -57,6 +66,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   };
 
   const handleTabChange = (tab: UserTab) => {
+    // Optimistic update - update UI immediately before route change
+    setActiveTab(tab);
     router.push(`/${tab}`);
   };
 
@@ -90,11 +101,11 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       />
 
       {/* Main Content */}
-      <main id="main-content" className="flex-1 lg:ml-[304px] p-4 md:p-8 min-h-screen bg-gray-50/50">
-        {/* Mobile hamburger - always visible on mobile */}
+      <main id="main-content" className="flex-1 p-4 md:p-8 pb-32 min-h-screen bg-gray-50/50">
+        {/* Mobile hamburger - hidden as we switch to floating nav */}
         <button
           onClick={() => setMobileSidebarOpen(true)}
-          className="lg:hidden p-2 rounded-lg hover:bg-gray-100 mb-4"
+          className="hidden p-2 rounded-lg hover:bg-gray-100 mb-4"
           aria-label="Open menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
