@@ -15,8 +15,6 @@ export { default as CreatePost } from './CreatePost';
 export { default as ActivityFeed, ActivityFeedSkeleton } from './ActivityFeed';
 export { default as TrendingSection, TrendingSectionSkeleton } from './TrendingSection';
 export { default as WhoToFollow, WhoToFollowSkeleton } from './WhoToFollow';
-export { default as PortfolioWidget, PortfolioWidgetSkeleton } from './PortfolioWidget';
-export { default as MyTradingHub } from './MyTradingHub';
 export { default as AccountPortfolioCard, AccountPortfolioCardSkeleton, generateDefaultChartData } from './AccountPortfolioCard';
 export type { AccountData, ChartTab } from './AccountPortfolioCard';
 export { default as MyAccountsHub } from './MyAccountsHub';
