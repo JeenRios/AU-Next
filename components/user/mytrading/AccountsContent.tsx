@@ -30,7 +30,7 @@ export default function AccountsContent({
   onOpenConnectModal,
 }: AccountsContentProps) {
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Empty State - No Accounts */}
       {mt5Accounts.length === 0 && (
         <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-[#f0d78c] p-12 text-center">

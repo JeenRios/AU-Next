@@ -80,7 +80,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   }, [mobileSidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-gray-50/50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-50 flex flex-col md:flex-row">
       {/* Skip link for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#c9a227] focus:text-[#1a1a1d] focus:rounded-lg focus:font-semibold">
         Skip to main content
