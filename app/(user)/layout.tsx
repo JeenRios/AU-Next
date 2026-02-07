@@ -100,8 +100,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         welcomeText="Welcome back"
       />
 
-      {/* Main Content */}
-      <main id="main-content" className="flex-1 p-4 md:p-8 pb-32 min-h-screen bg-gray-50/50">
+      {/* Main Content - Adjusted for Left Vertical Dock */}
+      <main id="main-content" className="flex-1 p-4 md:p-8 pl-32 min-h-screen bg-gray-50/50">
         {/* Mobile hamburger - hidden as we switch to floating nav */}
         <button
           onClick={() => setMobileSidebarOpen(true)}
