@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/shared/Toast';
 import { JournalTab } from '@/components/user';
+import { PageContainer } from '@/components/shared';
 
 export default function JournalPage() {
   const { showToast } = useToast();
@@ -15,5 +16,9 @@ export default function JournalPage() {
     }
   }, []);
 
-  return <JournalTab user={user} showToast={showToast} />;
+  return (
+    <PageContainer>
+      <JournalTab user={user} showToast={showToast} />
+    </PageContainer>
+  );
 }

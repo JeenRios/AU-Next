@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { PageContainer } from '@/components/shared';
 import TradePost from '@/components/user/accounts/TradePost';
 import { EquityCurve, TradeHistoryTable, MonthlyBreakdown } from '@/components/user/accounts';
 
@@ -101,7 +102,7 @@ export default function TraderProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <PageContainer variant="full" className="bg-gray-50">
       {/* Back button header */}
       <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-4">
@@ -321,6 +322,6 @@ export default function TraderProfilePage() {
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { SettingsTab } from '@/components/user';
+import { PageContainer } from '@/components/shared';
 
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
@@ -18,5 +19,9 @@ export default function SettingsPage() {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
-  return <SettingsTab user={user} onUserUpdate={handleUserUpdate} />;
+  return (
+    <PageContainer>
+      <SettingsTab user={user} onUserUpdate={handleUserUpdate} />
+    </PageContainer>
+  );
 }

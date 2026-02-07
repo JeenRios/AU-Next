@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { SectionHeader } from '@/components/shared';
+import { SectionHeader, PageContainer } from '@/components/shared';
 import {
   AccountHeader,
   AccountStatsCard,
@@ -160,7 +160,7 @@ export default function AccountProfilePage() {
   ];
 
   return (
-    <>
+    <PageContainer>
       <SectionHeader
         title="Account Profile"
         subtitle="View detailed trading performance and statistics"
@@ -344,6 +344,6 @@ export default function AccountProfilePage() {
           <SymbolBreakdown data={mockSymbolData} loading={loading} />
         )}
       </div>
-    </>
+    </PageContainer>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { CommunityTab } from '@/components/user';
+import { PageContainer } from '@/components/shared';
 
 export default function CommunityPage() {
   const [user, setUser] = useState<any>(null);
@@ -13,5 +14,9 @@ export default function CommunityPage() {
     }
   }, []);
 
-  return <CommunityTab user={user} />;
+  return (
+    <PageContainer>
+      <CommunityTab user={user} />
+    </PageContainer>
+  );
 }

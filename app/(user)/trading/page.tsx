@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/shared/Toast';
+import { PageContainer } from '@/components/shared';
 import { MyTradingTab } from '@/components/user';
 import { useDashboardData } from '@/lib/hooks/useFetch';
 
@@ -43,14 +44,16 @@ export default function TradingPage() {
   const stats = dashboardData?.stats;
 
   return (
-    <MyTradingTab
-      mt5Accounts={mt5Accounts}
-      trades={trades}
-      stats={stats}
-      showToast={showToast}
-      fetchMT5Accounts={fetchMT5Accounts}
-      onRefresh={refetch}
-      isRefreshing={dataLoading}
-    />
+    <PageContainer>
+      <MyTradingTab
+        mt5Accounts={mt5Accounts}
+        trades={trades}
+        stats={stats}
+        showToast={showToast}
+        fetchMT5Accounts={fetchMT5Accounts}
+        onRefresh={refetch}
+        isRefreshing={dataLoading}
+      />
+    </PageContainer>
   );
 }

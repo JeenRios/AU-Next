@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { PageContainer } from '@/components/shared';
 import CreatePost from '@/components/user/accounts/CreatePost';
 import TradePost, { TradePostSkeleton } from '@/components/user/accounts/TradePost';
 import TrendingSection from '@/components/user/accounts/TrendingSection';
@@ -348,11 +349,10 @@ export default function SocialFeedPage() {
         onClose={() => setShowConnectModal(false)}
         onConnect={handleConnectAccount}
       />
-      
-      <div className="min-h-screen">
+      <PageContainer variant="full">
         {/* Header - Twitter/X style */}
         <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200">
-          <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex items-center justify-between h-14">
               <h1 className="text-xl font-bold text-[#1a1a1d]">Feed</h1>
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -392,7 +392,7 @@ export default function SocialFeedPage() {
         </div>
 
         {/* Main content - 3 column layout */}
-        <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
           {/* MT5 Accounts Section - Full Width */}
           <div className="mb-6">
             <AccountsContent
@@ -495,7 +495,7 @@ export default function SocialFeedPage() {
             </div>
           </div>
         </div>
-      </div>
+      </PageContainer>
     </>
   );
 }

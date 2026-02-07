@@ -101,7 +101,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       />
 
       {/* Main Content - Resetted to normal flow */}
-      <main id="main-content" className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50/50">
+      <main id="main-content" className="flex-1 min-h-screen bg-gray-50/50 flex flex-col min-w-0">
         {children}
       </main>
     </div>

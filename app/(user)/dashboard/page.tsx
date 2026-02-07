@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { SectionHeader } from '@/components/shared';
+import { SectionHeader, PageContainer } from '@/components/shared';
 import { StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState } from '@/components/user';
 import { useDashboardData } from '@/lib/hooks/useFetch';
 
@@ -52,7 +52,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <>
+    <PageContainer>
       <SectionHeader
         title="Dashboard"
         subtitle="Monitor your trading activity and account status"
@@ -145,6 +145,6 @@ export default function DashboardPage() {
         {/* Notifications Section */}
         <NotificationsPanel notifications={notifications} loading={dataLoading} />
       </div>
-    </>
+    </PageContainer>
   );
 }

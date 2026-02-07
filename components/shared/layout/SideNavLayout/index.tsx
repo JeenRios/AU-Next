@@ -104,7 +104,7 @@ export default function SideNavLayout<T extends string = string>({
           <div className="hidden md:block w-full h-px md:w-6 md:h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300" />
 
           {/* Navigation Items - Horizontal on Mobile, Vertical on Desktop */}
-          <div className="flex md:flex-col items-center gap-1 md:gap-0 order-1 md:order-2 flex-1 justify-around w-full md:w-auto">
+          <div className="flex md:flex-col items-center gap-1 md:gap-4 order-1 md:order-2 flex-1 justify-around w-full md:w-auto">
              {navItems.map((item) => (
                 <button
                   key={item.id}

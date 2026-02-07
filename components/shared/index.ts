@@ -7,7 +7,9 @@ export { ModalProvider, useModal } from './ModalProvider';
 
 // Layout components
 export { default as SideNavLayout, SideNavIcons } from './layout/SideNavLayout';
+export { default as PageContainer } from './layout/PageContainer';
 export type { SideNavLayoutProps, NavItem } from './layout/SideNavLayout';
+export type { PageContainerProps } from './layout/PageContainer';
 
 // UI components
 export { default as SectionHeader } from './ui/SectionHeader';
