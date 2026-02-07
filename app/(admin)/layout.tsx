@@ -36,7 +36,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'admin') {
-      router.push('/dashboard');
+      router.push('/accounts');
       return;
     }
     
@@ -106,7 +106,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-72">
+      <div className="flex-1 lg:ml-[304px] min-h-screen bg-gray-50/30">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8">
           {/* Mobile hamburger */}
           <button

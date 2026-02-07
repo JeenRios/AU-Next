@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { SectionHeader, ContentTabs, ContentTab, ContentTabIcons } from '@/components/shared';
 import { OverviewContent, AccountsContent, PerformanceContent } from './mytrading';
+import ConnectAccountModal from './accounts/ConnectAccountModal';
 
 interface MT5Account {
   id: number;
@@ -56,15 +57,9 @@ export default function MyTradingTab({
   onRefresh,
   isRefreshing = false,
 }: MyTradingTabProps) {
-  // MT5 Connection Form State
-  const [showMT5Form, setShowMT5Form] = useState(false);
-  const [mt5Data, setMt5Data] = useState({
-    account_number: '',
-    server: '',
-    platform: 'MT5'
-  });
-  const [mt5Submitting, setMt5Submitting] = useState(false);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  // Connect Modal State
+  const [showConnectModal, setShowConnectModal] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   // Account selection for analytics
   const [selectedAccountForAnalytics, setSelectedAccountForAnalytics] = useState<MT5Account | null>(null);
@@ -73,37 +68,35 @@ export default function MyTradingTab({
   const [performanceFilter, setPerformanceFilter] = useState<'all' | 'profit' | 'loss'>('all');
   const [dateRange, setDateRange] = useState<'week' | 'month' | 'year'>('month');
 
-  // Active tab for internal navigation
+  // Active activeSubTab for internal navigation
   const [activeSubTab, setActiveSubTab] = useState('overview');
 
-  const handleMT5Submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMt5Submitting(true);
+  const handleConnectAccount = async (data: any) => {
+    setIsConnecting(true);
     try {
       const res = await fetch('/api/mt5/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          account_number: mt5Data.account_number,
-          server: mt5Data.server,
-          platform: mt5Data.platform
+          account_number: data.login,
+          server: data.server,
+          platform: 'MT5',
+          password: data.password || data.investorPassword,
         })
       });
-      const data = await res.json();
-      if (data?.success) {
-        setShowMT5Form(false);
-        setMt5Data({ account_number: '', server: '', platform: 'MT5' });
-        if (passwordRef.current) passwordRef.current.value = '';
+      const result = await res.json();
+      if (result?.success) {
+        setShowConnectModal(false);
         showToast('MT5 account connection requested! Admin will review shortly.', 'success');
         fetchMT5Accounts();
       } else {
-        showToast(data?.error || data?.message || 'Failed to request MT5 connection.', 'error');
+        showToast(result?.error || result?.message || 'Failed to request MT5 connection.', 'error');
       }
     } catch (err) {
       console.error('MT5 connect error:', err);
       showToast('Error connecting MT5 account', 'error');
     } finally {
-      setMt5Submitting(false);
+      setIsConnecting(false);
     }
   };
 
@@ -129,16 +122,10 @@ export default function MyTradingTab({
         return (
           <AccountsContent
             mt5Accounts={mt5Accounts}
-            showMT5Form={showMT5Form}
-            setShowMT5Form={setShowMT5Form}
-            mt5Data={mt5Data}
-            setMt5Data={setMt5Data}
-            mt5Submitting={mt5Submitting}
-            handleMT5Submit={handleMT5Submit}
-            passwordRef={passwordRef}
             selectedAccountForAnalytics={selectedAccountForAnalytics}
             setSelectedAccountForAnalytics={setSelectedAccountForAnalytics}
             fetchMT5Accounts={fetchMT5Accounts}
+            onOpenConnectModal={() => setShowConnectModal(true)}
           />
         );
       case 'performance':
@@ -165,6 +152,11 @@ export default function MyTradingTab({
 
   return (
     <>
+      <ConnectAccountModal
+        isOpen={showConnectModal}
+        onClose={() => setShowConnectModal(false)}
+        onConnect={handleConnectAccount}
+      />
       <SectionHeader
         title="My Trading"
         subtitle="Manage your MT5 accounts and view trading performance"

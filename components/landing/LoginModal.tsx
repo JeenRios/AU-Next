@@ -43,7 +43,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         if (data.user.role === 'admin') {
           router.push('/admin');
         } else {
-          router.push('/dashboard');
+          router.push('/accounts');
         }
       } else {
         setError(data.error || 'Login failed');
@@ -109,7 +109,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         if (loginResponse.ok) {
           localStorage.setItem('user', JSON.stringify(loginData.user));
           onClose();
-          router.push('/dashboard');
+          router.push('/accounts');
         } else {
           // Signup successful but auto-login failed, switch to login mode
           setMode('login');

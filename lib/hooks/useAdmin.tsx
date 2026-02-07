@@ -117,7 +117,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'admin') {
-      router.push('/dashboard');
+      router.push('/accounts');
       return;
     }
     

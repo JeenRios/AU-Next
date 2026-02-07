@@ -6,9 +6,10 @@ import { useToast } from '@/components/shared/Toast';
 import { SideNavLayout, SideNavIcons, NavItem } from '@/components/shared';
 import { ErrorState } from '@/components/user';
 
-type UserTab = 'dashboard' | 'trading' | 'community' | 'journal' | 'settings';
+type UserTab = 'accounts' | 'dashboard' | 'trading' | 'community' | 'journal' | 'settings';
 
 const userNavItems: NavItem<UserTab>[] = [
+  { id: 'accounts', label: 'Accounts', icon: SideNavIcons.tradingChart },
   { id: 'dashboard', label: 'Dashboard', icon: SideNavIcons.dashboard },
   { id: 'trading', label: 'My Trading', icon: SideNavIcons.trading },
   { id: 'community', label: 'Community', icon: SideNavIcons.community },
@@ -18,6 +19,7 @@ const userNavItems: NavItem<UserTab>[] = [
 
 // Map pathname to tab id
 const pathToTab: Record<string, UserTab> = {
+  '/accounts': 'accounts',
   '/dashboard': 'dashboard',
   '/trading': 'trading',
   '/community': 'community',
@@ -32,8 +34,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { showToast, ToastContainer } = useToast();
 
-  // Determine active tab from pathname
-  const activeTab = pathToTab[pathname] || 'dashboard';
+  // Determine active tab from pathname (accounts is default)
+  const activeTab = pathToTab[pathname] || 'accounts';
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -88,7 +90,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       />
 
       {/* Main Content */}
-      <main id="main-content" className="flex-1 lg:ml-72 p-4 md:p-8">
+      <main id="main-content" className="flex-1 lg:ml-[304px] p-4 md:p-8 min-h-screen bg-gray-50/50">
         {/* Mobile hamburger - always visible on mobile */}
         <button
           onClick={() => setMobileSidebarOpen(true)}

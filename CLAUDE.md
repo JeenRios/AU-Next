@@ -21,10 +21,37 @@ npm run db:seed      # Seed database with sample data
 
 ### Route Groups
 The app uses Next.js route groups to organize pages by access level without affecting URL paths:
-- `app/(auth)/` - Authentication pages (login)
-- `app/(user)/` - User-protected pages (dashboard, trades, profile)
-- `app/(admin)/` - Admin-protected pages (admin dashboard, analytics)
-- `app/(landing)/` - Public landing pages
+
+```
+app/
+├── (user)/                    # User-protected pages
+│   ├── layout.tsx             # Shared user layout with SideNavLayout
+│   ├── dashboard/page.tsx     # User dashboard home
+│   ├── trading/page.tsx       # MT5 accounts, trades, performance
+│   ├── community/page.tsx     # Community features
+│   ├── journal/page.tsx       # Trading journal
+│   └── settings/page.tsx      # User settings (general, security, preferences)
+│
+├── (admin)/                   # Admin-protected pages
+│   ├── layout.tsx             # Shared admin layout with AdminProvider
+│   └── admin/
+│       ├── page.tsx           # Admin overview/dashboard
+│       ├── users/page.tsx     # User management
+│       ├── trading/page.tsx   # MT5, VPS, automation jobs
+│       ├── support/page.tsx   # Tickets & notifications
+│       └── system/page.tsx    # Settings & audit logs
+│
+├── (auth)/login/page.tsx      # Login page
+├── (landing)/layout.tsx       # Public landing pages
+└── api/                       # API routes
+```
+
+### Shared Layouts
+Each route group has a shared `layout.tsx` that:
+- Wraps all child pages in `SideNavLayout` (sidebar navigation)
+- Maps pathname to active tab for navigation highlighting
+- Handles authentication checks and redirects
+- For admin: Wraps with `AdminProvider` for shared data context
 
 ### API Routes
 API routes are in `app/api/` with each endpoint in its own folder:
@@ -61,10 +88,50 @@ API routes are in `app/api/` with each endpoint in its own folder:
   - Encryption: `encrypt()`, `decrypt()` for MT5 credentials
 
 ### Key Components
-- `components/ModalProvider.tsx` - Context provider for confirm/alert modals, wraps app in root layout
+
+#### Shared Layout Components (`components/shared/`)
+- `SideNavLayout/index.tsx` - Reusable sidebar layout with nav items, user info, logout
+  - Accepts generic `NavItem<T>` for type-safe tab IDs
+  - Props: `user`, `activeTab`, `setActiveTab`, `navItems`, `brandSuffix`, etc.
+  - `SideNavIcons` - Pre-defined icon components for common nav items
+- `SectionHeader.tsx` - Reusable section header with title, subtitle, actions, and refresh button
+  - Props: `title`, `subtitle?`, `actions?`, `onRefresh?`, `isRefreshing?`
+- `ContentTabs.tsx` - Horizontal tab bar with sliding gold indicator
+  - Supports controlled mode (`activeTab`, `onTabChange`) or uncontrolled mode (render function children)
+  - `ContentTabIcons` - Pre-defined icon paths for tabs
+- `ListItem.tsx` - Generic list item with optional collapsible content
+- `Toast.tsx` - Toast notification provider and component
+- `ModalProvider.tsx` - Context provider for confirm/alert modals
+
+#### Admin Components (`components/admin/`)
+Self-contained components that manage their own data fetching:
+- `trading/MT5Trading.tsx` - MT5 account management
+- `trading/VPSManagement.tsx` - VPS instance management
+- `trading/AutomationJobs.tsx` - Automation job tracking
+- `trading/VPSEditor.tsx` - VPS create/edit form
+- `users/UserDetailDrawer.tsx` - User profile slide-out panel
+- `users/UserDetailContent.tsx` - User profile content
+- `support/TicketDetailDrawer.tsx` - Ticket details slide-out
+- `support/NotificationDetailDrawer.tsx` - Notification details slide-out
+- `shared/ListContainer.tsx` - Search, filter, pagination container
+- `shared/SlideOutPanel.tsx` - Base slide-out panel wrapper
+
+#### User Components (`components/user/`)
+- `MyTradingTab.tsx` - Trading main component (overview, accounts, performance)
+- `SettingsTab.tsx` - Settings main component (general, security, preferences)
+- `CommunityTab.tsx` - Community feed component
+- `JournalTab.tsx` - Trading journal component
+
+#### Hooks (`lib/hooks/`)
+- `useFetch.ts` - Data fetching hooks (`useDashboardData`, etc.)
+- `useAdmin.tsx` - Admin context provider with shared state and actions
+  - Provides: `stats`, `users`, `trades`, `notifications`, `tickets`, `mt5Accounts`, `vpsInstances`, `automationJobs`
+  - Actions: `fetchData`, `handleAddUser`, `handleDeleteUser`, `handleUpdateUser`
+
+### Legacy Components (kept for reference)
+- `components/ModalProvider.tsx` - Context provider for confirm/alert modals
 - `components/LoginModal.tsx` - Authentication modal
 - `components/Navbar.tsx` - Navigation component
-- `components/Toast.tsx` - Toast notifications
 
 ### Database Schema
 Key tables (created by `npm run db:setup`):
@@ -218,23 +285,83 @@ See `docs/VPS_PROVISIONING.md` for detailed documentation.
 
 ## Admin UI Components
 
+### Admin Layout Architecture
+The admin section uses a shared layout (`app/(admin)/layout.tsx`) that:
+1. Wraps all pages with `AdminProvider` context
+2. Provides `SideNavLayout` with admin-specific nav items
+3. Maps pathnames to active tab IDs for navigation
+
+### AdminProvider Context (`lib/hooks/useAdmin.tsx`)
+Shared state and data fetching for all admin pages:
+```tsx
+const { 
+  user, stats, users, trades, notifications, tickets,
+  mt5Accounts, vpsInstances, automationJobs,
+  loading, refreshing, fetchData,
+  handleAddUser, handleDeleteUser, handleUpdateUser
+} = useAdmin();
+```
+
 ### Drawer Components (in `components/admin/`)
-These are reusable slide-out panel components used in the admin dashboard:
+Slide-out panel components used throughout admin:
 
-- `SlideOutPanel.tsx` - Base wrapper component for all drawers (handles backdrop, animation, close behavior)
-- `UserDetailDrawer.tsx` - Shows user profile, account info, KYC status (actions: Edit, Delete)
-- `TicketDetailDrawer.tsx` - Shows ticket details with user info (actions: Reply, Mark Resolved)
-- `NotificationDetailDrawer.tsx` - Shows notification details with type styling (action: Mark as Read)
+- `SlideOutPanel.tsx` - Base wrapper (handles backdrop, animation, close)
+- `UserDetailDrawer.tsx` - User profile details
+  - Props: `isOpen`, `onClose`, `user`, `onEdit?`, `onDelete?`
+- `TicketDetailDrawer.tsx` - Support ticket details
+  - Props: `isOpen`, `onClose`, `ticket`, `onReply?`, `onMarkResolved?`
+- `NotificationDetailDrawer.tsx` - Notification details
+  - Props: `isOpen`, `onClose`, `notification`, `onMarkAsRead?`
 
-### How Drawers Work
-1. Parent component manages `isOpen` state and `selectedItem` data
-2. Drawer component receives `isOpen`, `onClose`, and item data as props
-3. `SlideOutPanel` handles animation internally (no external animation state needed)
-4. Action callbacks (onEdit, onDelete, etc.) are passed as optional props
+### Self-Contained Components
+These components manage their own data fetching internally:
+- `MT5Trading.tsx` - No props required, fetches MT5 accounts internally
+- `VPSManagement.tsx` - Props: `onError?`, `onSuccess?`
+- `AutomationJobs.tsx` - Props: `mt5AccountId?`, `onError?`, `onSuccess?`
 
 ## Refactoring Guidelines
 
 **IMPORTANT: Follow these rules when modifying or refactoring code to prevent losing existing features.**
+
+### UI Design System
+The app uses a consistent gold/amber color scheme:
+- Primary gold: `#c9a227`
+- Light gold: `#f0d78c`
+- Dark background: `#1a1a1d`
+- Gradients: `bg-gradient-to-r from-[#c9a227] to-[#f0d78c]`
+- Gold shadows: `shadow-[#c9a227]/30`
+- Amber backgrounds: `bg-amber-50`, `bg-amber-100`
+
+### Folder-Per-Route Pattern
+Each nav item has its own folder with a `page.tsx`:
+```
+app/(user)/
+├── dashboard/page.tsx    # Maps to /dashboard
+├── trading/page.tsx      # Maps to /trading
+├── community/page.tsx    # Maps to /community
+├── journal/page.tsx      # Maps to /journal
+└── settings/page.tsx     # Maps to /settings
+```
+
+### Shared Layout Pattern
+Route group layouts handle:
+1. Authentication checks
+2. Pathname-to-tab mapping
+3. Navigation state
+4. Mobile sidebar toggle
+
+```tsx
+// Example: app/(user)/layout.tsx
+const pathToTab: Record<string, UserTab> = {
+  '/dashboard': 'dashboard',
+  '/trading': 'trading',
+  // ...
+};
+
+const handleTabChange = (tab: UserTab) => {
+  router.push(`/${tab}`);
+};
+```
 
 ### Before Making Changes
 1. **Read the entire file** before modifying - understand all existing features

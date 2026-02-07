@@ -1,6 +1,14 @@
 'use client';
 
 import { ReactNode } from 'react';
+import Link from 'next/link';
+
+export interface SectionHeaderAction {
+  label: string;
+  onClick: () => void;
+  icon?: ReactNode;
+  variant?: 'primary' | 'secondary';
+}
 
 export interface SectionHeaderProps {
   /** Main title of the section */
@@ -9,8 +17,14 @@ export interface SectionHeaderProps {
   subtitle?: string;
   /** Optional action buttons/elements on the right side */
   actions?: ReactNode;
+  /** Single action button config */
+  action?: SectionHeaderAction;
   /** Optional icon to display before title */
   icon?: ReactNode;
+  /** Back link URL */
+  backLink?: string;
+  /** Back link label */
+  backLabel?: string;
   /** Whether to show mobile menu button (handled externally) */
   showMobileMenu?: boolean;
   /** Callback when mobile menu button is clicked */
@@ -27,7 +41,10 @@ export default function SectionHeader({
   title,
   subtitle,
   actions,
+  action,
   icon,
+  backLink,
+  backLabel,
   showMobileMenu = false,
   onMobileMenuClick,
   onRefresh,
@@ -59,49 +76,80 @@ export default function SectionHeader({
     </button>
   ) : null;
 
+  // Build action button if action config is provided
+  const actionButton = action ? (
+    <button
+      onClick={action.onClick}
+      className={`px-5 py-2.5 font-semibold rounded-xl transition-all flex items-center gap-2 focus:outline-none focus-visible:ring-2 ${
+        action.variant === 'secondary'
+          ? 'bg-gray-100 hover:bg-gray-200 text-gray-700 focus-visible:ring-gray-400'
+          : 'bg-gradient-to-r from-[#c9a227] to-[#d4af37] hover:shadow-lg hover:shadow-[#c9a227]/20 text-white focus-visible:ring-[#c9a227]'
+      }`}
+    >
+      {action.icon}
+      {action.label}
+    </button>
+  ) : null;
+
   return (
-    <div className={`mb-6 flex items-start md:items-center justify-between gap-4 flex-col md:flex-row ${className}`}>
-      <div className="flex items-center gap-4">
-        {/* Mobile hamburger */}
-        {showMobileMenu && (
-          <button
-            onClick={onMobileMenuClick}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="Open menu"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        )}
+    <div className={`mb-6 ${className}`}>
+      {/* Back link */}
+      {backLink && (
+        <Link
+          href={backLink}
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#c9a227] mb-4 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          {backLabel || 'Back'}
+        </Link>
+      )}
+
+      <div className="flex items-start md:items-center justify-between gap-4 flex-col md:flex-row">
+        <div className="flex items-center gap-4">
+          {/* Mobile hamburger */}
+          {showMobileMenu && (
+            <button
+              onClick={onMobileMenuClick}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Open menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          )}
+          
+          {/* Icon */}
+          {icon && (
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-md">
+              {icon}
+            </div>
+          )}
+          
+          {/* Title & Subtitle */}
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-[#1a1a1d]">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="text-sm md:text-base text-gray-600 mt-1">
+                {subtitle}
+              </p>
+            )}
+          </div>
+        </div>
         
-        {/* Icon */}
-        {icon && (
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-md">
-            {icon}
+        {/* Action buttons */}
+        {(actions || refreshButton || actionButton) && (
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            {refreshButton}
+            {actionButton}
+            {actions}
           </div>
         )}
-        
-        {/* Title & Subtitle */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#1a1a1d]">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="text-sm md:text-base text-gray-600 mt-1">
-              {subtitle}
-            </p>
-          )}
-        </div>
       </div>
-      
-      {/* Action buttons */}
-      {(actions || refreshButton) && (
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          {refreshButton}
-          {actions}
-        </div>
-      )}
     </div>
   );
 }

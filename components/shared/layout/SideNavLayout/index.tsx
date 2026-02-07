@@ -57,18 +57,26 @@ export default function SideNavLayout<T extends string = string>({
         />
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`w-72 bg-white border-r border-gray-200 fixed h-full flex flex-col shadow-lg z-50 transform transition-transform duration-300 ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
-        role="navigation"
-        aria-label="Main navigation"
-      >
+      {/* Sidebar Container with Glow Effect */}
+      <div className={`fixed top-4 left-4 z-50 transform transition-all duration-300 ${
+        mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'
+      } lg:translate-x-0`}>
+        {/* Ambient glow */}
+        <div className="absolute -inset-1 bg-gradient-to-b from-[#c9a227]/20 via-[#c9a227]/5 to-transparent rounded-3xl blur-xl pointer-events-none" />
+        
+        {/* Sidebar */}
+        <aside
+          className="relative w-72 bg-white h-[calc(100vh-32px)] flex flex-col rounded-2xl border border-gray-200/80 overflow-hidden group/sidebar"
+          style={{
+            boxShadow: '0 0 0 1px rgba(0,0,0,0.03), 0 4px 6px -1px rgba(0,0,0,0.05), 0 20px 40px -8px rgba(0,0,0,0.1), 0 40px 60px -12px rgba(201,162,39,0.08)'
+          }}
+          role="navigation"
+          aria-label="Main navigation"
+        >
         {/* Logo Section */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-100 transition-all duration-300 group-has-[button:hover]/sidebar:blur-[2px] group-has-[button:hover]/sidebar:opacity-60">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-lg shadow-[#c9a227]/30">
               <span className="text-[#1a1a1d] font-bold text-xl">A</span>
             </div>
             <h1 className="text-2xl font-bold text-[#1a1a1d]">
@@ -91,7 +99,7 @@ export default function SideNavLayout<T extends string = string>({
               onClick={() => handleNavClick(item.id)}
               role="menuitem"
               aria-current={activeTab === item.id ? 'page' : undefined}
-              className={`w-full text-left px-4 py-3.5 rounded-xl transition-all duration-300 flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227] ${
+              className={`w-full text-left px-4 py-3.5 rounded-xl transition-all duration-300 flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227] group-has-[button:hover]/sidebar:blur-[2px] group-has-[button:hover]/sidebar:opacity-60 hover:!blur-none hover:!opacity-100 hover:scale-105 ${
                 activeTab === item.id
                   ? 'bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] font-semibold shadow-lg shadow-[#c9a227]/30'
                   : 'text-gray-600 hover:bg-amber-50 hover:text-[#1a1a1d]'
@@ -115,10 +123,10 @@ export default function SideNavLayout<T extends string = string>({
         </nav>
 
         {/* Logout Button */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-100">
           <button
             onClick={onLogout}
-            className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-[#1a1a1d] rounded-xl transition-all duration-300 flex items-center justify-center gap-3 border border-gray-200 hover:border-[#c9a227] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227]"
+            className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 text-[#1a1a1d] rounded-xl transition-all duration-300 flex items-center justify-center gap-3 border border-gray-200 hover:border-[#c9a227] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227] group-has-[button:hover]/sidebar:blur-[2px] group-has-[button:hover]/sidebar:opacity-60 hover:!blur-none hover:!opacity-100 hover:scale-105"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -126,7 +134,8 @@ export default function SideNavLayout<T extends string = string>({
             <span>Logout</span>
           </button>
         </div>
-      </aside>
+        </aside>
+      </div>
     </>
   );
 }
