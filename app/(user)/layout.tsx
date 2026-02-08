@@ -6,9 +6,10 @@ import { useToast } from '@/components/shared/Toast';
 import { SideNavLayout, SideNavIcons, NavItem } from '@/components/shared';
 import { ErrorState } from '@/components/user';
 
-type UserTab = 'accounts' | 'dashboard' | 'trading' | 'community' | 'journal' | 'settings';
+type UserTab = 'feed' | 'accounts' | 'dashboard' | 'trading' | 'community' | 'journal' | 'settings' | 'profile';
 
 const userNavItems: NavItem<UserTab>[] = [
+  { id: 'feed', label: 'Main Feed', icon: SideNavIcons.feed },
   { id: 'accounts', label: 'Accounts', icon: SideNavIcons.tradingChart },
   { id: 'dashboard', label: 'Dashboard', icon: SideNavIcons.dashboard },
   { id: 'trading', label: 'My Trading', icon: SideNavIcons.trading },
@@ -19,12 +20,14 @@ const userNavItems: NavItem<UserTab>[] = [
 
 // Map pathname to tab id
 const pathToTab: Record<string, UserTab> = {
+  '/feed': 'feed',
   '/accounts': 'accounts',
   '/dashboard': 'dashboard',
   '/trading': 'trading',
   '/community': 'community',
   '/journal': 'journal',
   '/settings': 'settings',
+  '/profile': 'profile',
 };
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
@@ -98,6 +101,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         navItems={userNavItems}
         brandSuffix="Next"
         welcomeText="Welcome back"
+        onProfileClick={() => handleTabChange('profile')}
       />
 
       {/* Main Content - Resetted to normal flow */}

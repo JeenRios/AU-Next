@@ -1,6 +1,6 @@
 'use client';
 
-import { Dispatch, SetStateAction, ReactNode } from 'react';
+import { Dispatch, SetStateAction, ReactNode, useRef, useEffect, useState } from 'react';
 
 export interface NavItem<T extends string = string> {
   id: T;
@@ -28,6 +28,8 @@ export interface SideNavLayoutProps<T extends string = string> {
   brandSuffix?: string;
   /** Welcome text shown above user name */
   welcomeText?: string;
+  /** Callback for profile navigation */
+  onProfileClick?: () => void;
 }
 
 export default function SideNavLayout<T extends string = string>({
@@ -40,7 +42,43 @@ export default function SideNavLayout<T extends string = string>({
   navItems,
   brandSuffix = 'Next',
   welcomeText = 'Welcome back',
+  onProfileClick,
 }: SideNavLayoutProps<T>) {
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, top: 0, width: 0, height: 0, opacity: 0 });
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateIndicator = () => {
+      const activeIndex = navItems.findIndex(item => item.id === activeTab);
+      const activeTabEl = tabRefs.current[activeIndex];
+      
+      if (activeTabEl && containerRef.current) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const tabRect = activeTabEl.getBoundingClientRect();
+        
+        setIndicatorStyle({
+          left: tabRect.left - containerRect.left,
+          top: tabRect.top - containerRect.top,
+          width: tabRect.width,
+          height: tabRect.height,
+          opacity: 1,
+        });
+      } else {
+        setIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
+      }
+    };
+
+    updateIndicator();
+    // Use a small timeout to ensure layout is settled especially for mobile/desktop transitions
+    const timeout_id = setTimeout(updateIndicator, 100);
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      window.removeEventListener('resize', updateIndicator);
+      clearTimeout(timeout_id);
+    };
+  }, [activeTab, navItems, mobileOpen]);
+
   const handleNavClick = (tab: T) => {
     setActiveTab(tab);
     setMobileOpen(false);
@@ -83,7 +121,7 @@ export default function SideNavLayout<T extends string = string>({
                    </div>
 
                    {/* Options */}
-                   <button className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg transition-colors text-left w-full group/item">
+                   <button onClick={onProfileClick} className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg transition-colors text-left w-full group/item">
                       <svg className="w-4 h-4 text-gray-400 group-hover/item:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                       Profile
                    </button>
@@ -104,17 +142,33 @@ export default function SideNavLayout<T extends string = string>({
           <div className="hidden md:block w-full h-px md:w-6 md:h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300" />
 
           {/* Navigation Items - Horizontal on Mobile, Vertical on Desktop */}
-          <div className="flex md:flex-col items-center gap-1 md:gap-4 order-1 md:order-2 flex-1 justify-around w-full md:w-auto">
-             {navItems.map((item) => (
+          <div 
+            ref={containerRef}
+            className="relative flex md:flex-col items-center gap-1 md:gap-4 order-1 md:order-2 flex-1 justify-around w-full md:w-auto"
+          >
+             {/* Sliding Indicator */}
+             <div
+                className="absolute bg-[#1a1a1d] rounded-full shadow-lg shadow-black/20 transition-all duration-300 ease-out -z-10"
+                style={{
+                  left: indicatorStyle.left,
+                  top: indicatorStyle.top,
+                  width: indicatorStyle.width,
+                  height: indicatorStyle.height,
+                  opacity: indicatorStyle.opacity,
+                }}
+             />
+
+             {navItems.map((item, index) => (
                 <button
                   key={item.id}
+                  ref={el => { tabRefs.current[index] = el; }}
                   onClick={() => handleNavClick(item.id)}
                   role="menuitem"
                   title={item.label}
                   aria-current={activeTab === item.id ? 'page' : undefined}
-                  className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-125 dock-trigger ${
+                  className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-110 dock-trigger ${
                     activeTab === item.id
-                      ? 'bg-[#1a1a1d] text-white shadow-lg shadow-black/20 scale-110'
+                      ? 'text-white scale-110'
                       : 'text-gray-500 hover:text-[#1a1a1d]'
                   }`}
                 >
@@ -169,6 +223,11 @@ export default function SideNavLayout<T extends string = string>({
 
 // Pre-defined icons for common nav items
 export const SideNavIcons = {
+  feed: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+    </svg>
+  ),
   dashboard: (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
