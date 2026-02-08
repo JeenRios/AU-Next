@@ -45,8 +45,32 @@ export default function SideNavLayout<T extends string = string>({
   onProfileClick,
 }: SideNavLayoutProps<T>) {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, top: 0, width: 0, height: 0, opacity: 0 });
+  const [searchOpen, setSearchOpen] = useState(false);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Toggle Search with Keyboard Shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(prev => !prev);
+      }
+      if (e.key === 'Escape' && searchOpen) {
+        setSearchOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [searchOpen]);
+
+  // Focus input when search opens
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [searchOpen]);
 
   useEffect(() => {
     const updateIndicator = () => {
@@ -139,12 +163,12 @@ export default function SideNavLayout<T extends string = string>({
             </div>
           </div>
 
-          <div className="hidden md:block w-full h-px md:w-6 md:h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300" />
+          <div className="hidden md:block w-full h-px md:w-6 md:h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300 md:order-2" />
 
           {/* Navigation Items - Horizontal on Mobile, Vertical on Desktop */}
           <div 
             ref={containerRef}
-            className="relative flex md:flex-col items-center gap-1 md:gap-4 order-1 md:order-2 flex-1 justify-around w-full md:w-auto"
+            className="relative flex md:flex-col items-center gap-1 md:gap-4 order-1 md:order-3 flex-1 justify-around w-full md:w-auto"
           >
              {/* Sliding Indicator */}
              <div
@@ -158,6 +182,28 @@ export default function SideNavLayout<T extends string = string>({
                 }}
              />
 
+             {/* Search Trigger */}
+             <button
+                onClick={() => setSearchOpen(true)}
+                title="Search (Ctrl + K)"
+                className="relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-110 dock-trigger text-gray-500 hover:text-[#c9a227] md:mb-2"
+              >
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                
+                {/* Tooltip on Hover (Right Side - Desktop Only) */}
+                <div className="hidden md:block absolute left-full ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
+                  <div className="bg-[#1a1a1d] text-white text-xs px-2 py-1 rounded-md shadow-xl flex items-center gap-2">
+                    <div className="w-0 h-0 border-t-[4px] border-t-transparent border-r-[4px] border-r-[#1a1a1d] border-b-[4px] border-b-transparent absolute -left-1" />
+                    <span>Search</span>
+                    <span className="text-gray-500 text-[10px] bg-white/10 px-1 rounded">⌘K</span>
+                  </div>
+                </div>
+             </button>
+
              {navItems.map((item, index) => (
                 <button
                   key={item.id}
@@ -169,7 +215,7 @@ export default function SideNavLayout<T extends string = string>({
                   className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-110 dock-trigger ${
                     activeTab === item.id
                       ? 'text-white scale-110'
-                      : 'text-gray-500 hover:text-[#1a1a1d]'
+                      : 'text-[#c9a227] hover:text-[#1a1a1d]'
                   }`}
                 >
                   <div className="w-5 h-5 flex items-center justify-center">
@@ -196,13 +242,13 @@ export default function SideNavLayout<T extends string = string>({
               ))}
           </div>
 
-          <div className="hidden md:block w-6 h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[button:hover]/dock:blur-[3px] transition-all duration-300 max-md:hidden order-3" />
+          <div className="hidden md:block w-6 h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[button:hover]/dock:blur-[3px] transition-all duration-300 max-md:hidden order-3 md:order-4" />
 
           {/* Logout Button (Desktop only at bottom) */}
           <button
             onClick={onLogout}
             title="Logout"
-            className="relative w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all duration-300 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:!scale-125 group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none dock-trigger order-3"
+            className="relative w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all duration-300 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:!scale-125 group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none dock-trigger order-3 md:order-5"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -217,6 +263,83 @@ export default function SideNavLayout<T extends string = string>({
 
         </nav>
       </aside>
+
+      {/* Modern Search Modal / Command Palette */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4 animate-in fade-in duration-200">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setSearchOpen(false)}
+          />
+          
+          {/* Search Content */}
+          <div className="relative w-full max-w-xl bg-[#1a1a1d] rounded-xl shadow-2xl overflow-hidden border border-white/10 animate-in zoom-in-95 duration-200">
+             {/* Search Header */}
+             <div className="flex items-center px-4 py-3 border-b border-white/10 gap-3">
+                <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input 
+                  ref={searchInputRef}
+                  type="text" 
+                  placeholder="Type a command or search..."
+                  className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-500 text-sm h-6"
+                />
+                <button 
+                   onClick={() => setSearchOpen(false)}
+                   className="text-xs bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white px-2 py-1 rounded transition-colors"
+                >
+                   ESC
+                </button>
+             </div>
+
+             {/* Quick Actions / Results Placeholder */}
+             <div className="p-2">
+                <div className="text-[10px] font-bold text-gray-500 uppercase px-2 py-1 mb-1">Suggested</div>
+                
+                <button 
+                  onClick={() => { setActiveTab('dashboard' as T); setSearchOpen(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-[#c9a227] transition-all group text-left"
+                >
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#c9a227]/20 group-hover:text-[#c9a227] transition-colors">
+                      {SideNavIcons.dashboard}
+                    </div>
+                    <span className="text-sm">Go to Dashboard</span>
+                </button>
+                
+                <button 
+                  onClick={() => { setActiveTab('trading' as T); setSearchOpen(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-[#c9a227] transition-all group text-left"
+                >
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#c9a227]/20 group-hover:text-[#c9a227] transition-colors">
+                      {SideNavIcons.trading}
+                    </div>
+                    <span className="text-sm">Open Trading Terminal</span>
+                </button>
+
+                 <button 
+                  onClick={() => { onLogout(); setSearchOpen(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-500/10 text-gray-300 hover:text-red-400 transition-all group text-left"
+                >
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-red-500/20 group-hover:text-red-400 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                    </div>
+                    <span className="text-sm">Log Out</span>
+                </button>
+             </div>
+             
+             {/* Footer */}
+              <div className="px-4 py-2 border-t border-white/5 bg-black/20 text-[10px] text-gray-500 flex justify-between">
+                 <span>Search for navigation, traders, or settings</span>
+                 <span className="flex gap-2">
+                    <span>↑↓ navigate</span>
+                    <span>↵ select</span>
+                 </span>
+              </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
