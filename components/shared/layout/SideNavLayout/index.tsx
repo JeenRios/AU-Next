@@ -72,6 +72,22 @@ export default function SideNavLayout<T extends string = string>({
     }
   }, [searchOpen]);
 
+  // Click outside to close search
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchOpen && 
+        containerRef.current && 
+        !containerRef.current.contains(event.target as Node) &&
+        !(event.target as Element).closest('.search-widget')
+      ) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [searchOpen]);
+
   useEffect(() => {
     const updateIndicator = () => {
       const activeIndex = navItems.findIndex(item => item.id === activeTab);
@@ -110,8 +126,8 @@ export default function SideNavLayout<T extends string = string>({
 
   return (
     <>
-      {/* Responsive Sticky Dock (Horizontal Mobile / Vertical Desktop) */}
-      <aside className="sticky top-0 z-50 p-4 md:h-screen md:p-6 md:flex md:flex-col md:justify-center pointer-events-none md:pointer-events-auto w-full md:w-auto">
+      {/* Responsive Fixed Dock (Horizontal Mobile / Vertical Desktop) */}
+      <aside className="fixed top-0 left-0 z-50 p-4 md:h-screen md:p-6 md:flex md:flex-col md:justify-center pointer-events-none md:pointer-events-auto w-full md:w-auto">
         
         {/* Dock Container */}
         <nav 
@@ -184,25 +200,18 @@ export default function SideNavLayout<T extends string = string>({
 
              {/* Search Trigger */}
              <button
-                onClick={() => setSearchOpen(true)}
+                onClick={() => setSearchOpen(!searchOpen)}
                 title="Search (Ctrl + K)"
-                className="relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-110 dock-trigger text-gray-500 hover:text-[#c9a227] md:mb-2"
+                className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none dock-trigger md:mb-2 ${
+                    searchOpen ? 'bg-[#c9a227] text-white scale-110' : 'text-gray-500 hover:text-[#c9a227] hover:!scale-110'
+                }`}
               >
                 <div className="w-5 h-5 flex items-center justify-center">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
-                
-                {/* Tooltip on Hover (Right Side - Desktop Only) */}
-                <div className="hidden md:block absolute left-full ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
-                  <div className="bg-[#1a1a1d] text-white text-xs px-2 py-1 rounded-md shadow-xl flex items-center gap-2">
-                    <div className="w-0 h-0 border-t-[4px] border-t-transparent border-r-[4px] border-r-[#1a1a1d] border-b-[4px] border-b-transparent absolute -left-1" />
-                    <span>Search</span>
-                    <span className="text-gray-500 text-[10px] bg-white/10 px-1 rounded">⌘K</span>
-                  </div>
-                </div>
-             </button>
+              </button>
 
              {navItems.map((item, index) => (
                 <button
@@ -241,10 +250,9 @@ export default function SideNavLayout<T extends string = string>({
                 </button>
               ))}
           </div>
-
+          
           <div className="hidden md:block w-6 h-px bg-gray-200/60 my-1 blur-[0.5px] group-has-[button:hover]/dock:blur-[3px] transition-all duration-300 max-md:hidden order-3 md:order-4" />
 
-          {/* Logout Button (Desktop only at bottom) */}
           <button
             onClick={onLogout}
             title="Logout"
@@ -260,84 +268,53 @@ export default function SideNavLayout<T extends string = string>({
                 </div>
               </div>
           </button>
-
         </nav>
       </aside>
 
-      {/* Modern Search Modal / Command Palette */}
+      {/* Floating Search Widget (Independent of Dock Structure) */}
       {searchOpen && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4 animate-in fade-in duration-200">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setSearchOpen(false)}
-          />
-          
-          {/* Search Content */}
-          <div className="relative w-full max-w-xl bg-[#1a1a1d] rounded-xl shadow-2xl overflow-hidden border border-white/10 animate-in zoom-in-95 duration-200">
-             {/* Search Header */}
-             <div className="flex items-center px-4 py-3 border-b border-white/10 gap-3">
-                <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input 
-                  ref={searchInputRef}
-                  type="text" 
-                  placeholder="Type a command or search..."
-                  className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-500 text-sm h-6"
-                />
-                <button 
-                   onClick={() => setSearchOpen(false)}
-                   className="text-xs bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white px-2 py-1 rounded transition-colors"
-                >
-                   ESC
-                </button>
-             </div>
-
-             {/* Quick Actions / Results Placeholder */}
-             <div className="p-2">
-                <div className="text-[10px] font-bold text-gray-500 uppercase px-2 py-1 mb-1">Suggested</div>
-                
-                <button 
-                  onClick={() => { setActiveTab('dashboard' as T); setSearchOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-[#c9a227] transition-all group text-left"
-                >
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#c9a227]/20 group-hover:text-[#c9a227] transition-colors">
-                      {SideNavIcons.dashboard}
-                    </div>
-                    <span className="text-sm">Go to Dashboard</span>
-                </button>
-                
-                <button 
-                  onClick={() => { setActiveTab('trading' as T); setSearchOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-[#c9a227] transition-all group text-left"
-                >
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#c9a227]/20 group-hover:text-[#c9a227] transition-colors">
-                      {SideNavIcons.trading}
-                    </div>
-                    <span className="text-sm">Open Trading Terminal</span>
-                </button>
-
-                 <button 
-                  onClick={() => { onLogout(); setSearchOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-500/10 text-gray-300 hover:text-red-400 transition-all group text-left"
-                >
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-red-500/20 group-hover:text-red-400 transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                    </div>
-                    <span className="text-sm">Log Out</span>
-                </button>
-             </div>
-             
-             {/* Footer */}
-              <div className="px-4 py-2 border-t border-white/5 bg-black/20 text-[10px] text-gray-500 flex justify-between">
-                 <span>Search for navigation, traders, or settings</span>
-                 <span className="flex gap-2">
-                    <span>↑↓ navigate</span>
-                    <span>↵ select</span>
-                 </span>
+        <div 
+           className="search-widget fixed z-[60] 
+                      top-[80px] left-1/2 -translate-x-1/2 w-[90%] md:w-[350px]
+                      md:top-auto md:left-[100px] md:-translate-x-0 md:translate-y-[-210px] md:bottom-auto
+                      animate-in fade-in slide-in-from-top-2 md:slide-in-from-left-2 duration-200"
+           style={{  
+               // Only for desktop vertical centering relative to dock if reasonable, 
+               // but fixed offset is safer for simplicity
+               top: window.innerWidth >= 768 ? '50%' : '80px',
+               marginTop: window.innerWidth >= 768 ? '-150px' : '0' // Roughly align with top of dock or user pref
+           }}
+        >
+          <div className="bg-white/80 backdrop-blur-2xl rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_0_0_1px_rgba(255,255,255,0.7)_inset] overflow-hidden border border-white/40">
+              {/* Input Area */}
+              <div className="flex items-center px-4 py-3 gap-3 border-b border-gray-100/50">
+                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <input 
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search..."
+                    className="flex-1 bg-transparent border-none outline-none text-[#1a1a1d] text-sm placeholder-gray-400"
+                    autoFocus
+                  />
+                  <span className="text-[10px] font-mono text-gray-400 bg-white/50 px-1.5 py-0.5 rounded border border-gray-200">ESC</span>
+              </div>
+              
+              {/* Quick Results */}
+              <div className="p-2 space-y-1">
+                 <div className="text-[10px] font-bold text-gray-400 uppercase px-2 py-1">Quick Links</div>
+                 <button onClick={() => { setActiveTab('dashboard' as T); setSearchOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#1a1a1d]/5 hover:text-[#c9a227] text-gray-600 transition-colors text-xs font-medium">
+                    {SideNavIcons.dashboard}
+                    Dashboard
+                 </button>
+                 <button onClick={() => { setActiveTab('trading' as T); setSearchOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#1a1a1d]/5 hover:text-[#c9a227] text-gray-600 transition-colors text-xs font-medium">
+                    {SideNavIcons.trading}
+                    Trading Terminal
+                 </button>
               </div>
           </div>
+          
+          {/* Decorative Arrow Pointing to Dock (Desktop Only) */}
+          <div className="hidden md:block absolute -left-2 top-[47px] w-4 h-4 bg-white/80 backdrop-blur-md rotate-45 border-l border-b border-white/40 shadow-sm z-[-1]" />
         </div>
       )}
     </>

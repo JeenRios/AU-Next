@@ -2,125 +2,214 @@
 
 import { PageContainer } from '@/components/shared';
 import { useState } from 'react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-// Mock Data
+// Enhanced Mock Data
 const PROFILE = {
   name: 'Alex Sterling',
   username: '@alexsterling',
-  tagline: 'Forex Scalper | Ex-Prop Firm Trader | SaaS Founder',
+  tagline: 'Algorithmic Scalper | Strategy Developer',
   avatar: 'AS',
-  bio: 'Specializing in XAUUSD and GJ scalping strategies. Building tools for automated trading. Helping others pass funding challenges.',
-  interests: ['Forex', 'Automated Trading', 'SaaS', 'Real Estate'],
-  skills: ['Risk Management', 'MQL5', 'Python', 'Price Action'],
-  joined: 'Member since 2023',
+  bio: 'Full-time algorithmic trader specializing in XAUUSD. Developer of the "Gold Sniper" series. Sharing verifying results and tools for the community.',
+  interests: ['Algo Trading', 'MQL5', 'NextJS', 'Forex'],
+  skills: ['System Design', 'Risk Mgmt', 'React', 'Python'],
+  joined: 'Jan 2024',
+  role: 'Pro Trader',
+  verified: true
 };
 
 const STATS = [
-  { label: 'Followers', value: '12.4K' },
-  { label: 'Following', value: '342' },
-  { label: 'Win Rate', value: '68%' },
+  { label: 'Followers', value: '12.4K', change: '+12%' },
+  { label: 'Win Rate', value: '68.5%', change: '+2.1%' },
+  { label: 'Profit Factor', value: '2.45', change: '+0.1' },
+];
+
+const PERFORMANCE_DATA = [
+  { day: 'Mon', equity: 45000 },
+  { day: 'Tue', equity: 46200 },
+  { day: 'Wed', equity: 45800 },
+  { day: 'Thu', equity: 47500 },
+  { day: 'Fri', equity: 48900 },
+  { day: 'Sat', equity: 48900 },
+  { day: 'Sun', equity: 48900 },
 ];
 
 const PORTFOLIO = [
-  { id: 1, title: 'Gold Sniper EA', type: 'Product', price: '$199', image: '🤖', desc: 'Fully automated XAUUSD scalping bot.' },
-  { id: 2, title: 'VIP Signals Group', type: 'Subscription', price: '$49/mo', image: '📊', desc: 'Daily setups with entry/exit points.' },
-  { id: 3, title: '1-on-1 Mentorship', type: 'Service', price: '$997', image: '🎓', desc: '4 weeks of intensive trading coaching.' },
+  { id: 1, title: 'Gold Sniper V3', type: 'Product', price: '$199', image: '🤖', desc: 'Automated scalping EA for XAUUSD with 90% win rate.' },
+  { id: 2, title: 'Mentorship Core', type: 'Service', price: '$997', image: '🎓', desc: '4 weeks of live coaching and strategy breakdown.' },
+  { id: 3, title: 'Signal Room', type: 'Subscription', price: '$49/mo', image: '📡', desc: 'Real-time entry/exit alerts.' },
 ];
 
 export default function ProfilePage() {
+  const [timeRange, setTimeRange] = useState('1W');
+
   return (
-    <PageContainer>
-      {/* Profile Header Card */}
-      <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-gray-900 via-[#1a1a1d] to-gray-900"></div>
+    // md:pl-20 ensures content is not hidden by the fixed floating sidebar
+    <PageContainer className="md:pl-20">
+      <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
         
-        <div className="relative pt-16 flex flex-col md:flex-row items-start md:items-end gap-6">
-          {/* Avatar */}
-          <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-[#c9a227] to-[#f0d78c] p-1 shadow-xl">
-            <div className="w-full h-full bg-[#1a1a1d] rounded-xl flex items-center justify-center text-4xl font-bold text-[#c9a227]">
-              {PROFILE.avatar}
-            </div>
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 pb-2">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{PROFILE.name}</h1>
-            <p className="text-gray-500 font-medium text-sm md:text-base mb-2">{PROFILE.tagline}</p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {PROFILE.interests.map((tag) => (
-                <span key={tag} className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold border border-amber-100">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Action Button */}
-          <div className="flex gap-3 pb-2 w-full md:w-auto">
-             <button className="flex-1 md:flex-none px-6 py-2.5 bg-[#1a1a1d] hover:bg-gray-800 text-white rounded-xl font-medium transition-colors shadow-lg shadow-gray-200">
-                Follow
-             </button>
-             <button className="px-6 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition-colors">
-                Message
-             </button>
-          </div>
-        </div>
-
-        {/* Bio & Stats */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-gray-100">
-           <div className="md:col-span-2 space-y-4">
-              <h3 className="font-bold text-gray-900">About</h3>
-              <p className="text-gray-600 leading-relaxed">{PROFILE.bio}</p>
-              
-              <div className="pt-4">
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">Skills & Expertise</h4>
-                <div className="flex flex-wrap gap-2">
-                   {PROFILE.skills.map((skill) => (
-                     <span key={skill} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs">
-                        {skill}
-                     </span>
-                   ))}
-                </div>
+        {/* Hero Section */}
+        <div className="relative overflow-hidden rounded-3xl bg-[#1a1a1d] border border-white/5 shadow-2xl">
+           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent pointer-events-none" />
+           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+           
+           <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center md:items-end gap-8">
+              {/* Avatar Ring */}
+              <div className="relative group">
+                 <div className="absolute -inset-1 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full bg-[#1a1a1d] p-1 ring-2 ring-white/10 overflow-hidden flex items-center justify-center">
+                    <span className="text-4xl font-bold bg-gradient-to-br from-[#c9a227] to-[#f0d78c] bg-clip-text text-transparent">
+                      {PROFILE.avatar}
+                    </span>
+                 </div>
+                 {PROFILE.verified && (
+                    <div className="absolute bottom-2 right-2 bg-[#c9a227] text-[#1a1a1d] rounded-full p-1.5 shadow-lg border-2 border-[#1a1a1d]" title="Verified Trader">
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                 )}
               </div>
-           </div>
 
-           <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 h-fit">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                 {STATS.map((stat) => (
-                    <div key={stat.label}>
-                       <div className="text-xl font-bold text-[#c9a227]">{stat.value}</div>
-                       <div className="text-xs text-gray-500 uppercase tracking-wide mt-1">{stat.label}</div>
+              {/* Info */}
+              <div className="flex-1 text-center md:text-left space-y-2">
+                 <div className="flex items-center justify-center md:justify-start gap-3">
+                    <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{PROFILE.name}</h1>
+                    <span className="px-3 py-1 rounded-full bg-[#c9a227]/20 text-[#c9a227] text-xs font-bold border border-[#c9a227]/20">
+                      {PROFILE.role}
+                    </span>
+                 </div>
+                 <p className="text-gray-400 font-medium">{PROFILE.username} • {PROFILE.tagline}</p>
+                 <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
+                    {PROFILE.interests.slice(0, 3).map(tag => (
+                       <span key={tag} className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                          {tag}
+                       </span>
+                    ))}
+                 </div>
+              </div>
+
+              {/* Stats Summary */}
+              <div className="flex gap-6 md:gap-8 bg-white/5 p-4 rounded-2xl backdrop-blur-sm border border-white/5">
+                 {STATS.map(stat => (
+                    <div key={stat.label} className="text-center">
+                       <div className="text-xl font-bold text-white">{stat.value}</div>
+                       <div className="text-[10px] text-gray-500 uppercase tracking-wider">{stat.label}</div>
                     </div>
                  ))}
               </div>
-              <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-                 <p className="text-xs text-gray-400">{PROFILE.joined}</p>
-              </div>
            </div>
         </div>
-      </div>
 
-      {/* Portfolio Grid */}
-      <h2 className="text-xl font-bold text-gray-900 mt-2">Ventures & Products</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         {PORTFOLIO.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow group">
-               <div className="h-24 bg-gray-50 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
-                  {item.image}
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+           {/* Chart Section - Takes up 2/3 */}
+           <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col h-[400px]">
+              <div className="flex items-center justify-between mb-6">
+                 <div>
+                    <h3 className="font-bold text-gray-900 text-lg">Performance Verification</h3>
+                    <p className="text-sm text-gray-400">Equity Curve (Last 7 Days)</p>
+                 </div>
+                 <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+                    {['1W', '1M', '3M', 'YTD'].map(range => (
+                       <button 
+                         key={range}
+                         onClick={() => setTimeRange(range)}
+                         className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
+                            timeRange === range ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                         }`}
+                       >
+                          {range}
+                       </button>
+                    ))}
+                 </div>
+              </div>
+              
+              <div className="flex-1 w-full min-h-0">
+                 <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={PERFORMANCE_DATA}>
+                       <defs>
+                          <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
+                             <stop offset="5%" stopColor="#c9a227" stopOpacity={0.2}/>
+                             <stop offset="95%" stopColor="#c9a227" stopOpacity={0}/>
+                          </linearGradient>
+                       </defs>
+                       <XAxis 
+                          dataKey="day" 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{ fill: '#9ca3af', fontSize: 12 }} 
+                       />
+                       <YAxis 
+                          hide 
+                          domain={['dataMin - 1000', 'dataMax + 1000']} 
+                       />
+                       <Tooltip 
+                          contentStyle={{ backgroundColor: '#1a1a1d', border: 'none', borderRadius: '8px', color: '#fff' }}
+                          itemStyle={{ color: '#c9a227' }}
+                       />
+                       <CartesianGrid vertical={false} stroke="#f3f4f6" strokeDasharray="3 3" />
+                       <Area 
+                          type="monotone" 
+                          dataKey="equity" 
+                          stroke="#c9a227" 
+                          strokeWidth={2} 
+                          fillOpacity={1} 
+                          fill="url(#colorEquity)" 
+                       />
+                    </AreaChart>
+                 </ResponsiveContainer>
+              </div>
+           </div>
+
+           {/* About / Bio Section */}
+           <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-6">
+               <div>
+                  <h3 className="font-bold text-gray-900 mb-3">About</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">{PROFILE.bio}</p>
                </div>
-               <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                     <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">{item.type}</span>
-                     <span className="font-bold text-gray-900">{item.price}</span>
+               
+               <div>
+                  <h4 className="font-bold text-gray-900 mb-3 text-sm">Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                     {PROFILE.skills.map(skill => (
+                        <span key={skill} className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-xs font-semibold border border-amber-100">
+                           {skill}
+                        </span>
+                     ))}
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-1">{item.title}</h3>
-                  <p className="text-sm text-gray-500 mb-4">{item.desc}</p>
-                  <button className="w-full py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                     View Details
+               </div>
+
+               <div className="pt-4 border-t border-gray-100">
+                  <button className="w-full py-3 bg-[#1a1a1d] text-white rounded-xl font-medium shadow-xl shadow-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                     View Public Journal
                   </button>
                </div>
-            </div>
-         ))}
+           </div>
+        </div>
+
+        {/* Ventures Grid */}
+        <div>
+           <h3 className="text-xl font-bold text-gray-900 mb-4 px-1">Ventures</h3>
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {PORTFOLIO.map(item => (
+                 <div key={item.id} className="group bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="flex justify-between items-start mb-4">
+                       <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-2xl group-hover:bg-[#c9a227]/10 transition-colors">
+                          {item.image}
+                       </div>
+                       <span className="text-sm font-bold text-gray-900 bg-gray-50 px-3 py-1 rounded-lg border border-gray-100 group-hover:border-[#c9a227]/20 group-hover:text-[#c9a227] transition-all">
+                          {item.price}
+                       </span>
+                    </div>
+                    <h4 className="font-bold text-gray-900 mb-2 group-hover:text-[#c9a227] transition-colors">{item.title}</h4>
+                    <p className="text-sm text-gray-500 mb-4 line-clamp-2">{item.desc}</p>
+                    <div className="flex items-center text-[#c9a227] text-sm font-bold gap-2 group/link cursor-pointer">
+                       <span>Learn more</span>
+                       <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                    </div>
+                 </div>
+              ))}
+           </div>
+        </div>
       </div>
     </PageContainer>
   );
