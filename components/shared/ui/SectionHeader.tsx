@@ -56,7 +56,7 @@ export default function SectionHeader({
     <button
       onClick={onRefresh}
       disabled={isRefreshing}
-      className="px-5 py-2.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227]"
+      className="px-5 py-2.5 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2"
       aria-label="Refresh data"
     >
       <svg
@@ -83,7 +83,7 @@ export default function SectionHeader({
       className={`px-5 py-2.5 font-semibold rounded-xl transition-all flex items-center gap-2 focus:outline-none focus-visible:ring-2 ${
         action.variant === 'secondary'
           ? 'bg-gray-100 hover:bg-gray-200 text-gray-700 focus-visible:ring-gray-400'
-          : 'bg-gradient-to-r from-[#c9a227] to-[#d4af37] hover:shadow-lg hover:shadow-[#c9a227]/20 text-white focus-visible:ring-[#c9a227]'
+          : 'bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg hover:shadow-primary-gold/20 text-surface-dark focus-visible:ring-primary-gold focus-visible:ring-offset-2'
       }`}
     >
       {action.icon}
@@ -97,7 +97,7 @@ export default function SectionHeader({
       {backLink && (
         <Link
           href={backLink}
-          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#c9a227] mb-4 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary-gold mb-4 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -123,14 +123,14 @@ export default function SectionHeader({
           
           {/* Icon */}
           {icon && (
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-md">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-gold to-secondary-gold flex items-center justify-center shadow-md">
               {icon}
             </div>
           )}
           
           {/* Title & Subtitle */}
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[#1a1a1d]">
+            <h1 className="text-2xl md:text-3xl font-bold text-surface-dark">
               {title}
             </h1>
             {subtitle && (

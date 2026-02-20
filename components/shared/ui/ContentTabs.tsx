@@ -86,7 +86,7 @@ export default function ContentTabs(props: ContentTabsProps) {
       {/* Horizontal Tab Bar */}
       <div 
         ref={containerRef}
-        className="relative inline-flex items-center bg-amber-50/80 border border-[#f0d78c]/30 rounded-xl p-1 mb-6 overflow-x-auto scrollbar-hide"
+        className="relative inline-flex items-center bg-primary-gold/10 border border-secondary-gold/30 rounded-xl p-1 mb-6 overflow-x-auto scrollbar-hide"
       >
         {/* Sliding gold indicator */}
         <div

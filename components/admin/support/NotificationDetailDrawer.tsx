@@ -47,7 +47,7 @@ export default function NotificationDetailDrawer({
   const getTypeStyles = (type: string) => {
     switch (type) {
       case 'trade':
-        return { bg: 'bg-amber-50 border-[#f0d78c]', icon: 'text-[#c9a227]', badge: 'bg-amber-100 text-[#c9a227]' };
+        return { bg: 'bg-primary-gold/10 border-secondary-gold', icon: 'text-primary-gold', badge: 'bg-primary-gold/20 text-primary-gold' };
       case 'account':
         return { bg: 'bg-green-50 border-green-200', icon: 'text-green-600', badge: 'bg-green-100 text-green-700' };
       case 'system':

@@ -41,10 +41,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-amber-50 to-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-primary-gold/5 to-gray-50">
       <div className="max-w-md w-full mx-4">
-        <div className="bg-white rounded-2xl p-8 border-2 border-[#c9a227]/20 shadow-xl">
-          <h1 className="text-3xl font-bold text-[#1a1a1d] mb-2 text-center">Welcome Back</h1>
+        <div className="bg-white rounded-2xl p-8 border-2 border-primary-gold/20 shadow-xl">
+          <h1 className="text-3xl font-bold text-surface-dark mb-2 text-center">Welcome Back</h1>
           <p className="text-gray-600 text-center mb-8">Sign in to AU-Next Trading</p>
 
           {error && (
@@ -55,28 +55,28 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-[#1a1a1d] mb-2">
+              <label className="block text-sm font-medium text-surface-dark mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-[#1a1a1d] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#c9a227] focus:border-transparent transition-all"
+                className="input-base text-surface-dark"
                 placeholder="you@example.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1a1a1d] mb-2">
+              <label className="block text-sm font-medium text-surface-dark mb-2">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-[#1a1a1d] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#c9a227] focus:border-transparent transition-all"
+                className="input-base text-surface-dark"
                 placeholder="••••••••"
                 required
               />
@@ -85,10 +85,10 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:from-[#f0d78c] hover:to-[#c9a227] text-[#1a1a1d] font-bold rounded-lg transition disabled:opacity-50 flex justify-center items-center gap-2"
+              className="w-full py-3 bg-gradient-to-r from-primary-gold to-secondary-gold hover:from-secondary-gold hover:to-primary-gold text-surface-dark font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2"
             >
               {loading && (
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-[#1a1a1d]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-surface-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -100,13 +100,13 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-gray-600 text-sm">
               Demo accounts: <br />
-              <span className="text-[#c9a227]">admin@au.com / admin</span> (Admin) <br />
-              <span className="text-[#c9a227]">user@au.com / user</span> (User)
+              <span className="text-primary-gold">admin@au.com / admin</span> (Admin) <br />
+              <span className="text-primary-gold">user@au.com / user</span> (User)
             </p>
           </div>
 
           <div className="mt-4 text-center">
-            <a href="/" className="text-[#c9a227] hover:text-[#f0d78c] text-sm">
+            <a href="/" className="text-primary-gold hover:text-secondary-gold text-sm">
               ← Back to Home
             </a>
           </div>

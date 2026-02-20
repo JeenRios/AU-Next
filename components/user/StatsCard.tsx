@@ -39,7 +39,7 @@ export default function StatsCard({
 
   if (variant === 'gold') {
     return (
-      <div className="bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl p-6 text-white shadow-lg">
+      <div className="bg-gradient-to-br from-primary-gold to-secondary-gold rounded-2xl p-6 text-white shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">{icon}</div>
           {badge && <span className="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">{badge}</span>}
@@ -63,7 +63,7 @@ export default function StatsCard({
         )}
       </div>
       <div className="text-sm text-gray-600 mb-1">{title}</div>
-      <div className="text-3xl font-bold text-[#1a1a1d]">{value}</div>
+      <div className="text-3xl font-bold text-surface-dark">{value}</div>
       {subtitle && <div className="text-xs text-green-600 mt-2">{subtitle}</div>}
     </div>
   );

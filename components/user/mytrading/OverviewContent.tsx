@@ -206,7 +206,7 @@ export default function OverviewContent({
 
       {/* Empty State */}
       {mt5Accounts.length === 0 && trades.length === 0 && (
-        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-[#f0d78c] p-12 text-center">
+        <div className="bg-gradient-to-br from-primary-gold/10 to-secondary-gold/10 rounded-2xl border-2 border-dashed border-secondary-gold p-12 text-center">
           <div className="w-20 h-20 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
             <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />

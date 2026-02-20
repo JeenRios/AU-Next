@@ -47,7 +47,7 @@ interface VPSManagementProps {
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { bg: string; text: string; dot: string }> = {
     active: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-    provisioning: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500' },
+    provisioning: { bg: 'bg-primary-gold/10', text: 'text-primary-gold', dot: 'bg-primary-gold' },
     pending: { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
     error: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500' },
     decommissioned: { bg: 'bg-gray-100', text: 'text-gray-500', dot: 'bg-gray-400' },
@@ -476,7 +476,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
               showAttributeLabels={false}
               badges={[
                 vps.ea_path && (
-                  <span key="ea" className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-semibold bg-[#c9a227]/10 text-[#c9a227] rounded">
+                  <span key="ea" className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-semibold bg-primary-gold/10 text-primary-gold rounded">
                     EA
                   </span>
                 ),
@@ -498,7 +498,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
                     <button
                       onClick={() => handleTestConnection(vps.id)}
                       disabled={(testingConnection === vps.id) || actionLoading}
-                      className="p-1.5 text-stone-400 hover:text-[#c9a227] hover:bg-[#c9a227]/10 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-1.5 text-stone-400 hover:text-primary-gold hover:bg-primary-gold/10 rounded-lg transition-colors disabled:opacity-50"
                       title="Test SSH Connection"
                     >
                       {testingConnection === vps.id ? (
@@ -604,7 +604,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
             <button
               onClick={() => setShowCreatePanel(true)}
               disabled={mt5Accounts.length === 0}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#c9a227] hover:bg-[#b8922a] rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-gold hover:bg-primary-gold/90 rounded-lg transition-colors disabled:opacity-50"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -623,7 +623,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
             {mt5Accounts.length > 0 && (
               <button
                 onClick={() => setShowCreatePanel(true)}
-                className="mt-4 px-4 py-2 text-sm font-medium text-white bg-[#c9a227] hover:bg-[#b8922a] rounded-lg transition-colors"
+                className="mt-4 px-4 py-2 text-sm font-medium text-white bg-primary-gold hover:bg-primary-gold/90 rounded-lg transition-colors"
               >
                 Add VPS
               </button>
@@ -647,7 +647,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
             <select
               value={createFormData.mt5_account_id}
               onChange={(e) => setCreateFormData({ ...createFormData, mt5_account_id: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
               required
             >
               <option value="">Select MT5 Account</option>
@@ -667,7 +667,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
               value={createFormData.name}
               onChange={(e) => setCreateFormData({ ...createFormData, name: e.target.value })}
               placeholder="e.g., My Trading VPS"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
               required
             />
           </div>
@@ -684,7 +684,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
                   value={createFormData.ip_address}
                   onChange={(e) => setCreateFormData({ ...createFormData, ip_address: e.target.value })}
                   placeholder="192.168.1.100"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
                   required
                 />
               </div>
@@ -695,7 +695,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
                   value={createFormData.ssh_port}
                   onChange={(e) => setCreateFormData({ ...createFormData, ssh_port: e.target.value })}
                   placeholder="22"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
                 />
               </div>
             </div>
@@ -707,7 +707,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
                 value={createFormData.ssh_username}
                 onChange={(e) => setCreateFormData({ ...createFormData, ssh_username: e.target.value })}
                 placeholder="Administrator"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
                 required
               />
             </div>
@@ -719,7 +719,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
                 value={createFormData.ssh_password}
                 onChange={(e) => setCreateFormData({ ...createFormData, ssh_password: e.target.value })}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
                 required
               />
             </div>
@@ -749,7 +749,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
             <button
               type="submit"
               disabled={actionLoading}
-              className="flex-1 px-4 py-2.5 bg-[#c9a227] hover:bg-[#b8922a] text-white rounded-lg transition-colors font-medium disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-primary-gold hover:bg-primary-gold/90 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
             >
               {actionLoading ? 'Adding...' : 'Add VPS'}
             </button>
@@ -772,7 +772,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
             <select
               value={vultrFormData.mt5_account_id}
               onChange={(e) => setVultrFormData({ ...vultrFormData, mt5_account_id: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
               required
             >
               <option value="">Select MT5 Account</option>
@@ -792,7 +792,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
               value={vultrFormData.name}
               onChange={(e) => setVultrFormData({ ...vultrFormData, name: e.target.value })}
               placeholder="Auto-generated if empty"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
             />
           </div>
 
@@ -802,7 +802,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
             <select
               value={vultrFormData.region}
               onChange={(e) => setVultrFormData({ ...vultrFormData, region: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
               required
             >
               <option value="">Select Region</option>
@@ -820,7 +820,7 @@ export default function VPSManagement({ onError, onSuccess }: VPSManagementProps
             <select
               value={vultrFormData.plan}
               onChange={(e) => setVultrFormData({ ...vultrFormData, plan: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
               required
             >
               <option value="">Select Plan</option>

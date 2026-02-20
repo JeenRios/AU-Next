@@ -112,10 +112,10 @@ export default function MT5AccountStatus({ accountId, onError }: MT5AccountStatu
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#c9a227]/10 to-[#f0d78c]/10 p-4 border-b border-gray-200">
+      <div className="bg-gradient-to-r from-primary-gold/10 to-secondary-gold/10 p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-[#1a1a1d]">MT5 Account: {accountData.account_number}</h3>
+            <h3 className="font-semibold text-surface-dark">MT5 Account: {accountData.account_number}</h3>
             <p className="text-sm text-gray-500">{accountData.server} - {accountData.platform}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -128,7 +128,7 @@ export default function MT5AccountStatus({ accountId, onError }: MT5AccountStatu
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="p-2 text-gray-500 hover:text-[#c9a227] hover:bg-amber-50 rounded-lg transition-colors disabled:opacity-50"
+              className="p-2 text-gray-500 hover:text-primary-gold hover:bg-primary-gold/10 rounded-lg transition-colors disabled:opacity-50"
               title="Refresh Status"
             >
               <svg className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,8 +165,8 @@ export default function MT5AccountStatus({ accountId, onError }: MT5AccountStatu
                     {index < TIMELINE_STEPS.length - 1 && (
                       <div
                         className={`absolute top-4 left-1/2 w-full h-0.5 ${
-                          isCompleted ? 'bg-[#c9a227]' :
-                          isInProgress ? 'bg-gradient-to-r from-[#c9a227] to-gray-200' :
+                          isCompleted ? 'bg-primary-gold' :
+                          isInProgress ? 'bg-gradient-to-r from-primary-gold to-gray-200' :
                           'bg-gray-200'
                         }`}
                         style={{ transform: 'translateY(-50%)' }}
@@ -175,8 +175,8 @@ export default function MT5AccountStatus({ accountId, onError }: MT5AccountStatu
                     {/* Circle */}
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center relative z-10 ${
-                        isCompleted ? 'bg-[#c9a227] text-white' :
-                        isCurrent || isInProgress ? 'bg-[#c9a227]/20 border-2 border-[#c9a227] text-[#c9a227]' :
+                        isCompleted ? 'bg-primary-gold text-white' :
+                        isCurrent || isInProgress ? 'bg-primary-gold/20 border-2 border-primary-gold text-primary-gold' :
                         'bg-gray-100 text-gray-400 border-2 border-gray-200'
                       }`}
                     >
@@ -194,7 +194,7 @@ export default function MT5AccountStatus({ accountId, onError }: MT5AccountStatu
                     </div>
                     {/* Label */}
                     <p className={`mt-2 text-xs font-medium text-center ${
-                      isCompleted || isCurrent ? 'text-[#1a1a1d]' : 'text-gray-400'
+                      isCompleted || isCurrent ? 'text-surface-dark' : 'text-gray-400'
                     }`}>
                       {step.label}
                     </p>
@@ -215,11 +215,11 @@ export default function MT5AccountStatus({ accountId, onError }: MT5AccountStatu
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div className="bg-gray-50 rounded-lg p-3">
               <p className="text-xs text-gray-500">Balance</p>
-              <p className="text-lg font-semibold text-[#1a1a1d]">${accountData.balance.toLocaleString()}</p>
+              <p className="text-lg font-semibold text-surface-dark">${accountData.balance.toLocaleString()}</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-3">
               <p className="text-xs text-gray-500">Equity</p>
-              <p className="text-lg font-semibold text-[#1a1a1d]">${accountData.equity.toLocaleString()}</p>
+              <p className="text-lg font-semibold text-surface-dark">${accountData.equity.toLocaleString()}</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-3">
               <p className="text-xs text-gray-500">Profit</p>
@@ -239,10 +239,10 @@ export default function MT5AccountStatus({ accountId, onError }: MT5AccountStatu
           <div className="flex items-center justify-between text-sm border-t border-gray-100 pt-3">
             <div className="flex items-center gap-4">
               <span className="text-gray-500">
-                Open Positions: <strong className="text-[#1a1a1d]">{accountData.open_positions_count}</strong>
+                Open Positions: <strong className="text-surface-dark">{accountData.open_positions_count}</strong>
               </span>
               <span className="text-gray-500">
-                Lot Size: <strong className="text-[#1a1a1d]">{accountData.current_lot_size.toFixed(2)}</strong>
+                Lot Size: <strong className="text-surface-dark">{accountData.current_lot_size.toFixed(2)}</strong>
               </span>
             </div>
             <div className="flex items-center gap-1 text-gray-400">
@@ -325,14 +325,14 @@ export default function MT5AccountStatus({ accountId, onError }: MT5AccountStatu
       {/* Pending Status */}
       {accountData.status === 'pending' && (
         <div className="p-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-amber-700">
+          <div className="bg-primary-gold/10 border border-primary-gold/20 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-primary-gold">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span className="font-medium">Pending Review</span>
             </div>
-            <p className="text-sm text-amber-600 mt-1">Your account connection request is being reviewed by an administrator. You will be notified once approved.</p>
+            <p className="text-sm text-primary-gold mt-1">Your account connection request is being reviewed by an administrator. You will be notified once approved.</p>
           </div>
         </div>
       )}

@@ -136,9 +136,9 @@ export default function SideNavLayout<T extends string = string>({
         >
           {/* User Profile Marker */}
           <div className="relative group/user z-50 order-3 md:order-1 md:mb-2">
-            <button className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center shadow-lg shadow-[#c9a227]/30 shrink-0 group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300 group-hover/user:scale-110 group-hover/user:!blur-none overflow-hidden dock-trigger">
+            <button className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-primary-gold to-secondary-gold flex items-center justify-center shadow-lg shadow-primary-gold/30 shrink-0 group-has-[.dock-trigger:hover]/dock:blur-[3px] transition-all duration-300 group-hover/user:scale-110 group-hover/user:!blur-none overflow-hidden dock-trigger">
                {/* Initials or Placeholder */}
-               <span className="text-[#1a1a1d] font-bold text-xs md:text-sm">
+               <span className="text-surface-dark font-bold text-xs md:text-sm">
                 {user?.name 
                   ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
                   : 'AU'}
@@ -150,13 +150,13 @@ export default function SideNavLayout<T extends string = string>({
                 {/* Invisible hover bridge */}
                 <div className="absolute -left-6 top-0 w-6 h-full bg-transparent" />
                 
-                <div className="bg-[#1a1a1d]/95 backdrop-blur-xl text-white text-xs rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] p-3 min-w-[200px] flex flex-col gap-1 border border-white/10">
+                <div className="bg-surface-dark/95 backdrop-blur-xl text-white text-xs rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] p-3 min-w-[200px] flex flex-col gap-1 border border-white/10">
                    {/* Arrow */}
-                   <div className="w-0 h-0 border-t-[6px] border-t-transparent border-r-[6px] border-r-[#1a1a1d]/95 border-b-[6px] border-b-transparent absolute -left-1.5 top-5" />
+                   <div className="w-0 h-0 border-t-[6px] border-t-transparent border-r-[6px] border-r-surface-dark/95 border-b-[6px] border-b-transparent absolute -left-1.5 top-5" />
 
                    {/* User Header */}
                    <div className="pb-3 mb-1 border-b border-white/10">
-                      <p className="font-bold text-[#c9a227] text-sm truncate">{user?.name || 'Guest User'}</p>
+                      <p className="font-bold text-primary-gold text-sm truncate">{user?.name || 'Guest User'}</p>
                       <p className="text-[10px] text-gray-400 truncate">{user?.email || 'guest@example.com'}</p>
                    </div>
 
@@ -188,7 +188,7 @@ export default function SideNavLayout<T extends string = string>({
           >
              {/* Sliding Indicator */}
              <div
-                className="absolute bg-[#1a1a1d] rounded-full shadow-lg shadow-black/20 transition-all duration-300 ease-out -z-10"
+                className="absolute bg-surface-dark rounded-full shadow-lg shadow-black/20 transition-all duration-300 ease-out -z-10"
                 style={{
                   left: indicatorStyle.left,
                   top: indicatorStyle.top,
@@ -202,8 +202,9 @@ export default function SideNavLayout<T extends string = string>({
              <button
                 onClick={() => setSearchOpen(!searchOpen)}
                 title="Search (Ctrl + K)"
+                aria-label="Search"
                 className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none dock-trigger md:mb-2 ${
-                    searchOpen ? 'bg-[#c9a227] text-white scale-110' : 'text-gray-500 hover:text-[#c9a227] hover:!scale-110'
+                    searchOpen ? 'bg-primary-gold text-white scale-110' : 'text-gray-500 hover:text-primary-gold hover:!scale-110'
                 }`}
               >
                 <div className="w-5 h-5 flex items-center justify-center">
@@ -224,7 +225,7 @@ export default function SideNavLayout<T extends string = string>({
                   className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none hover:!scale-110 dock-trigger ${
                     activeTab === item.id
                       ? 'text-white scale-110'
-                      : 'text-[#c9a227] hover:text-[#1a1a1d]'
+                      : 'text-primary-gold hover:text-surface-dark'
                   }`}
                 >
                   <div className="w-5 h-5 flex items-center justify-center">
@@ -234,7 +235,7 @@ export default function SideNavLayout<T extends string = string>({
                   {/* Badge */}
                   {item.badge !== undefined && item.badge > 0 && (
                     <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold border-2 border-white transition-all ${
-                      activeTab === item.id ? 'bg-[#c9a227] text-white' : 'bg-red-500 text-white'
+                      activeTab === item.id ? 'bg-primary-gold text-white' : 'bg-red-500 text-white'
                     }`}>
                       {item.badge}
                     </span>
@@ -242,8 +243,8 @@ export default function SideNavLayout<T extends string = string>({
                   
                   {/* Tooltip on Hover (Right Side - Desktop Only) */}
                   <div className="hidden md:block absolute left-full ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
-                    <div className="bg-[#1a1a1d] text-white text-xs px-2 py-1 rounded-md shadow-xl flex items-center">
-                      <div className="w-0 h-0 border-t-[4px] border-t-transparent border-r-[4px] border-r-[#1a1a1d] border-b-[4px] border-b-transparent absolute -left-1" />
+                    <div className="bg-surface-dark text-white text-xs px-2 py-1 rounded-md shadow-xl flex items-center">
+                      <div className="w-0 h-0 border-t-[4px] border-t-transparent border-r-[4px] border-r-surface-dark border-b-[4px] border-b-transparent absolute -left-1" />
                       {item.label}
                     </div>
                   </div>
@@ -256,6 +257,7 @@ export default function SideNavLayout<T extends string = string>({
           <button
             onClick={onLogout}
             title="Logout"
+            aria-label="Logout"
             className="relative w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all duration-300 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:!scale-125 group-has-[.dock-trigger:hover]/dock:blur-[3px] hover:!blur-none dock-trigger order-3 md:order-5"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -288,12 +290,12 @@ export default function SideNavLayout<T extends string = string>({
           <div className="bg-white/80 backdrop-blur-2xl rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_0_0_1px_rgba(255,255,255,0.7)_inset] overflow-hidden border border-white/40">
               {/* Input Area */}
               <div className="flex items-center px-4 py-3 gap-3 border-b border-gray-100/50">
-                  <svg className="w-5 h-5 text-[#c9a227]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <svg className="w-5 h-5 text-primary-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                   <input 
                     ref={searchInputRef}
                     type="text"
                     placeholder="Search..."
-                    className="flex-1 bg-transparent border-none outline-none text-[#1a1a1d] text-sm placeholder-gray-400"
+                    className="flex-1 bg-transparent border-none outline-none text-surface-dark text-sm placeholder-gray-400"
                     autoFocus
                   />
                   <span className="text-[10px] font-mono text-gray-400 bg-white/50 px-1.5 py-0.5 rounded border border-gray-200">ESC</span>
@@ -302,11 +304,11 @@ export default function SideNavLayout<T extends string = string>({
               {/* Quick Results */}
               <div className="p-2 space-y-1">
                  <div className="text-[10px] font-bold text-gray-400 uppercase px-2 py-1">Quick Links</div>
-                 <button onClick={() => { setActiveTab('dashboard' as T); setSearchOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#1a1a1d]/5 hover:text-[#c9a227] text-gray-600 transition-colors text-xs font-medium">
+                 <button onClick={() => { setActiveTab('dashboard' as T); setSearchOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-surface-dark/5 hover:text-primary-gold text-gray-600 transition-colors text-xs font-medium">
                     {SideNavIcons.dashboard}
                     Dashboard
                  </button>
-                 <button onClick={() => { setActiveTab('trading' as T); setSearchOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#1a1a1d]/5 hover:text-[#c9a227] text-gray-600 transition-colors text-xs font-medium">
+                 <button onClick={() => { setActiveTab('trading' as T); setSearchOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-surface-dark/5 hover:text-primary-gold text-gray-600 transition-colors text-xs font-medium">
                     {SideNavIcons.trading}
                     Trading Terminal
                  </button>

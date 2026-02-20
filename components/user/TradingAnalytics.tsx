@@ -122,7 +122,7 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
   if (loading || !stats) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-3 border-gray-200 border-t-[#c9a227] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-3 border-gray-200 border-t-primary-gold rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -215,12 +215,12 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
                   onClick={() => setActiveTab('equity')}
                   className={`flex items-center gap-2 pb-2 border-b-2 transition-colors ${
                     activeTab === 'equity'
-                      ? 'border-primary-gold text-[#1a1a1d]'
+                      ? 'border-primary-gold text-surface-dark'
                       : 'border-transparent text-gray-400 hover:text-gray-600'
                   }`}
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                    activeTab === 'equity' ? 'bg-gradient-to-br from-primary-gold to-secondary-gold text-[#1a1a1d]' : 'bg-gray-100 text-gray-500'
+                    activeTab === 'equity' ? 'bg-gradient-to-br from-primary-gold to-secondary-gold text-surface-dark' : 'bg-gray-100 text-gray-500'
                   }`}>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -238,12 +238,12 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
                   onClick={() => setActiveTab('monthly')}
                   className={`flex items-center gap-2 pb-2 border-b-2 transition-colors ${
                     activeTab === 'monthly'
-                      ? 'border-primary-gold text-[#1a1a1d]'
+                      ? 'border-primary-gold text-surface-dark'
                       : 'border-transparent text-gray-400 hover:text-gray-600'
                   }`}
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                    activeTab === 'monthly' ? 'bg-gradient-to-br from-primary-gold to-secondary-gold text-[#1a1a1d]' : 'bg-gray-100 text-gray-500'
+                    activeTab === 'monthly' ? 'bg-gradient-to-br from-primary-gold to-secondary-gold text-surface-dark' : 'bg-gray-100 text-gray-500'
                   }`}>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -265,7 +265,7 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
                       key={tf}
                       onClick={() => setTimeframe(tf)}
                       className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                        timeframe === tf ? 'bg-white text-[#1a1a1d] shadow-sm' : 'text-gray-500 hover:text-[#1a1a1d]'
+                        timeframe === tf ? 'bg-white text-surface-dark shadow-sm' : 'text-gray-500 hover:text-surface-dark'
                       }`}
                     >
                       {tf}
@@ -306,7 +306,7 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
                       domain={['auto', 'auto']}
                     />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#1a1a1d', border: 'none', borderRadius: '8px', padding: '8px 12px' }}
+                      contentStyle={{ backgroundColor: 'var(--surface-dark)', border: 'none', borderRadius: '8px', padding: '8px 12px' }}
                       labelStyle={{ color: '#9ca3af', fontSize: 11 }}
                       itemStyle={{ color: '#fff', fontSize: 12 }}
                       formatter={(value) => value !== undefined ? [`$${Number(value).toLocaleString()}`, ''] : ['', '']}
@@ -335,7 +335,7 @@ export default function TradingAnalytics({ accountId, accountNumber }: TradingAn
                       tickLine={false}
                     />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#1a1a1d', border: 'none', borderRadius: '8px', padding: '8px 12px' }}
+                      contentStyle={{ backgroundColor: 'var(--surface-dark)', border: 'none', borderRadius: '8px', padding: '8px 12px' }}
                       labelStyle={{ color: '#9ca3af', fontSize: 11 }}
                       itemStyle={{ color: '#fff', fontSize: 12 }}
                       formatter={(value) => value !== undefined ? [`${Number(value).toFixed(2)}%`, 'Return'] : ['', '']}

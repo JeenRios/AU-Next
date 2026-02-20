@@ -165,7 +165,7 @@ export default function MyTradingTab({
             <button
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="px-4 py-2.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2.5 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2 flex items-center gap-2"
             >
               <svg
                 className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}

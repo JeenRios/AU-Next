@@ -46,12 +46,12 @@ export function EmptyState({
   return (
     <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-12 text-center">
       {icon && <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">{icon}</div>}
-      <h3 className="text-lg font-semibold text-[#1a1a1d] mb-2">{title}</h3>
+      <h3 className="text-lg font-semibold text-surface-dark mb-2">{title}</h3>
       {description && <p className="text-gray-600 mb-6 max-w-sm mx-auto">{description}</p>}
       {action && (
         <button
           onClick={action.onClick}
-          className="px-6 py-2.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227]"
+          className="px-6 py-2.5 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {action.label}
         </button>

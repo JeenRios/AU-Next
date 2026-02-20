@@ -218,15 +218,15 @@ export default function AccountProfilePage() {
         </div>
 
         {/* Tabs */}
-        <div className="relative inline-flex items-center bg-amber-50/80 border border-[#f0d78c]/30 rounded-xl p-1">
+        <div className="relative inline-flex items-center bg-primary-gold/10 border border-secondary-gold/30 rounded-xl p-1">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`relative z-10 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-[#c9a227] to-[#d4af37] text-white shadow-md'
-                  : 'text-gray-600 hover:text-[#1a1a1d]'
+                  ? 'bg-gradient-to-r from-primary-gold to-secondary-gold text-white shadow-md'
+                  : 'text-gray-600 hover:text-surface-dark'
               }`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,9 +247,9 @@ export default function AccountProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Advanced Stats */}
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-[#c9a227] via-[#f0d78c] to-[#c9a227]" />
+                <div className="h-1 bg-gradient-to-r from-primary-gold via-secondary-gold to-primary-gold" />
                 <div className="p-6">
-                  <h3 className="text-lg font-bold text-[#1a1a1d] mb-6">Advanced Statistics</h3>
+                  <h3 className="text-lg font-bold text-surface-dark mb-6">Advanced Statistics</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-xs text-gray-500">Avg Win</div>
@@ -269,19 +269,19 @@ export default function AccountProfilePage() {
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-xs text-gray-500">Avg R:R</div>
-                      <div className="text-lg font-bold text-[#1a1a1d]">1:{mockStats.avgRR}</div>
+                      <div className="text-lg font-bold text-surface-dark">1:{mockStats.avgRR}</div>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-xs text-gray-500">Avg Duration</div>
-                      <div className="text-lg font-bold text-[#1a1a1d]">{mockStats.avgDuration}</div>
+                      <div className="text-lg font-bold text-surface-dark">{mockStats.avgDuration}</div>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-xs text-gray-500">Total Pips</div>
-                      <div className="text-lg font-bold text-[#c9a227]">+{mockStats.totalPips}</div>
+                      <div className="text-lg font-bold text-primary-gold">+{mockStats.totalPips}</div>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-xs text-gray-500">Total Lots</div>
-                      <div className="text-lg font-bold text-[#1a1a1d]">{mockStats.totalLots}</div>
+                      <div className="text-lg font-bold text-surface-dark">{mockStats.totalLots}</div>
                     </div>
                   </div>
                 </div>
@@ -289,13 +289,13 @@ export default function AccountProfilePage() {
 
               {/* Recent Trades Preview */}
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-[#c9a227] via-[#f0d78c] to-[#c9a227]" />
+                <div className="h-1 bg-gradient-to-r from-primary-gold via-secondary-gold to-primary-gold" />
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-[#1a1a1d]">Recent Trades</h3>
+                    <h3 className="text-lg font-bold text-surface-dark">Recent Trades</h3>
                     <button
                       onClick={() => setActiveTab('trades')}
-                      className="text-sm text-[#c9a227] hover:underline"
+                      className="text-sm text-primary-gold hover:underline"
                     >
                       View All →
                     </button>
@@ -309,7 +309,7 @@ export default function AccountProfilePage() {
                           }`}>
                             {trade.type}
                           </span>
-                          <span className="font-medium text-[#1a1a1d]">{trade.symbol}</span>
+                          <span className="font-medium text-surface-dark">{trade.symbol}</span>
                         </div>
                         <span className={`font-semibold ${trade.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {trade.profit >= 0 ? '+' : ''}${trade.profit.toFixed(2)}

@@ -21,7 +21,7 @@ export default function AdminTradingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-[#c9a227] rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-gray-200 border-t-primary-gold rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -40,7 +40,7 @@ export default function AdminTradingPage() {
       case 'history':
         return (
           <div className="bg-white border border-gray-100 rounded-xl p-6">
-            <h3 className="font-bold text-[#1a1a1d] mb-4">Trade History</h3>
+            <h3 className="font-bold text-surface-dark mb-4">Trade History</h3>
             {trades.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No trades found</p>
             ) : (
@@ -56,17 +56,17 @@ export default function AdminTradingPage() {
                         </svg>
                       </div>
                       <div>
-                        <p className="font-semibold text-[#1a1a1d]">{trade.symbol}</p>
+                        <p className="font-semibold text-surface-dark">{trade.symbol}</p>
                         <p className="text-xs text-gray-500">{trade.type} · {trade.amount}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-[#1a1a1d]">${trade.price}</p>
+                      <p className="font-medium text-surface-dark">${trade.price}</p>
                       <p className="text-xs text-gray-500">{new Date(trade.created_at).toLocaleDateString()}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       trade.status === 'completed' ? 'bg-green-100 text-green-700' :
-                      trade.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                      trade.status === 'pending' ? 'bg-primary-gold/20 text-primary-gold' :
                       'bg-gray-100 text-gray-600'
                     }`}>
                       {trade.status}

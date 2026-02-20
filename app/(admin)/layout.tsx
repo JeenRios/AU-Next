@@ -91,7 +91,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-primary-gold/5 to-gray-50 flex">
       {/* Shared Sidebar Component */}
       <SideNavLayout<AdminTab>
         user={user}

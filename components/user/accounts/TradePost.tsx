@@ -235,7 +235,7 @@ export default function TradePost({
           onClick={handleBookmark}
           className={`p-2 rounded-full transition-colors ${
             localBookmarked 
-              ? 'text-[#c9a227] hover:bg-amber-50' 
+              ? 'text-primary-gold hover:bg-primary-gold/10' 
               : 'text-gray-400 hover:bg-gray-100 hover:text-[#c9a227]'
           }`}
         >

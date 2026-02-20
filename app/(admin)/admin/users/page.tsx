@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAdmin } from '@/lib/hooks/useAdmin';
 import { SectionHeader } from '@/components/shared';
+import { EmptyState } from '@/components/user/ErrorState';
 import ListContainer, { FilterOption } from '@/components/admin/shared/ListContainer';
 import UserDetailDrawer from '@/components/admin/users/UserDetailDrawer';
 import SlideOutPanel from '@/components/admin/shared/SlideOutPanel';
@@ -44,7 +45,7 @@ export default function AdminUsersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-[#c9a227] rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-gray-200 border-t-primary-gold rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -59,7 +60,7 @@ export default function AdminUsersPage() {
         actions={
           <button
             onClick={() => setShowAddUser(true)}
-            className="px-4 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+            className="px-4 py-2 bg-gradient-to-r from-primary-gold to-secondary-gold text-surface-dark font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -75,19 +76,19 @@ export default function AdminUsersPage() {
         getSearchableText={getUserSearchableText}
         getFilterValue={getUserFilterValue}
         searchPlaceholder="Search users..."
-        emptyState={<p className="text-gray-500 text-center py-8">No users found</p>}
+        emptyState={<EmptyState title="No users found" description="Add a user to get started." action={{ label: 'Add user', onClick: () => setShowAddUser(true) }} />}
         renderItem={(user) => (
           <div
             key={user.id}
             onClick={() => { setSelectedUser(user); setShowUserDetails(true); }}
-            className="p-4 hover:bg-amber-50/50 cursor-pointer flex items-center justify-between transition-colors border-b border-gray-50 last:border-0"
+            className="p-4 hover:bg-primary-gold/10 cursor-pointer flex items-center justify-between transition-colors border-b border-gray-50 last:border-0"
           >
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-gold to-secondary-gold rounded-full flex items-center justify-center text-white font-bold">
                 {user.first_name?.[0] || user.email[0].toUpperCase()}
               </div>
               <div>
-                <p className="font-medium text-[#1a1a1d]">
+                <p className="font-medium text-surface-dark">
                   {user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.email}
                 </p>
                 <p className="text-sm text-gray-500">{user.email}</p>
@@ -96,7 +97,7 @@ export default function AdminUsersPage() {
             <div className="flex items-center gap-3">
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                 user.role === 'admin' 
-                  ? 'bg-gradient-to-r from-[#c9a227]/20 to-[#f0d78c]/20 text-[#c9a227] border border-[#c9a227]/30' 
+                  ? 'bg-gradient-to-r from-primary-gold/20 to-secondary-gold/20 text-primary-gold border border-primary-gold/30' 
                   : 'bg-gray-100 text-gray-600'
               }`}>
                 {user.role}
@@ -130,7 +131,7 @@ export default function AdminUsersPage() {
               type="text"
               value={newUser.name}
               onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-gold focus:border-transparent"
               placeholder="Full name"
             />
           </div>
@@ -140,7 +141,7 @@ export default function AdminUsersPage() {
               type="email"
               value={newUser.email}
               onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-gold focus:border-transparent"
               placeholder="user@example.com"
               required
             />
@@ -151,7 +152,7 @@ export default function AdminUsersPage() {
               type="password"
               value={newUser.password}
               onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-gold focus:border-transparent"
               placeholder="••••••••"
               required
             />
@@ -161,7 +162,7 @@ export default function AdminUsersPage() {
             <select
               value={newUser.role}
               onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#c9a227] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-gold focus:border-transparent"
             >
               <option value="user">User</option>
               <option value="admin">Admin</option>
@@ -177,7 +178,7 @@ export default function AdminUsersPage() {
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] text-[#1a1a1d] font-semibold rounded-xl hover:shadow-lg"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-primary-gold to-secondary-gold text-surface-dark font-semibold rounded-xl hover:shadow-lg"
             >
               Create User
             </button>

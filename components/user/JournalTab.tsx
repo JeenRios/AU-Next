@@ -136,7 +136,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
         setFormData({ title: '', content: '', emotion: 'Neutral', tags: '' });
         setIsFormOpen(true);
       }}
-      className="px-5 py-2.5 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all flex items-center gap-2"
+      className="px-5 py-2.5 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all flex items-center gap-2"
     >
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -156,7 +156,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
           actions={newEntryButton}
         />
         <div className="h-96 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c9a227]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-gold"></div>
         </div>
       </>
     );
@@ -173,7 +173,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
       />
       <div className="space-y-6 animate-in fade-in duration-500">
         {isFormOpen && (
-          <div className="bg-white rounded-3xl border border-amber-100 shadow-xl p-6 mb-8 animate-in slide-in-from-top-4 duration-300">
+          <div className="bg-white rounded-3xl border border-primary-gold/20 shadow-xl p-6 mb-8 animate-in slide-in-from-top-4 duration-300">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-[#1a1a1d]">
                 {editingEntry ? 'Edit Journal Entry' : 'New Journal Entry'}
@@ -194,7 +194,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g., Morning Gold Setup"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#c9a227]/20 focus:border-[#c9a227] transition-all outline-none"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-2 focus:ring-primary-gold/20 focus:border-primary-gold transition-all outline-none"
                   required
                 />
               </div>
@@ -203,7 +203,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
                 <select
                   value={formData.emotion}
                   onChange={(e) => setFormData({ ...formData, emotion: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#c9a227]/20 focus:border-[#c9a227] transition-all outline-none"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-2 focus:ring-primary-gold/20 focus:border-primary-gold transition-all outline-none"
                 >
                   <option>Neutral</option>
                   <option>Confident</option>
@@ -223,7 +223,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
                 value={formData.tags}
                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                 placeholder="e.g., #gold #nfp #long"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#c9a227]/20 focus:border-[#c9a227] transition-all outline-none"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-2 focus:ring-primary-gold/20 focus:border-primary-gold transition-all outline-none"
               />
             </div>
 
@@ -233,7 +233,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 placeholder="Why did you take this trade? What did you learn?"
-                className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 focus:ring-2 focus:ring-[#c9a227]/20 focus:border-[#c9a227] outline-none transition-all resize-none h-40"
+                className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 focus:ring-2 focus:ring-2 focus:ring-primary-gold/20 focus:border-primary-gold outline-none transition-all resize-none h-40"
               />
             </div>
 
@@ -247,7 +247,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
               </button>
               <button
                 type="submit"
-                className="px-8 py-3 bg-[#1a1a1d] text-white font-bold rounded-xl hover:bg-[#2a2a2d] transition-all shadow-md"
+                className="px-8 py-3 bg-surface-dark text-white font-bold rounded-xl hover:bg-surface-dark/90 transition-all shadow-md"
               >
                 {editingEntry ? 'Update Entry' : 'Save Entry'}
               </button>
@@ -261,11 +261,11 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
           <div key={entry.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-6 relative group">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 rounded-2xl bg-primary-gold/10 flex items-center justify-center text-2xl">
                   {getEmotionEmoji(entry.emotion)}
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#1a1a1d] truncate max-w-[150px]">{entry.title}</h4>
+                  <h4 className="font-bold text-surface-dark truncate max-w-[150px]">{entry.title}</h4>
                   <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
                     {new Date(entry.created_at).toLocaleDateString()}
                   </p>
@@ -274,7 +274,7 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => handleEdit(entry)}
-                  className="p-2 text-gray-400 hover:text-[#c9a227] hover:bg-amber-50 rounded-lg transition-all"
+                  className="p-2 text-gray-400 hover:text-primary-gold hover:bg-primary-gold/10 rounded-lg transition-all"
                   aria-label="Edit entry"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -317,11 +317,11 @@ export default function JournalTab({ user, showToast, onRefresh, isRefreshing }:
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-[#1a1a1d] mb-2">No journal entries yet</h3>
+          <h3 className="text-xl font-bold text-surface-dark mb-2">No journal entries yet</h3>
           <p className="text-gray-500 font-medium max-w-sm mx-auto mb-8">Start recording your trading thoughts and emotions to improve your market performance.</p>
           <button
             onClick={() => setIsFormOpen(true)}
-            className="px-8 py-3 bg-[#1a1a1d] text-white font-bold rounded-xl hover:bg-[#2a2a2d] transition-all"
+            className="px-8 py-3 bg-surface-dark text-white font-bold rounded-xl hover:bg-surface-dark/90 transition-all"
           >
             Create Your First Entry
           </button>

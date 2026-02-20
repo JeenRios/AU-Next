@@ -116,7 +116,7 @@ export default function TraderProfilePage() {
               </svg>
             </button>
             <div>
-              <h1 className="font-bold text-[#1a1a1d]">{mockTrader.displayName}</h1>
+              <h1 className="font-bold text-surface-dark">{mockTrader.displayName}</h1>
               <p className="text-xs text-gray-500">{mockTrader.stats.trades} trades</p>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function TraderProfilePage() {
       {/* Profile header */}
       <div className="bg-white border-b border-gray-200">
         {/* Cover image */}
-        <div className="h-32 sm:h-48 bg-gradient-to-r from-[#c9a227] via-[#d4af37] to-[#f0d78c]" />
+        <div className="h-32 sm:h-48 bg-gradient-to-r from-primary-gold via-secondary-gold to-secondary-gold" />
 
         <div className="max-w-3xl mx-auto px-4">
           {/* Avatar & Follow button row */}
@@ -140,7 +140,7 @@ export default function TraderProfilePage() {
                   className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-lg"
                 />
               ) : (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-[#c9a227] to-[#f0d78c] flex items-center justify-center text-white text-4xl sm:text-5xl font-bold border-4 border-white shadow-lg">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-primary-gold to-secondary-gold flex items-center justify-center text-white text-4xl sm:text-5xl font-bold border-4 border-white shadow-lg">
                   {mockTrader.displayName.charAt(0)}
                 </div>
               )}
@@ -169,8 +169,8 @@ export default function TraderProfilePage() {
                 onClick={handleFollow}
                 className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${
                   isFollowing
-                    ? 'bg-white border border-gray-300 text-[#1a1a1d] hover:border-red-300 hover:text-red-600 hover:bg-red-50'
-                    : 'bg-[#1a1a1d] text-white hover:bg-[#2a2a2d]'
+                    ? 'bg-white border border-gray-300 text-surface-dark hover:border-red-300 hover:text-red-600 hover:bg-red-50'
+                    : 'bg-surface-dark text-white hover:bg-surface-dark/90'
                 }`}
               >
                 {isFollowing ? 'Following' : 'Follow'}
@@ -181,12 +181,12 @@ export default function TraderProfilePage() {
           {/* Profile info */}
           <div className="pb-4">
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-xl font-bold text-[#1a1a1d]">{mockTrader.displayName}</h2>
+              <h2 className="text-xl font-bold text-surface-dark">{mockTrader.displayName}</h2>
             </div>
             <p className="text-gray-500 mb-3">@{mockTrader.username}</p>
 
             {/* Bio */}
-            <p className="text-[#1a1a1d] whitespace-pre-wrap mb-3">{mockTrader.bio}</p>
+            <p className="text-surface-dark whitespace-pre-wrap mb-3">{mockTrader.bio}</p>
 
             {/* Meta info */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 mb-4">
@@ -200,7 +200,7 @@ export default function TraderProfilePage() {
                 </span>
               )}
               {mockTrader.website && (
-                <a href={`https://${mockTrader.website}`} className="flex items-center gap-1 text-[#c9a227] hover:underline">
+                <a href={`https://${mockTrader.website}`} className="flex items-center gap-1 text-primary-gold hover:underline">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
@@ -218,11 +218,11 @@ export default function TraderProfilePage() {
             {/* Follower stats */}
             <div className="flex items-center gap-4 text-sm">
               <Link href="#" className="hover:underline">
-                <span className="font-bold text-[#1a1a1d]">{mockTrader.following.toLocaleString()}</span>
+                <span className="font-bold text-surface-dark">{mockTrader.following.toLocaleString()}</span>
                 <span className="text-gray-500"> Following</span>
               </Link>
               <Link href="#" className="hover:underline">
-                <span className="font-bold text-[#1a1a1d]">{mockTrader.followers.toLocaleString()}</span>
+                <span className="font-bold text-surface-dark">{mockTrader.followers.toLocaleString()}</span>
                 <span className="text-gray-500"> Followers</span>
               </Link>
             </div>
@@ -235,11 +235,11 @@ export default function TraderProfilePage() {
               <div className="text-xs text-gray-500">Total Gain</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#1a1a1d]">{mockTrader.stats.winRate}%</div>
+              <div className="text-2xl font-bold text-surface-dark">{mockTrader.stats.winRate}%</div>
               <div className="text-xs text-gray-500">Win Rate</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#1a1a1d]">{mockTrader.stats.profitFactor}</div>
+              <div className="text-2xl font-bold text-surface-dark">{mockTrader.stats.profitFactor}</div>
               <div className="text-xs text-gray-500">Profit Factor</div>
             </div>
             <div className="text-center">
@@ -255,12 +255,12 @@ export default function TraderProfilePage() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 py-4 text-sm font-semibold transition-colors relative ${
-                  activeTab === tab.id ? 'text-[#1a1a1d]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  activeTab === tab.id ? 'text-surface-dark' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 {tab.label}
                 {activeTab === tab.id && (
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-[#c9a227] rounded-full" />
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary-gold rounded-full" />
                 )}
               </button>
             ))}

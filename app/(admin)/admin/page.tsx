@@ -48,7 +48,7 @@ export default function AdminOverviewPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-[#c9a227] rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-gray-200 border-t-primary-gold rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -56,12 +56,12 @@ export default function AdminOverviewPage() {
   return (
     <div className="space-y-5">
       {/* Welcome Header with System Status Bar */}
-      <div className="bg-gradient-to-r from-[#1a1a1d] to-[#2d2d30] rounded-2xl p-5 text-white relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#c9a227]/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-surface-dark to-surface-dark/90 rounded-2xl p-5 text-white relative">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-gold/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-[#f0d78c] text-xs font-medium mb-1">
+              <p className="text-secondary-gold text-xs font-medium mb-1">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
               <h1 className="text-xl font-bold">Welcome back, {user?.name || user?.email?.split('@')[0] || 'Admin'}</h1>
@@ -119,13 +119,13 @@ export default function AdminOverviewPage() {
                             <div
                               key={u.id}
                               onClick={() => { setSelectedUser(u); setShowUserDetails(true); setSearchQuery(''); }}
-                              className="flex items-center gap-3 px-2 py-2 hover:bg-amber-50 rounded-lg cursor-pointer"
+                              className="flex items-center gap-3 px-2 py-2 hover:bg-primary-gold/10 rounded-lg cursor-pointer"
                             >
-                              <div className="w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                              <div className="w-8 h-8 bg-gradient-to-br from-primary-gold to-secondary-gold rounded-full flex items-center justify-center text-white text-xs font-bold">
                                 {u.first_name?.[0] || u.email[0].toUpperCase()}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-[#1a1a1d] truncate">
+                                <p className="text-sm font-medium text-surface-dark truncate">
                                   {u.first_name && u.last_name ? `${u.first_name} ${u.last_name}` : u.email}
                                 </p>
                                 <p className="text-xs text-gray-500 truncate">{u.email}</p>
@@ -147,13 +147,13 @@ export default function AdminOverviewPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-gold to-secondary-gold rounded-xl flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
           </div>
-          <p className="text-2xl font-bold text-[#1a1a1d]">{stats?.totalUsers || 0}</p>
+          <p className="text-2xl font-bold text-surface-dark">{stats?.totalUsers || 0}</p>
           <p className="text-xs text-gray-500 font-medium">Total Users</p>
         </div>
 
@@ -165,7 +165,7 @@ export default function AdminOverviewPage() {
               </svg>
             </div>
           </div>
-          <p className="text-2xl font-bold text-[#1a1a1d]">{stats?.totalTrades || 0}</p>
+          <p className="text-2xl font-bold text-surface-dark">{stats?.totalTrades || 0}</p>
           <p className="text-xs text-gray-500 font-medium">Total Trades</p>
         </div>
 
@@ -177,7 +177,7 @@ export default function AdminOverviewPage() {
               </svg>
             </div>
           </div>
-          <p className="text-2xl font-bold text-[#1a1a1d]">{mt5Accounts.length}</p>
+          <p className="text-2xl font-bold text-surface-dark">{mt5Accounts.length}</p>
           <p className="text-xs text-gray-500 font-medium">MT5 Accounts</p>
         </div>
 
@@ -189,27 +189,27 @@ export default function AdminOverviewPage() {
               </svg>
             </div>
           </div>
-          <p className="text-2xl font-bold text-[#1a1a1d]">{tickets.length}</p>
+          <p className="text-2xl font-bold text-surface-dark">{tickets.length}</p>
           <p className="text-xs text-gray-500 font-medium">Open Tickets</p>
         </div>
       </div>
 
       {/* Quick Links */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <button onClick={() => router.push('/admin/users')} className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md hover:border-[#c9a227] transition-all text-left">
-          <h3 className="font-semibold text-[#1a1a1d] mb-1">Manage Users</h3>
+        <button onClick={() => router.push('/admin/users')} className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md hover:border-primary-gold transition-all text-left">
+          <h3 className="font-semibold text-surface-dark mb-1">Manage Users</h3>
           <p className="text-xs text-gray-500">View and edit user accounts</p>
         </button>
-        <button onClick={() => router.push('/admin/trading')} className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md hover:border-[#c9a227] transition-all text-left">
-          <h3 className="font-semibold text-[#1a1a1d] mb-1">Trading</h3>
+        <button onClick={() => router.push('/admin/trading')} className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md hover:border-primary-gold transition-all text-left">
+          <h3 className="font-semibold text-surface-dark mb-1">Trading</h3>
           <p className="text-xs text-gray-500">MT5 accounts and VPS</p>
         </button>
-        <button onClick={() => router.push('/admin/support')} className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md hover:border-[#c9a227] transition-all text-left">
-          <h3 className="font-semibold text-[#1a1a1d] mb-1">Support</h3>
+        <button onClick={() => router.push('/admin/support')} className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md hover:border-primary-gold transition-all text-left">
+          <h3 className="font-semibold text-surface-dark mb-1">Support</h3>
           <p className="text-xs text-gray-500">Tickets and notifications</p>
         </button>
-        <button onClick={() => router.push('/admin/system')} className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md hover:border-[#c9a227] transition-all text-left">
-          <h3 className="font-semibold text-[#1a1a1d] mb-1">System</h3>
+        <button onClick={() => router.push('/admin/system')} className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md hover:border-primary-gold transition-all text-left">
+          <h3 className="font-semibold text-surface-dark mb-1">System</h3>
           <p className="text-xs text-gray-500">Settings and audit logs</p>
         </button>
       </div>
@@ -219,19 +219,19 @@ export default function AdminOverviewPage() {
         {/* Recent Users */}
         <div className="bg-white border border-gray-100 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-[#1a1a1d]">Recent Users</h3>
-            <button onClick={() => router.push('/admin/users')} className="text-xs text-[#c9a227] hover:text-[#1a1a1d] font-medium">
+            <h3 className="font-bold text-surface-dark">Recent Users</h3>
+            <button onClick={() => router.push('/admin/users')} className="text-xs text-primary-gold hover:text-surface-dark font-medium">
               View All →
             </button>
           </div>
           <div className="space-y-3">
             {users.slice(0, 5).map((u) => (
-              <div key={u.id} className="flex items-center gap-3 p-2 hover:bg-amber-50/50 rounded-lg cursor-pointer" onClick={() => { setSelectedUser(u); setShowUserDetails(true); }}>
-                <div className="w-9 h-9 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full flex items-center justify-center text-white text-xs font-bold">
+              <div key={u.id} className="flex items-center gap-3 p-2 hover:bg-primary-gold/10 rounded-lg cursor-pointer" onClick={() => { setSelectedUser(u); setShowUserDetails(true); }}>
+                <div className="w-9 h-9 bg-gradient-to-br from-primary-gold to-secondary-gold rounded-full flex items-center justify-center text-white text-xs font-bold">
                   {u.first_name?.[0] || u.email[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#1a1a1d] truncate">{u.first_name && u.last_name ? `${u.first_name} ${u.last_name}` : u.email}</p>
+                  <p className="text-sm font-medium text-surface-dark truncate">{u.first_name && u.last_name ? `${u.first_name} ${u.last_name}` : u.email}</p>
                   <p className="text-xs text-gray-500">{u.role}</p>
                 </div>
               </div>
@@ -242,17 +242,17 @@ export default function AdminOverviewPage() {
         {/* Recent Notifications */}
         <div className="bg-white border border-gray-100 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-[#1a1a1d]">Notifications</h3>
-            <button onClick={() => router.push('/admin/support')} className="text-xs text-[#c9a227] hover:text-[#1a1a1d] font-medium">
+            <h3 className="font-bold text-surface-dark">Notifications</h3>
+            <button onClick={() => router.push('/admin/support')} className="text-xs text-primary-gold hover:text-surface-dark font-medium">
               View All →
             </button>
           </div>
           <div className="space-y-2">
             {notifications.slice(0, 5).map((n) => (
-              <div key={n.id} className="flex items-start gap-3 p-2 hover:bg-amber-50/50 rounded-lg cursor-pointer" onClick={() => { setSelectedNotification(n); setShowNotificationDetails(true); }}>
-                <div className={`w-2 h-2 rounded-full mt-1.5 ${n.is_read ? 'bg-gray-300' : 'bg-[#c9a227]'}`}></div>
+              <div key={n.id} className="flex items-start gap-3 p-2 hover:bg-primary-gold/10 rounded-lg cursor-pointer" onClick={() => { setSelectedNotification(n); setShowNotificationDetails(true); }}>
+                <div className={`w-2 h-2 rounded-full mt-1.5 ${n.is_read ? 'bg-gray-300' : 'bg-primary-gold'}`}></div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm truncate ${n.is_read ? 'text-gray-600' : 'text-[#1a1a1d] font-medium'}`}>{n.title}</p>
+                  <p className={`text-sm truncate ${n.is_read ? 'text-gray-600' : 'text-surface-dark font-medium'}`}>{n.title}</p>
                   <p className="text-xs text-gray-400">{new Date(n.created_at).toLocaleDateString()}</p>
                 </div>
               </div>

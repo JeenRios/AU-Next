@@ -33,17 +33,17 @@ export default function AccountsContent({
     <div className="space-y-6">
       {/* Empty State - No Accounts */}
       {mt5Accounts.length === 0 && (
-        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-[#f0d78c] p-12 text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+        <div className="bg-gradient-to-br from-primary-gold/10 to-secondary-gold/10 rounded-2xl border-2 border-dashed border-secondary-gold p-12 text-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-primary-gold to-secondary-gold rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
             <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
             </svg>
           </div>
-          <h3 className="text-2xl font-bold text-[#1a1a1d] mb-3">No MT5 Accounts Connected</h3>
+          <h3 className="text-2xl font-bold text-surface-dark mb-3">No MT5 Accounts Connected</h3>
           <p className="text-gray-600 mb-6 max-w-md mx-auto">Connect your MetaTrader 5 account to start automated trading with our Expert Advisors.</p>
           <button
             onClick={onOpenConnectModal}
-            className="px-8 py-3 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all inline-flex items-center gap-2"
+            className="px-8 py-3 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all inline-flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -59,7 +59,7 @@ export default function AccountsContent({
           {/* Account Selector Bar */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h3 className="text-xl font-bold text-[#1a1a1d]">My Accounts</h3>
+              <h3 className="text-xl font-bold text-surface-dark">My Accounts</h3>
               <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 overflow-x-auto">
                 {mt5Accounts
                   .sort((a, b) => (a.status === 'active' ? -1 : 1))
@@ -71,8 +71,8 @@ export default function AccountsContent({
                           onClick={() => setSelectedAccountForAnalytics(account)}
                           className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
                             selectedAccountForAnalytics?.id === account.id
-                              ? 'bg-white text-[#1a1a1d] shadow-sm'
-                              : 'text-gray-500 hover:text-[#1a1a1d]'
+                              ? 'bg-white text-surface-dark shadow-sm'
+                              : 'text-gray-500 hover:text-surface-dark'
                           }`}
                         >
                           #{account.account_number}
@@ -82,7 +82,7 @@ export default function AccountsContent({
                     return (
                       <div
                         key={account.id}
-                        className="px-3 py-1.5 text-sm font-medium text-amber-600 bg-amber-50 rounded-md flex items-center gap-1.5 cursor-help border border-amber-100 whitespace-nowrap"
+                        className="px-3 py-1.5 text-sm font-medium text-primary-gold bg-primary-gold/10 rounded-md flex items-center gap-1.5 cursor-help border border-primary-gold/20 whitespace-nowrap"
                         title="Pending Approval"
                       >
                         <span>#{account.account_number}</span>
@@ -97,7 +97,7 @@ export default function AccountsContent({
             <div className="flex items-center gap-2">
               <button
                 onClick={fetchMT5Accounts}
-                className="p-2 text-gray-500 hover:text-[#c9a227] hover:bg-amber-50 rounded-lg transition-colors"
+                className="p-2 text-gray-500 hover:text-primary-gold hover:bg-primary-gold/10 rounded-lg transition-colors"
                 title="Refresh"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@ export default function AccountsContent({
               </button>
               <button
                 onClick={onOpenConnectModal}
-                className="px-4 py-2 bg-gradient-to-r from-[#c9a227] to-[#f0d78c] hover:shadow-lg text-[#1a1a1d] font-semibold rounded-xl transition-all inline-flex items-center gap-2"
+                className="px-4 py-2 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all inline-flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

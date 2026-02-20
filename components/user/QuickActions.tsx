@@ -25,16 +25,16 @@ export default function QuickActions({ actions }: QuickActionsProps) {
           onClick={action.onClick}
           className={`${
             action.variant === 'primary'
-              ? 'bg-white border-2 border-[#c9a227] hover:bg-amber-50'
-              : 'bg-white border border-gray-200 hover:border-[#c9a227] hover:bg-amber-50'
-          } rounded-xl p-4 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227] focus-visible:ring-offset-2`}
+              ? 'bg-white border-2 border-primary-gold hover:bg-primary-gold/10'
+              : 'bg-white border border-gray-200 hover:border-primary-gold hover:bg-primary-gold/10'
+          } rounded-xl p-4 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2`}
         >
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 ${action.iconBg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
               {action.icon}
             </div>
             <div className="text-left">
-              <div className="font-semibold text-[#1a1a1d]">{action.label}</div>
+              <div className="font-semibold text-surface-dark">{action.label}</div>
               <div className="text-xs text-gray-600">{action.sublabel}</div>
             </div>
           </div>

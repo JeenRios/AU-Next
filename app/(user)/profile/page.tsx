@@ -49,21 +49,21 @@ export default function ProfilePage() {
       <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
         
         {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-3xl bg-[#1a1a1d] border border-white/5 shadow-2xl">
-           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent pointer-events-none" />
-           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl bg-surface-dark border border-white/5 shadow-2xl">
+           <div className="absolute inset-0 bg-gradient-to-br from-primary-gold/10 via-transparent to-transparent pointer-events-none" />
+           <div className="absolute top-0 right-0 w-96 h-96 bg-primary-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
            
            <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center md:items-end gap-8">
               {/* Avatar Ring */}
               <div className="relative group">
-                 <div className="absolute -inset-1 bg-gradient-to-br from-[#c9a227] to-[#f0d78c] rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full bg-[#1a1a1d] p-1 ring-2 ring-white/10 overflow-hidden flex items-center justify-center">
-                    <span className="text-4xl font-bold bg-gradient-to-br from-[#c9a227] to-[#f0d78c] bg-clip-text text-transparent">
+                 <div className="absolute -inset-1 bg-gradient-to-br from-primary-gold to-secondary-gold rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full bg-surface-dark p-1 ring-2 ring-white/10 overflow-hidden flex items-center justify-center">
+                    <span className="text-4xl font-bold bg-gradient-to-br from-primary-gold to-secondary-gold bg-clip-text text-transparent">
                       {PROFILE.avatar}
                     </span>
                  </div>
                  {PROFILE.verified && (
-                    <div className="absolute bottom-2 right-2 bg-[#c9a227] text-[#1a1a1d] rounded-full p-1.5 shadow-lg border-2 border-[#1a1a1d]" title="Verified Trader">
+                    <div className="absolute bottom-2 right-2 bg-primary-gold text-surface-dark rounded-full p-1.5 shadow-lg border-2 border-surface-dark" title="Verified Trader">
                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                     </div>
                  )}
@@ -73,7 +73,7 @@ export default function ProfilePage() {
               <div className="flex-1 text-center md:text-left space-y-2">
                  <div className="flex items-center justify-center md:justify-start gap-3">
                     <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{PROFILE.name}</h1>
-                    <span className="px-3 py-1 rounded-full bg-[#c9a227]/20 text-[#c9a227] text-xs font-bold border border-[#c9a227]/20">
+                    <span className="px-3 py-1 rounded-full bg-primary-gold/20 text-primary-gold text-xs font-bold border border-primary-gold/20">
                       {PROFILE.role}
                     </span>
                  </div>
@@ -128,8 +128,8 @@ export default function ProfilePage() {
                     <AreaChart data={PERFORMANCE_DATA}>
                        <defs>
                           <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
-                             <stop offset="5%" stopColor="#c9a227" stopOpacity={0.2}/>
-                             <stop offset="95%" stopColor="#c9a227" stopOpacity={0}/>
+                             <stop offset="5%" stopColor="var(--primary-gold)" stopOpacity={0.2}/>
+                             <stop offset="95%" stopColor="var(--primary-gold)" stopOpacity={0}/>
                           </linearGradient>
                        </defs>
                        <XAxis 
@@ -143,14 +143,14 @@ export default function ProfilePage() {
                           domain={['dataMin - 1000', 'dataMax + 1000']} 
                        />
                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#1a1a1d', border: 'none', borderRadius: '8px', color: '#fff' }}
-                          itemStyle={{ color: '#c9a227' }}
+                          contentStyle={{ backgroundColor: 'var(--surface-dark)', border: 'none', borderRadius: '8px', color: '#fff' }}
+                          itemStyle={{ color: 'var(--primary-gold)' }}
                        />
                        <CartesianGrid vertical={false} stroke="#f3f4f6" strokeDasharray="3 3" />
                        <Area 
                           type="monotone" 
                           dataKey="equity" 
-                          stroke="#c9a227" 
+                          stroke="var(--primary-gold)" 
                           strokeWidth={2} 
                           fillOpacity={1} 
                           fill="url(#colorEquity)" 
@@ -171,7 +171,7 @@ export default function ProfilePage() {
                   <h4 className="font-bold text-gray-900 mb-3 text-sm">Skills</h4>
                   <div className="flex flex-wrap gap-2">
                      {PROFILE.skills.map(skill => (
-                        <span key={skill} className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-xs font-semibold border border-amber-100">
+                        <span key={skill} className="px-3 py-1 bg-primary-gold/10 text-primary-gold rounded-lg text-xs font-semibold border border-primary-gold/20">
                            {skill}
                         </span>
                      ))}
@@ -179,7 +179,7 @@ export default function ProfilePage() {
                </div>
 
                <div className="pt-4 border-t border-gray-100">
-                  <button className="w-full py-3 bg-[#1a1a1d] text-white rounded-xl font-medium shadow-xl shadow-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                  <button className="w-full py-3 bg-surface-dark text-white rounded-xl font-medium shadow-xl shadow-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all">
                      View Public Journal
                   </button>
                </div>
@@ -193,16 +193,16 @@ export default function ProfilePage() {
               {PORTFOLIO.map(item => (
                  <div key={item.id} className="group bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <div className="flex justify-between items-start mb-4">
-                       <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-2xl group-hover:bg-[#c9a227]/10 transition-colors">
+                       <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-2xl group-hover:bg-primary-gold/10 transition-colors">
                           {item.image}
                        </div>
-                       <span className="text-sm font-bold text-gray-900 bg-gray-50 px-3 py-1 rounded-lg border border-gray-100 group-hover:border-[#c9a227]/20 group-hover:text-[#c9a227] transition-all">
+                       <span className="text-sm font-bold text-gray-900 bg-gray-50 px-3 py-1 rounded-lg border border-gray-100 group-hover:border-primary-gold/20 group-hover:text-primary-gold transition-all">
                           {item.price}
                        </span>
                     </div>
-                    <h4 className="font-bold text-gray-900 mb-2 group-hover:text-[#c9a227] transition-colors">{item.title}</h4>
+                    <h4 className="font-bold text-gray-900 mb-2 group-hover:text-primary-gold transition-colors">{item.title}</h4>
                     <p className="text-sm text-gray-500 mb-4 line-clamp-2">{item.desc}</p>
-                    <div className="flex items-center text-[#c9a227] text-sm font-bold gap-2 group/link cursor-pointer">
+                    <div className="flex items-center text-primary-gold text-sm font-bold gap-2 group/link cursor-pointer">
                        <span>Learn more</span>
                        <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                     </div>

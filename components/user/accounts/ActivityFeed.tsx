@@ -79,7 +79,7 @@ function ActivityItemComponent({ activity }: { activity: ActivityItem }) {
         );
       case 'milestone':
         return (
-          <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-primary-gold/20 text-primary-gold flex items-center justify-center">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
@@ -187,7 +187,7 @@ export default function ActivityFeed({ activities, loading, title = 'Activity' }
         ))}
       </div>
       <div className="p-3 border-t border-gray-100">
-        <button className="w-full py-2 text-sm text-[#c9a227] hover:bg-amber-50 rounded-lg font-medium transition-colors">
+        <button className="w-full py-2 text-sm text-primary-gold hover:bg-primary-gold/10 rounded-lg font-medium transition-colors">
           View all activity
         </button>
       </div>

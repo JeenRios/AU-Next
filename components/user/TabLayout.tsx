@@ -49,7 +49,7 @@ export default function TabLayout({ tabs, defaultTab, children, className = '' }
       {/* Horizontal Tab Bar with Gold Accent */}
       <div 
         ref={containerRef}
-        className="relative inline-flex items-center bg-amber-50/80 border border-[#f0d78c]/30 rounded-xl p-1 mb-6"
+        className="relative inline-flex items-center bg-primary-gold/10 border border-secondary-gold/30 rounded-xl p-1 mb-6"
       >
         {/* Sliding gold indicator */}
         <div

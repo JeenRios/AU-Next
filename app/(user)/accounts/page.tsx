@@ -354,7 +354,7 @@ export default function SocialFeedPage() {
         <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex items-center justify-between h-14">
-              <h1 className="text-xl font-bold text-[#1a1a1d]">Feed</h1>
+              <h1 className="text-xl font-bold text-surface-dark">Feed</h1>
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -368,23 +368,23 @@ export default function SocialFeedPage() {
               <button
                 onClick={() => setActiveTab('for-you')}
                 className={`flex-1 py-4 text-sm font-semibold transition-colors relative ${
-                  activeTab === 'for-you' ? 'text-[#1a1a1d]' : 'text-gray-500 hover:text-gray-700'
+                  activeTab === 'for-you' ? 'text-surface-dark' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 For You
                 {activeTab === 'for-you' && (
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-[#c9a227] rounded-full" />
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-primary-gold rounded-full" />
                 )}
               </button>
               <button
                 onClick={() => setActiveTab('following')}
                 className={`flex-1 py-4 text-sm font-semibold transition-colors relative ${
-                  activeTab === 'following' ? 'text-[#1a1a1d]' : 'text-gray-500 hover:text-gray-700'
+                  activeTab === 'following' ? 'text-surface-dark' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 Following
                 {activeTab === 'following' && (
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-[#c9a227] rounded-full" />
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-primary-gold rounded-full" />
                 )}
               </button>
             </div>
@@ -432,7 +432,7 @@ export default function SocialFeedPage() {
               )}
 
               {/* Load more */}
-              <button className="w-full py-4 text-[#c9a227] font-medium hover:bg-white rounded-2xl transition-colors">
+              <button className="w-full py-4 text-primary-gold font-medium hover:bg-white rounded-2xl transition-colors">
                 Load more posts
               </button>
             </div>
@@ -460,7 +460,7 @@ export default function SocialFeedPage() {
                 <input
                   type="text"
                   placeholder="Search traders..."
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#c9a227]/30 focus:bg-white transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-100 border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-gold/30 focus:bg-white transition-all"
                 />
               </div>
 

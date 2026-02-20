@@ -85,7 +85,7 @@ export default function TrendingSection({ traders, loading, onFollow, onViewProf
         ))}
       </div>
       <div className="p-3 border-t border-gray-100">
-        <button className="w-full py-2 text-sm text-[#c9a227] hover:bg-amber-50 rounded-lg font-medium transition-colors">
+        <button className="w-full py-2 text-sm text-primary-gold hover:bg-primary-gold/10 rounded-lg font-medium transition-colors">
           See all trending
         </button>
       </div>

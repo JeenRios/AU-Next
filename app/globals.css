@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens – single source for palette (SVG/Recharts and Tailwind theme match) */
+:root {
+  --primary-gold: #c9a227;
+  --secondary-gold: #f0d78c;
+  --surface-dark: #1a1a1d;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -155,6 +162,11 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Shared form input – consistent padding, radius, focus */
+  .input-base {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition-colors placeholder:text-gray-400;
   }
 }
 

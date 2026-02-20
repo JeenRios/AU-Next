@@ -1,6 +1,6 @@
 'use client';
 
-import { PageContainer } from '@/components/shared';
+import { PageContainer, SectionHeader } from '@/components/shared';
 import TabLayout from '@/components/user/TabLayout';
 
 const TABS = [
@@ -54,16 +54,11 @@ const DEALS = [
 export default function FeedPage() {
   return (
     <PageContainer>
-      {/* Feed Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Your Feed</h1>
-          <p className="text-gray-500">Insights, opportunities, and network updates.</p>
-        </div>
-        <button className="bg-[#1a1a1d] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors shadow-lg shadow-gray-200">
-          + New Post
-        </button>
-      </div>
+      <SectionHeader
+        title="Your Feed"
+        subtitle="Insights, opportunities, and network updates."
+        action={{ label: 'New Post', onClick: () => {} }}
+      />
 
       {/* Tabs Handling */}
       <TabLayout tabs={TABS} defaultTab="following">
@@ -93,7 +88,7 @@ export default function FeedPage() {
                     <p className="text-gray-700 leading-relaxed mb-4">{post.content}</p>
                     
                     <div className="flex items-center gap-6 pt-4 border-t border-gray-50 text-sm text-gray-500">
-                      <button className="flex items-center gap-2 hover:text-[#c9a227] transition-colors">
+                      <button className="flex items-center gap-2 hover:text-primary-gold transition-colors">
                         <span>❤️</span> {post.likes}
                       </button>
                       <button className="flex items-center gap-2 hover:text-gray-900 transition-colors">
@@ -118,7 +113,7 @@ export default function FeedPage() {
                          <p className="text-xs text-gray-500">by {deal.author}</p>
                       </div>
                       <div className="text-right">
-                         <div className="font-bold text-[#c9a227] mb-1">{deal.price}</div>
+                         <div className="font-bold text-primary-gold mb-1">{deal.price}</div>
                          <button className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700">Buy Now</button>
                       </div>
                    </div>

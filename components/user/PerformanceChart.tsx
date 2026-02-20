@@ -31,7 +31,7 @@ export default function PerformanceChart({ data, loading }: PerformanceChartProp
   return (
     <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-[#1a1a1d]">Weekly Performance</h3>
+        <h3 className="text-lg font-bold text-surface-dark">Weekly Performance</h3>
                             <div className="flex items-center gap-4 text-xs">
                               <div className="flex items-center gap-1.5">
                                 <div className="w-3 h-3 rounded-sm bg-primary-gold" />
@@ -84,7 +84,7 @@ export default function PerformanceChart({ data, loading }: PerformanceChartProp
                               </div>        </div>
         <div className="text-right">
           <div className="text-sm text-gray-600">Win Rate</div>
-          <div className="text-xl font-bold text-[#1a1a1d]">
+          <div className="text-xl font-bold text-surface-dark">
             {((data.filter((d) => d.value > 0).length / data.length) * 100).toFixed(0)}%
           </div>
         </div>
