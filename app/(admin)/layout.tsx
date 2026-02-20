@@ -91,7 +91,21 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-primary-gold/5 to-gray-50 flex flex-col pt-[70px]">
+    <div className="h-screen w-full bg-gradient-to-br from-[#f5e6b5] via-[#d4af37] to-[#8a6d1b] flex flex-col overflow-hidden relative isolate">
+      {/* Enhanced Abstract Background Shapes - More Visible */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+         {/* Top Left Highlights - Sharp White */}
+         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-white/20 blur-[100px] animate-blob mix-blend-overlay"></div>
+         
+         {/* Bottom Right Depths - Dark Contrast */}
+         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#8a6d1b]/40 blur-[80px] animate-blob animation-delay-2000 mix-blend-multiply"></div>
+
+         {/* Floating Blobs (Distinct shapes) */}
+         <div className="absolute top-[20%] right-[15%] w-[350px] h-[350px] rounded-full bg-[#f0d78c]/60 blur-[60px] animate-blob mix-blend-overlay" style={{ animationDelay: '0s' }}></div>
+         <div className="absolute bottom-[25%] left-[15%] w-[450px] h-[450px] rounded-full bg-[#c9a227]/40 blur-[90px] animate-blob mix-blend-overlay" style={{ animationDelay: '2s' }}></div>
+         <div className="absolute top-[45%] left-[45%] w-[400px] h-[400px] rounded-full bg-[#ffeebb]/50 blur-[70px] animate-blob mix-blend-overlay" style={{ animationDelay: '4s' }}></div>
+      </div>
+
       {/* Top Header Navigation */}
       <SideNavLayout<AdminTab>
         user={user}
@@ -106,9 +120,13 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-6">
-        <div className="w-full">
-          {children}
+      <div className="flex-1 flex flex-col min-h-0 pt-[70px] pb-2 px-2 z-10 w-full overflow-hidden">
+        <div className="w-full h-full bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-white/20 overflow-hidden relative flex flex-col">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth w-full">
+             <div className="w-full h-full">
+               {children}
+             </div>
+          </div>
         </div>
       </div>
     </div>

@@ -49,6 +49,7 @@ export default function SideNavLayout<T extends string = string>({
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchTriggerRef = useRef<HTMLButtonElement>(null); // New ref for the search button
 
   // Toggle Search with Keyboard Shortcut
   useEffect(() => {
@@ -75,15 +76,25 @@ export default function SideNavLayout<T extends string = string>({
   // Click outside to close search
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchOpen && 
-        containerRef.current && 
-        !containerRef.current.contains(event.target as Node) &&
-        !(event.target as Element).closest('.search-widget')
-      ) {
-        setSearchOpen(false);
+      const target = event.target as Element;
+      
+      // If search is not open, do nothing
+      if (!searchOpen) return;
+
+      // If click is on the search trigger button, ignore it (let onClick handle toggle)
+      if (searchTriggerRef.current && searchTriggerRef.current.contains(target as Node)) {
+        return;
       }
+
+      // If click is inside the search widget popup, ignore it
+      if (target.closest('.search-widget')) {
+        return;
+      }
+
+      // Otherwise (click outside both trigger and widget), close search
+      setSearchOpen(false);
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [searchOpen]);
@@ -122,46 +133,26 @@ export default function SideNavLayout<T extends string = string>({
   const handleNavClick = (tab: T) => {
     setActiveTab(tab);
     setMobileOpen(false);
+    setSearchOpen(false); // Close search when navigating
   };
 
   return (
     <>
-      {/* Top Header Navigation (Nextcloud-like Layout) */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-[70px] flex items-center justify-between px-4 bg-white/80 backdrop-blur-2xl border-b border-gray-200/50 group/dock isolate">
+      {/* Top Header Navigation (Unified with Parent) */}
+      <header className="fixed top-0 left-0 right-0 z-50 h-[70px] flex items-center justify-between px-4 bg-transparent group/dock isolate text-surface-dark">
         
-        {/* Left: User Profile & Brand */}
+        {/* Left: Brand Logo */}
         <div className="flex items-center gap-4">
-          <div className="relative group/user z-50">
-            <button className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-gold to-secondary-gold flex items-center justify-center shadow-lg shadow-primary-gold/30 shrink-0 group-has-[.dock-trigger:hover]/dock:blur-[2px] transition-all duration-300 group-hover/user:scale-110 group-hover/user:!blur-none overflow-hidden dock-trigger">
-               <span className="text-surface-dark font-bold text-xs md:text-sm">
-                {user?.name 
-                  ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
-                  : 'AU'}
-              </span>
-            </button>
-            
-            {/* User Dropdown */}
-            <div className="absolute left-0 top-full mt-2 opacity-0 group-hover/user:opacity-100 transition-all duration-300 invisible group-hover/user:visible pointer-events-none group-hover/user:pointer-events-auto">
-                <div className="absolute left-0 -top-2 w-full h-2 bg-transparent" />
-                <div className="bg-surface-dark/95 backdrop-blur-xl text-white text-xs rounded-xl shadow-xl p-3 min-w-[200px] flex flex-col gap-1 border border-white/10">
-                   <div className="pb-3 mb-1 border-b border-white/10">
-                      <p className="font-bold text-primary-gold text-sm truncate">{user?.name || 'Guest User'}</p>
-                      <p className="text-[10px] text-gray-400 truncate">{user?.email || 'guest@example.com'}</p>
-                   </div>
-                   <button onClick={onProfileClick} className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg transition-colors text-left w-full">
-                      Profile
-                   </button>
-                   <button className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg transition-colors text-left w-full">
-                      Settings
-                   </button>
-                   <button onClick={onLogout} className="flex items-center gap-3 p-2 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors text-left w-full mt-1 text-gray-400">
-                      Logout
-                   </button>
-                </div>
-            </div>
-          </div>
-
-          <div className="h-8 w-px bg-gray-200/60 hidden md:block group-has-[.dock-trigger:hover]/dock:blur-[2px] transition-all duration-300" />
+             <div className="flex items-center gap-2 group cursor-pointer dock-trigger">
+                 <div className="w-10 h-10 rounded-xl bg-surface-dark flex items-center justify-center shadow-lg border border-white/10 group-has-[.dock-trigger:hover]/dock:blur-[2px] hover:!blur-none transition-all duration-300">
+                    <span className="font-bold text-primary-gold text-lg">AU</span>
+                 </div>
+                 <span className="font-bold text-lg tracking-tight group-has-[.dock-trigger:hover]/dock:blur-[2px] hover:!blur-none transition-all duration-300 text-surface-dark hidden md:block">
+                    {brandSuffix}
+                 </span>
+             </div>
+             
+             <div className="h-8 w-px bg-surface-dark/20 hidden md:block group-has-[.dock-trigger:hover]/dock:blur-[2px] transition-all duration-300" />
         </div>
 
         {/* Center: Navigation Items */}
@@ -171,25 +162,22 @@ export default function SideNavLayout<T extends string = string>({
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 title={item.label}
-                className={`relative w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[2px] hover:!blur-none hover:!scale-110 hover:bg-black/5 dock-trigger ${
+                className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[2px] hover:!blur-none dock-trigger ${
                   activeTab === item.id
-                    ? 'text-primary-gold scale-110 bg-primary-gold/10'
-                    : 'text-gray-500 hover:text-surface-dark'
+                    ? 'bg-surface-dark text-primary-gold shadow-lg'
+                    : 'text-surface-dark/60 hover:text-surface-dark hover:bg-surface-dark/5'
                 }`}
               >
-                <div className="w-6 h-6 flex items-center justify-center">
+                <div className="w-5 h-5 flex items-center justify-center">
                   {item.icon}
                 </div>
                 
-                {/* Active Indicator Line (Top) */}
-                {activeTab === item.id && (
-                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary-gold rounded-b-md shadow-[0_2px_8px_rgba(201,162,39,0.5)]" />
-                )}
+                {/* Active Indicator Line (Top) - Removed as we have the new style */}
 
                 {/* Badge */}
                 {item.badge !== undefined && item.badge > 0 && (
                   <span className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full border border-white ${
-                    activeTab === item.id ? 'bg-primary-gold' : 'bg-red-500'
+                    activeTab === item.id ? 'bg-surface-dark text-primary-gold' : 'bg-red-500'
                   }`} />
                 )}
                 
@@ -203,34 +191,63 @@ export default function SideNavLayout<T extends string = string>({
             ))}
         </nav>
 
-        {/* Right: Search & Actions */}
+        {/* Right: Search, User & Actions */}
         <div className="flex items-center gap-2">
            <button
+              ref={searchTriggerRef}
               onClick={() => setSearchOpen(!searchOpen)}
               title="Search (Ctrl + K)"
               className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 group focus:outline-none group-has-[.dock-trigger:hover]/dock:blur-[2px] hover:!blur-none dock-trigger ${
-                  searchOpen ? 'bg-primary-gold text-white' : 'text-gray-500 hover:text-primary-gold hover:bg-black/5'
+                  searchOpen ? 'bg-surface-dark text-primary-gold shadow-lg' : 'text-surface-dark/60 hover:text-surface-dark hover:bg-surface-dark/5'
               }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
-
-            <button
-              onClick={onLogout}
-              title="Logout"
-              className="relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 text-gray-400 hover:bg-red-50 hover:text-red-500 group-has-[.dock-trigger:hover]/dock:blur-[2px] hover:!blur-none dock-trigger"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
+            
+            <div className="h-5 w-px bg-surface-dark/20 mx-1 group-has-[.dock-trigger:hover]/dock:blur-[2px] transition-all duration-300" />
+            
+            <div className="relative group/user z-50">
+              <button 
+                title="Profile & Settings"
+                className="w-10 h-10 rounded-full bg-surface-dark/5 flex items-center justify-center border border-white/10 shrink-0 group-has-[.dock-trigger:hover]/dock:blur-[2px] transition-all duration-300 hover:scale-110 hover:!blur-none hover:bg-surface-dark hover:text-primary-gold dock-trigger overflow-hidden text-surface-dark"
+              >
+                  <span className="font-bold text-xs md:text-sm">
+                    {user?.name 
+                      ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
+                      : 'AU'}
+                  </span>
+              </button>
+              
+               {/* User Dropdown */}
+              <div className="absolute right-0 top-full mt-2 opacity-0 group-hover/user:opacity-100 transition-all duration-300 invisible group-hover/user:visible pointer-events-none group-hover/user:pointer-events-auto">
+                  <div className="absolute right-0 -top-2 w-full h-2 bg-transparent" />
+                  <div className="bg-surface-dark/95 backdrop-blur-xl text-white text-xs rounded-xl shadow-xl p-3 min-w-[200px] flex flex-col gap-1 border border-white/10">
+                     <div className="pb-3 mb-1 border-b border-white/10">
+                        <p className="font-bold text-primary-gold text-sm truncate">{user?.name || 'Guest User'}</p>
+                        <p className="text-[10px] text-gray-400 truncate">{user?.email || 'guest@example.com'}</p>
+                     </div>
+                     <button onClick={onProfileClick} className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg transition-colors text-left w-full">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        Profile
+                     </button>
+                     <button className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg transition-colors text-left w-full">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        Settings
+                     </button>
+                     <button onClick={onLogout} className="flex items-center gap-3 p-2 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors text-left w-full mt-1 text-gray-400">
+                        <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        Logout
+                     </button>
+                  </div>
+              </div>
+            </div>
 
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden w-10 h-10 flex items-center justify-center text-gray-400 hover:text-surface-dark"
+              className="md:hidden w-10 h-10 flex items-center justify-center text-[#1a1a1d]/60 hover:text-[#1a1a1d]"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />

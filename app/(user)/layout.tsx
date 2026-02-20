@@ -83,7 +83,21 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   }, [mobileSidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-primary-gold/5 to-gray-50 flex flex-col pt-[70px]">
+    <div className="h-screen w-full bg-gradient-to-br from-[#f5e6b5] via-[#d4af37] to-[#8a6d1b] flex flex-col overflow-hidden relative isolate">
+      {/* Enhanced Abstract Background Shapes - More Visible */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+         {/* Top Left Highlights - Sharp White */}
+         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-white/20 blur-[100px] animate-blob mix-blend-overlay"></div>
+         
+         {/* Bottom Right Depths - Dark Contrast */}
+         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#8a6d1b]/40 blur-[80px] animate-blob animation-delay-2000 mix-blend-multiply"></div>
+
+         {/* Floating Blobs (Distinct shapes) */}
+         <div className="absolute top-[20%] right-[15%] w-[350px] h-[350px] rounded-full bg-[#f0d78c]/60 blur-[60px] animate-blob mix-blend-overlay" style={{ animationDelay: '0s' }}></div>
+         <div className="absolute bottom-[25%] left-[15%] w-[450px] h-[450px] rounded-full bg-[#c9a227]/40 blur-[90px] animate-blob mix-blend-overlay" style={{ animationDelay: '2s' }}></div>
+         <div className="absolute top-[45%] left-[45%] w-[400px] h-[400px] rounded-full bg-[#ffeebb]/50 blur-[70px] animate-blob mix-blend-overlay" style={{ animationDelay: '4s' }}></div>
+      </div>
+
       {/* Skip link for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary-gold focus:text-surface-dark focus:rounded-lg focus:font-semibold">
         Skip to main content
@@ -105,8 +119,14 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       />
 
       {/* Main Content */}
-      <main id="main-content" className="flex-1 min-h-screen container mx-auto px-4 py-6 max-w-7xl">
-        {children}
+      <main id="main-content" className="flex-1 flex flex-col min-h-0 pt-[70px] pb-2 px-2 z-10 w-full">
+         <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-white/20 overflow-hidden relative flex flex-col">
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-8 scroll-smooth">
+                <div className="container mx-auto max-w-7xl min-h-full">
+                    {children}
+                </div>
+            </div>
+         </div>
       </main>
     </div>
   );
