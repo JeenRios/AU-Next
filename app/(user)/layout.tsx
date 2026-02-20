@@ -83,14 +83,14 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   }, [mobileSidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-primary-gold/5 to-gray-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-primary-gold/5 to-gray-50 flex flex-col pt-[70px]">
       {/* Skip link for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary-gold focus:text-surface-dark focus:rounded-lg focus:font-semibold">
         Skip to main content
       </a>
       <ToastContainer />
       
-      {/* Sidebar Component */}
+      {/* Top Header Navigation */}
       <SideNavLayout<UserTab>
         user={user}
         activeTab={activeTab}
@@ -104,8 +104,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         onProfileClick={() => handleTabChange('profile')}
       />
 
-      {/* Main Content - Resetted to normal flow */}
-      <main id="main-content" className="flex-1 min-h-screen bg-gray-50/50 flex flex-col min-w-0">
+      {/* Main Content */}
+      <main id="main-content" className="flex-1 min-h-screen container mx-auto px-4 py-6 max-w-7xl">
         {children}
       </main>
     </div>
