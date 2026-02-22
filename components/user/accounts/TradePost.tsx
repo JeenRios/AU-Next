@@ -91,7 +91,7 @@ export default function TradePost({
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors">
       {/* Header */}
       <div className="flex items-start justify-between p-4 pb-0">
-        <Link href={`/traders/${trader.id}`} className="flex items-start gap-3 group">
+        <Link href={`/traders/${trader?.id || ''}`} className="flex items-start gap-3 group">
           {/* Avatar */}
           <div className="relative flex-shrink-0">
             {trader.avatar ? (

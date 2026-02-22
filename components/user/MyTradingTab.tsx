@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { SectionHeader, ContentTabs, ContentTab, ContentTabIcons } from '@/components/shared';
+import { SectionHeader } from '@/components/shared';
+import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
 import { OverviewContent, AccountsContent, PerformanceContent } from './mytrading';
 import ConnectAccountModal from './accounts/ConnectAccountModal';
 
@@ -42,10 +43,12 @@ interface MyTradingTabProps {
   isRefreshing?: boolean;
 }
 
-const tradingTabs: ContentTab[] = [
-  { id: 'overview', label: 'Overview', icon: ContentTabIcons.overview },
-  { id: 'accounts', label: 'Accounts', icon: ContentTabIcons.accounts },
-  { id: 'performance', label: 'Performance', icon: ContentTabIcons.chart },
+import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
+
+const tradingTabs = [
+  { id: 'overview', label: 'Overview', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.overview} /></svg> },
+  { id: 'accounts', label: 'Accounts', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.accounts} /></svg> },
+  { id: 'performance', label: 'Performance', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.chart} /></svg> },
 ];
 
 export default function MyTradingTab({
@@ -67,9 +70,6 @@ export default function MyTradingTab({
   // Performance filters
   const [performanceFilter, setPerformanceFilter] = useState<'all' | 'profit' | 'loss'>('all');
   const [dateRange, setDateRange] = useState<'week' | 'month' | 'year'>('month');
-
-  // Active activeSubTab for internal navigation
-  const [activeSubTab, setActiveSubTab] = useState('overview');
 
   const handleConnectAccount = async (data: any) => {
     setIsConnecting(true);
@@ -101,20 +101,17 @@ export default function MyTradingTab({
   };
 
   const handleNavigate = (tab: string) => {
-    setActiveSubTab(tab);
+    // Removed setActiveSubTab(tab);
   };
 
   const renderContent = (activeTab: string) => {
-    // Use internal activeSubTab for navigation from Overview
-    const currentTab = activeSubTab !== 'overview' && activeTab === 'overview' ? activeSubTab : activeTab;
-
-    switch (currentTab) {
+    switch (activeTab) {
       case 'overview':
         return (
           <OverviewContent
-            mt5Accounts={mt5Accounts}
-            trades={trades}
             stats={stats}
+            trades={trades}
+            mt5Accounts={mt5Accounts}
             onNavigate={handleNavigate}
           />
         );
@@ -139,14 +136,7 @@ export default function MyTradingTab({
           />
         );
       default:
-        return (
-          <OverviewContent
-            mt5Accounts={mt5Accounts}
-            trades={trades}
-            stats={stats}
-            onNavigate={handleNavigate}
-          />
-        );
+        return null;
     }
   };
 
@@ -157,7 +147,10 @@ export default function MyTradingTab({
         onClose={() => setShowConnectModal(false)}
         onConnect={handleConnectAccount}
       />
-      <SectionHeader
+      <UnifiedPageLayout
+        tabs={tradingTabs}
+        defaultTab="overview"
+        className="h-full"
         title="My Trading"
         subtitle="Manage your MT5 accounts and view trading performance"
         actions={
@@ -184,19 +177,9 @@ export default function MyTradingTab({
             </button>
           )
         }
-      />
-      <ContentTabs
-        tabs={tradingTabs}
-        defaultTab="overview"
       >
-        {(activeTab) => {
-          // Reset internal navigation when main tab changes
-          if (activeTab !== activeSubTab && tradingTabs.some(t => t.id === activeTab)) {
-            setActiveSubTab(activeTab);
-          }
-          return renderContent(activeTab);
-        }}
-      </ContentTabs>
+        {(activeTab) => renderContent(activeTab)}
+      </UnifiedPageLayout>
     </>
   );
 }

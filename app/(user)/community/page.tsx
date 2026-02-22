@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { SectionHeader } from '@/components/shared';
+import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
 import { CommunityTab } from '@/components/user';
-import { PageContainer } from '@/components/shared';
+import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 
 export default function CommunityPage() {
   const [user, setUser] = useState<any>(null);
@@ -14,9 +16,23 @@ export default function CommunityPage() {
     }
   }, []);
 
+  const communityTabs = [
+    { 
+      id: 'feed', 
+      label: 'Community Feed', 
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.trending} /></svg> 
+    },
+  ];
+
   return (
-    <PageContainer>
-      <CommunityTab user={user} />
-    </PageContainer>
+    <UnifiedPageLayout
+      tabs={communityTabs}
+      defaultTab="feed"
+      title="Community"
+      subtitle="Connect with fellow traders and share insights"
+      className="h-full"
+    >
+      {() => <CommunityTab user={user} />}
+    </UnifiedPageLayout>
   );
 }

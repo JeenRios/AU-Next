@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { useAdmin } from '@/lib/hooks/useAdmin';
-import { SectionHeader, ContentTabs, ContentTab, ContentTabIcons } from '@/components/shared';
+import { SectionHeader } from '@/components/shared';
+import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import TicketDetailDrawer from '@/components/admin/support/TicketDetailDrawer';
 import NotificationDetailDrawer from '@/components/admin/support/NotificationDetailDrawer';
 
-const supportTabs: ContentTab[] = [
-  { id: 'tickets', label: 'Support Tickets', icon: ContentTabIcons.support },
-  { id: 'notifications', label: 'Notifications', icon: ContentTabIcons.overview },
+const supportTabs = [
+  { id: 'tickets', label: 'Support Tickets', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.support} /></svg> },
+  { id: 'notifications', label: 'Notifications', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.overview} /></svg> },
 ];
 
 export default function AdminSupportPage() {
@@ -116,19 +118,40 @@ export default function AdminSupportPage() {
 
   return (
     <>
-      <SectionHeader
+      <UnifiedPageLayout
+        tabs={supportTabs}
+        defaultTab="tickets"
         title="Support"
         subtitle="Manage support tickets and notifications"
-        onRefresh={fetchData}
-        isRefreshing={refreshing}
-      />
-      <ContentTabs
-        tabs={supportTabs}
-        activeTab={activeSubTab}
-        onTabChange={setActiveSubTab}
+        actions={
+          <button
+            onClick={fetchData}
+            disabled={refreshing}
+            className="px-4 py-2.5 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2 flex items-center gap-2"
+          >
+            <svg
+              className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        }
+        className="h-full"
       >
-        {renderContent()}
-      </ContentTabs>
+        {(activeTab) => {
+          setActiveSubTab(activeTab);
+          return renderContent();
+        }}
+      </UnifiedPageLayout>
 
       {/* Ticket Detail Drawer */}
       <TicketDetailDrawer

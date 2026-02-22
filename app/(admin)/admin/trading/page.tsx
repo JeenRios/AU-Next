@@ -2,16 +2,18 @@
 
 import { useState } from 'react';
 import { useAdmin } from '@/lib/hooks/useAdmin';
-import { SectionHeader, ContentTabs, ContentTab, ContentTabIcons } from '@/components/shared';
+import { SectionHeader } from '@/components/shared';
+import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import MT5Trading from '@/components/admin/trading/MT5Trading';
 import VPSManagement from '@/components/admin/trading/VPSManagement';
 import AutomationJobs from '@/components/admin/trading/AutomationJobs';
 
-const tradingTabs: ContentTab[] = [
-  { id: 'accounts', label: 'MT5 Accounts', icon: ContentTabIcons.accounts },
-  { id: 'vps', label: 'VPS Management', icon: ContentTabIcons.settings },
-  { id: 'jobs', label: 'Automation Jobs', icon: ContentTabIcons.chart },
-  { id: 'history', label: 'Trade History', icon: ContentTabIcons.overview },
+const tradingTabs = [
+  { id: 'accounts', label: 'MT5 Accounts', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.accounts} /></svg> },
+  { id: 'vps', label: 'VPS Management', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.settings} /></svg> },
+  { id: 'jobs', label: 'Automation Jobs', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.chart} /></svg> },
+  { id: 'history', label: 'Trade History', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.overview} /></svg> },
 ];
 
 export default function AdminTradingPage() {
@@ -83,20 +85,39 @@ export default function AdminTradingPage() {
   };
 
   return (
-    <>
-      <SectionHeader
-        title="Trading"
-        subtitle="Manage MT5 accounts, VPS instances, and automation"
-        onRefresh={fetchData}
-        isRefreshing={refreshing}
-      />
-      <ContentTabs
-        tabs={tradingTabs}
-        activeTab={activeSubTab}
-        onTabChange={setActiveSubTab}
-      >
-        {renderContent()}
-      </ContentTabs>
-    </>
+    <UnifiedPageLayout
+      tabs={tradingTabs}
+      defaultTab="accounts"
+      title="Trading"
+      subtitle="Manage MT5 accounts, VPS instances, and automation"
+      actions={
+        <button
+          onClick={fetchData}
+          disabled={refreshing}
+          className="px-4 py-2.5 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2 flex items-center gap-2"
+        >
+          <svg
+            className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          <span className="hidden sm:inline">Refresh</span>
+        </button>
+      }
+      className="h-full"
+    >
+      {(activeTab) => {
+        setActiveSubTab(activeTab);
+        return renderContent();
+      }}
+    </UnifiedPageLayout>
   );
 }

@@ -9,6 +9,7 @@ export { default as SettingsTab } from './SettingsTab';
 export { default as CommunityTab } from './CommunityTab';
 export { default as JournalTab } from './JournalTab';
 export { default as MyTradingTab } from './MyTradingTab';
+export { default as AccountsTab } from './AccountsTab';
 export { default as TabLayout } from './TabLayout';
 
 // Account components

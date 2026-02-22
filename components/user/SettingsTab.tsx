@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { SectionHeader, ContentTabs, ContentTab, ContentTabIcons } from '@/components/shared';
+import { SectionHeader } from '@/components/shared';
+import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import {
   GeneralContent,
   SecurityContent,
@@ -16,12 +18,12 @@ interface SettingsTabProps {
   onUserUpdate?: (user: any) => void;
 }
 
-const settingsTabs: ContentTab[] = [
-  { id: 'general', label: 'Profile Info', icon: ContentTabIcons.user },
-  { id: 'security', label: 'Security', icon: ContentTabIcons.security },
-  { id: 'preferences', label: 'Preferences', icon: ContentTabIcons.settings },
-  { id: 'trading', label: 'Trading Defaults', icon: ContentTabIcons.chart },
-  { id: 'billing', label: 'Billing & Plan', icon: ContentTabIcons.billing },
+const settingsTabs = [
+  { id: 'general', label: 'Profile Info', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.user} /></svg> },
+  { id: 'security', label: 'Security', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.security} /></svg> },
+  { id: 'preferences', label: 'Preferences', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.settings} /></svg> },
+  { id: 'trading', label: 'Trading Defaults', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.chart} /></svg> },
+  { id: 'billing', label: 'Billing & Plan', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ContentTabIcons.billing} /></svg> },
 ];
 
 export default function SettingsTab({ user, onUserUpdate }: SettingsTabProps) {
@@ -246,12 +248,7 @@ export default function SettingsTab({ user, onUserUpdate }: SettingsTabProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <SectionHeader
-        title="Settings"
-        subtitle="Manage your account, preferences, and subscription"
-      />
-
+    <>
       {message.text && (
         <div className={`p-4 rounded-xl border mb-6 ${
           message.type === 'success' ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'
@@ -269,28 +266,38 @@ export default function SettingsTab({ user, onUserUpdate }: SettingsTabProps) {
         </div>
       )}
 
-      <ContentTabs tabs={settingsTabs} defaultTab="general">
-        {renderContent}
-      </ContentTabs>
-
-      {/* Danger Zone */}
-      <div className="mt-8 pt-8 border-t border-gray-100">
-        <div className="p-6 bg-rose-50 border border-rose-100 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <h4 className="text-rose-700 font-bold text-lg mb-1">Delete Account</h4>
-            <p className="text-rose-600/70 text-sm font-medium max-w-lg">
-              Permanently remove your account and all associated trading data. This action is irreversible and will stop all active EA bots.
-            </p>
-          </div>
-          <button
-            onClick={handleDeleteAccount}
-            disabled={saving}
-            className="px-6 py-3 bg-white border border-rose-200 text-rose-600 font-bold text-sm rounded-xl hover:bg-rose-50 transition-colors whitespace-nowrap disabled:opacity-50"
-          >
-            {saving ? 'Processing...' : 'Permanently Delete'}
-          </button>
-        </div>
-      </div>
-    </div>
+      <UnifiedPageLayout
+        tabs={settingsTabs}
+        defaultTab="general"
+        title="Settings"
+        subtitle="Manage your profile, security, and preferences"
+        className="h-full"
+      >
+        {(activeTab) => (
+          <>
+            {renderContent(activeTab)}
+            
+            {/* Danger Zone */}
+            <div className="mt-8 pt-8 border-t border-gray-100">
+              <div className="p-6 bg-rose-50 border border-rose-100 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                  <h4 className="text-rose-700 font-bold text-lg mb-1">Delete Account</h4>
+                  <p className="text-rose-600/70 text-sm font-medium max-w-lg">
+                    Permanently remove your account and all associated trading data. This action is irreversible and will stop all active EA bots.
+                  </p>
+                </div>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={saving}
+                  className="px-6 py-3 bg-white border border-rose-200 text-rose-600 font-bold text-sm rounded-xl hover:bg-rose-50 transition-colors whitespace-nowrap disabled:opacity-50"
+                >
+                  {saving ? 'Processing...' : 'Permanently Delete'}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </UnifiedPageLayout>
+    </>
   );
 }
