@@ -9,8 +9,8 @@ export interface NavItem<T extends string = string> {
   badge?: number;
 }
 
-export interface SideNavLayoutProps<T extends string = string> {
-  /** User information to display in the sidebar header */
+export interface TopNavBarProps<T extends string = string> {
+  /** User information to display in the user profile area */
   user: { name?: string; email?: string } | null;
   /** Currently active tab/section */
   activeTab: T;
@@ -18,21 +18,21 @@ export interface SideNavLayoutProps<T extends string = string> {
   setActiveTab: Dispatch<SetStateAction<T>> | ((tab: T) => void);
   /** Callback for logout action */
   onLogout: () => void;
-  /** Whether mobile sidebar is open */
+  /** Whether mobile navigation menu is open */
   mobileOpen: boolean;
-  /** Callback to set mobile sidebar open state - accepts either Dispatch or simple function */
+  /** Callback to set mobile navigation open state - accepts either Dispatch or simple function */
   setMobileOpen: Dispatch<SetStateAction<boolean>> | ((open: boolean) => void);
   /** Navigation items to display */
   navItems: NavItem<T>[];
   /** Brand name suffix (e.g., "Next" for "AUNext", "Admin" for "AUAdmin") */
   brandSuffix?: string;
-  /** Welcome text shown above user name */
+  /** Welcome text shown in user dropdown */
   welcomeText?: string;
   /** Callback for profile navigation */
   onProfileClick?: () => void;
 }
 
-export default function SideNavLayout<T extends string = string>({
+export default function TopNavBar<T extends string = string>({
   user,
   activeTab,
   setActiveTab,
@@ -43,7 +43,7 @@ export default function SideNavLayout<T extends string = string>({
   brandSuffix = 'Next',
   welcomeText = 'Welcome back',
   onProfileClick,
-}: SideNavLayoutProps<T>) {
+}: TopNavBarProps<T>) {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, top: 0, width: 0, height: 0, opacity: 0 });
   const [searchOpen, setSearchOpen] = useState(false);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -138,7 +138,7 @@ export default function SideNavLayout<T extends string = string>({
 
   return (
     <>
-      {/* Top Header Navigation (Unified with Parent) */}
+      {/* Top Navigation Bar */}
       <header className="fixed top-0 left-0 right-0 z-50 h-[70px] flex items-center justify-between px-4 bg-transparent group/dock isolate text-surface-dark">
         
         {/* Left: Brand Logo */}
@@ -281,11 +281,11 @@ export default function SideNavLayout<T extends string = string>({
               <div className="p-2 space-y-1">
                  <div className="text-[10px] font-bold text-gray-500 uppercase px-2 py-1">Quick Links</div>
                  <button onClick={() => { setActiveTab('dashboard' as T); setSearchOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 hover:text-primary-gold text-gray-400 transition-colors text-xs font-medium">
-                    {SideNavIcons.dashboard}
+                    {TopNavIcons.dashboard}
                     Dashboard
                  </button>
                  <button onClick={() => { setActiveTab('trading' as T); setSearchOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 hover:text-primary-gold text-gray-400 transition-colors text-xs font-medium">
-                    {SideNavIcons.trading}
+                    {TopNavIcons.trading}
                     Trading Terminal
                  </button>
               </div>
@@ -326,7 +326,7 @@ export default function SideNavLayout<T extends string = string>({
 }
 
 // Pre-defined icons for common nav items
-export const SideNavIcons = {
+export const TopNavIcons = {
   feed: (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />

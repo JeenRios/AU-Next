@@ -6,10 +6,13 @@ export type { ToastType } from './Toast';
 export { ModalProvider, useModal } from './ModalProvider';
 
 // Layout components
-export { default as SideNavLayout, SideNavIcons } from './layout/SideNavLayout';
+export { default as TopNavBar, TopNavIcons } from './layout/TopNavBar';
 export { default as PageContainer } from './layout/PageContainer';
-export type { SideNavLayoutProps, NavItem } from './layout/SideNavLayout';
+export { AppLayout } from './layout/AppLayout';
+export { BackgroundEffects } from './layout/BackgroundEffects';
+export type { TopNavBarProps, NavItem } from './layout/TopNavBar';
 export type { PageContainerProps } from './layout/PageContainer';
+export type { AppLayoutProps } from './layout/AppLayout';
 
 // UI components
 export { default as SectionHeader } from './ui/SectionHeader';

@@ -38,6 +38,7 @@ interface AdminContextType {
   vpsInstances: any[];
   mt5Accounts: any[];
   automationJobs: any[];
+  notificationCount: number;
   
   // State
   loading: boolean;
@@ -48,6 +49,7 @@ interface AdminContextType {
   handleAddUser: (userData: any) => Promise<boolean>;
   handleDeleteUser: (userId: number) => Promise<boolean>;
   handleUpdateUser: (userId: number, userData: any) => Promise<boolean>;
+  handleLogout: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -68,6 +70,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [automationJobs, setAutomationJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const fetchData = useCallback(async () => {
     setRefreshing(true);
@@ -95,7 +98,10 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       if (statsData.success) setStats(statsData.data);
       if (tradesData.success) setTrades(tradesData.data);
       if (usersData.success) setUsers(usersData.data);
-      if (notificationsData.success) setNotifications(notificationsData.data.slice(0, 10));
+      if (notificationsData.success) {
+        setNotifications(notificationsData.data.slice(0, 10));
+        setNotificationCount(notificationsData.data.filter((n: any) => !n.is_read).length);
+      }
       if (ticketsData.success) setTickets(ticketsData.data.filter((t: any) => t.status === 'open').slice(0, 10));
       if (vpsData.success) setVpsInstances(vpsData.data || []);
       if (mt5Data.success) setMt5Accounts(mt5Data.data || []);
@@ -201,6 +207,16 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    localStorage.removeItem('user');
+    router.push('/');
+  };
+
   return (
     <AdminContext.Provider value={{
       user,
@@ -213,12 +229,14 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       vpsInstances,
       mt5Accounts,
       automationJobs,
+      notificationCount,
       loading,
       refreshing,
       fetchData,
       handleAddUser,
       handleDeleteUser,
       handleUpdateUser,
+      handleLogout,
     }}>
       {children}
     </AdminContext.Provider>
