@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/shared/Toast';
+import { PageContainer } from '@/components/shared';
 import { JournalTab } from '@/components/user';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 
 export default function JournalPage() {
@@ -22,7 +22,7 @@ export default function JournalPage() {
   ];
 
   return (
-    <UnifiedPageLayout
+    <PageContainer
       tabs={journalTabs}
       defaultTab="journal"
       title="Trading Journal"
@@ -30,6 +30,6 @@ export default function JournalPage() {
       className="h-full"
     >
       {() => <JournalTab user={user} showToast={showToast} />}
-    </UnifiedPageLayout>
+    </PageContainer>
   );
 }

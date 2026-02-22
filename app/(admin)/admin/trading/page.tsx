@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useAdmin } from '@/lib/hooks/useAdmin';
-import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import MT5Trading from '@/components/admin/trading/MT5Trading';
 import VPSManagement from '@/components/admin/trading/VPSManagement';
@@ -85,7 +84,7 @@ export default function AdminTradingPage() {
   };
 
   return (
-    <UnifiedPageLayout
+    <PageContainer
       tabs={tradingTabs}
       defaultTab="accounts"
       title="Trading"
@@ -114,10 +113,7 @@ export default function AdminTradingPage() {
       }
       className="h-full"
     >
-      {(activeTab) => {
-        setActiveSubTab(activeTab);
-        return renderContent();
-      }}
-    </UnifiedPageLayout>
+      {(activeTab: string) => renderContent(activeTab)}
+    </PageContainer>
   );
 }

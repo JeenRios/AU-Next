@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import CreatePost from '@/components/user/accounts/CreatePost';
 import TradePost, { TradePostSkeleton } from '@/components/user/accounts/TradePost';
@@ -310,15 +310,15 @@ export default function AccountsTab({ mt5Accounts, fetchMT5Accounts, onConnectAc
         onConnect={onConnectAccount}
       />
       
-      <UnifiedPageLayout
+      <PageContainer
         tabs={accountsTabs}
         defaultTab="feed"
         title="Accounts"
-        subtitle="Manage your trading accounts and community feed"
+        subtitle="Manage your trading accounts and community activity"
         className="h-full"
       >
-        {(activeTab) => renderContent(activeTab)}
-      </UnifiedPageLayout>
+        {(activeTab: string) => renderContent(activeTab)}
+      </PageContainer>
     </>
   );
 }

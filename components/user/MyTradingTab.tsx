@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { OverviewContent, AccountsContent, PerformanceContent } from './mytrading';
 import ConnectAccountModal from './accounts/ConnectAccountModal';
 
@@ -147,7 +147,7 @@ export default function MyTradingTab({
         onClose={() => setShowConnectModal(false)}
         onConnect={handleConnectAccount}
       />
-      <UnifiedPageLayout
+      <PageContainer
         tabs={tradingTabs}
         defaultTab="overview"
         className="h-full"
@@ -178,8 +178,8 @@ export default function MyTradingTab({
           )
         }
       >
-        {(activeTab) => renderContent(activeTab)}
-      </UnifiedPageLayout>
+        {(activeTab: string) => renderContent(activeTab)}
+      </PageContainer>
     </>
   );
 }

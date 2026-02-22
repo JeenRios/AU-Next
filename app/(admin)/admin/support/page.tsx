@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useAdmin } from '@/lib/hooks/useAdmin';
-import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import TicketDetailDrawer from '@/components/admin/support/TicketDetailDrawer';
 import NotificationDetailDrawer from '@/components/admin/support/NotificationDetailDrawer';
@@ -81,11 +80,8 @@ export default function AdminSupportPage() {
       case 'notifications':
         return (
           <div className="bg-white border border-gray-100 rounded-xl">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-surface-dark">All Notifications</h3>
-              <span className="text-xs text-primary-gold bg-primary-gold/10 px-2 py-1 rounded">
-                {notifications.filter(n => !n.is_read).length} unread
-              </span>
+            <div className="p-4 border-b border-gray-100">
+              <h3 className="font-bold text-surface-dark">All Notifications ({notifications.length})</h3>
             </div>
             {notifications.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No notifications</p>
@@ -95,15 +91,26 @@ export default function AdminSupportPage() {
                   <div
                     key={notif.id}
                     onClick={() => { setSelectedNotification(notif); setShowNotificationDetails(true); }}
-                    className="p-4 hover:bg-primary-gold/10 cursor-pointer flex items-start gap-4 transition-colors"
+                    className="p-4 hover:bg-primary-gold/10 cursor-pointer flex items-center justify-between transition-colors"
                   >
-                    <div className={`w-2 h-2 rounded-full mt-2 ${notif.is_read ? 'bg-gray-300' : 'bg-primary-gold'}`}></div>
-                    <div className="flex-1">
-                      <p className={`${notif.is_read ? 'text-gray-600' : 'text-surface-dark font-medium'}`}>{notif.title}</p>
-                      <p className="text-sm text-gray-500 mt-1">{notif.message}</p>
-                      <p className="text-xs text-gray-400 mt-2">
-                        {new Date(notif.created_at).toLocaleString()}
-                      </p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-gold to-secondary-gold rounded-full flex items-center justify-center text-white font-bold">
+                        {notif.title?.[0] || 'System'}
+                      </div>
+                      <div>
+                        <p className="font-medium text-surface-dark">{notif.message}</p>
+                        <p className="text-sm text-gray-500">{new Date(notif.created_at).toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        notif.is_read ? 'bg-gray-300 text-gray-600' : 'bg-primary-gold text-white'
+                      }`}>
+                        {notif.is_read ? 'Read' : 'Unread'}
+                      </span>
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                        {notif.type}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -117,63 +124,36 @@ export default function AdminSupportPage() {
   };
 
   return (
-    <>
-      <UnifiedPageLayout
-        tabs={supportTabs}
-        defaultTab="tickets"
-        title="Support"
-        subtitle="Manage support tickets and notifications"
-        actions={
-          <button
-            onClick={fetchData}
-            disabled={refreshing}
-            className="px-4 py-2.5 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2 flex items-center gap-2"
+    <PageContainer
+      tabs={supportTabs}
+      defaultTab="tickets"
+      title="Support"
+      subtitle="Manage support tickets and system notifications"
+      actions={
+        <button
+          onClick={fetchData}
+          disabled={refreshing}
+          className="px-4 py-2.5 bg-gradient-to-r from-primary-gold to-secondary-gold hover:shadow-lg text-surface-dark font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2 flex items-center gap-2"
+        >
+          <svg
+            className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
-        }
-        className="h-full"
-      >
-        {(activeTab) => {
-          setActiveSubTab(activeTab);
-          return renderContent();
-        }}
-      </UnifiedPageLayout>
-
-      {/* Ticket Detail Drawer */}
-      <TicketDetailDrawer
-        isOpen={showTicketDetails}
-        onClose={() => setShowTicketDetails(false)}
-        ticket={selectedTicket}
-        onMarkResolved={async (ticketId) => {
-          // Mark ticket as resolved and refresh
-          await fetchData();
-        }}
-      />
-
-      {/* Notification Detail Drawer */}
-      <NotificationDetailDrawer
-        isOpen={showNotificationDetails}
-        onClose={() => setShowNotificationDetails(false)}
-        notification={selectedNotification}
-        onMarkAsRead={async (notificationId) => {
-          // Mark notification as read and refresh
-          await fetchData();
-        }}
-      />
-    </>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          <span className="hidden sm:inline">Refresh</span>
+        </button>
+      }
+      className="h-full"
+    >
+      {(activeTab: string) => renderContent()}
+    </PageContainer>
   );
 }

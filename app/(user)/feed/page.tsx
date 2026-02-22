@@ -1,7 +1,6 @@
 'use client';
 
-import { PageContainer, SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 
 const feedTabs = [
@@ -54,7 +53,7 @@ const DEALS = [
 
 export default function FeedPage() {
   return (
-    <UnifiedPageLayout
+    <PageContainer
       tabs={feedTabs}
       defaultTab="following"
       title="Your Feed"
@@ -69,7 +68,7 @@ export default function FeedPage() {
       }
       className="h-full"
     >
-      {(activeTab) => (
+      {(activeTab: string) => (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           
           {/* Logic for Following / Trending Tabs */}
@@ -135,6 +134,6 @@ export default function FeedPage() {
           )}
         </div>
       )}
-    </UnifiedPageLayout>
+    </PageContainer>
   );
 }

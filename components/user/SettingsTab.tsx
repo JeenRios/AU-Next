@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import {
   GeneralContent,
@@ -229,6 +228,7 @@ export default function SettingsTab({ user, onUserUpdate }: SettingsTabProps) {
             form={preferencesForm}
             setForm={setPreferencesForm}
             onUpdate={handleUpdateProfile}
+            saving={saving}
           />
         );
       case 'trading':
@@ -248,56 +248,14 @@ export default function SettingsTab({ user, onUserUpdate }: SettingsTabProps) {
   };
 
   return (
-    <>
-      {message.text && (
-        <div className={`p-4 rounded-xl border mb-6 ${
-          message.type === 'success' ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'
-        } flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300`}>
-          {message.type === 'success' ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          )}
-          <span className="text-sm font-bold">{message.text}</span>
-        </div>
-      )}
-
-      <UnifiedPageLayout
-        tabs={settingsTabs}
-        defaultTab="general"
-        title="Settings"
-        subtitle="Manage your profile, security, and preferences"
-        className="h-full"
-      >
-        {(activeTab) => (
-          <>
-            {renderContent(activeTab)}
-            
-            {/* Danger Zone */}
-            <div className="mt-8 pt-8 border-t border-gray-100">
-              <div className="p-6 bg-rose-50 border border-rose-100 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
-                <div>
-                  <h4 className="text-rose-700 font-bold text-lg mb-1">Delete Account</h4>
-                  <p className="text-rose-600/70 text-sm font-medium max-w-lg">
-                    Permanently remove your account and all associated trading data. This action is irreversible and will stop all active EA bots.
-                  </p>
-                </div>
-                <button
-                  onClick={handleDeleteAccount}
-                  disabled={saving}
-                  className="px-6 py-3 bg-white border border-rose-200 text-rose-600 font-bold text-sm rounded-xl hover:bg-rose-50 transition-colors whitespace-nowrap disabled:opacity-50"
-                >
-                  {saving ? 'Processing...' : 'Permanently Delete'}
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-      </UnifiedPageLayout>
-    </>
+    <PageContainer
+      tabs={settingsTabs}
+      defaultTab="general"
+      title="Settings"
+      subtitle="Manage your account settings and preferences"
+      className="h-full"
+    >
+      {(activeTab: string) => renderContent(activeTab)}
+    </PageContainer>
   );
 }

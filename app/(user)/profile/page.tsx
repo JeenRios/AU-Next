@@ -2,7 +2,6 @@
 
 import { PageContainer } from '@/components/shared';
 import { useState } from 'react';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
@@ -50,7 +49,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <UnifiedPageLayout
+    <PageContainer
       tabs={profileTabs}
       defaultTab="profile"
       title="Profile"
@@ -225,6 +224,6 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
-    </UnifiedPageLayout>
+    </PageContainer>
   );
 }

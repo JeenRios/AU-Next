@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { CommunityTab } from '@/components/user';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 
@@ -25,7 +25,7 @@ export default function CommunityPage() {
   ];
 
   return (
-    <UnifiedPageLayout
+    <PageContainer
       tabs={communityTabs}
       defaultTab="feed"
       title="Community"
@@ -33,6 +33,6 @@ export default function CommunityPage() {
       className="h-full"
     >
       {() => <CommunityTab user={user} />}
-    </UnifiedPageLayout>
+    </PageContainer>
   );
 }

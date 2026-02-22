@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer, SectionHeader } from '@/components/shared';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import { StatsCard, PerformanceChart, RecentActivity, NotificationsPanel, QuickActions, QuickActionIcons, ErrorState } from '@/components/user';
 import { useDashboardData } from '@/lib/hooks/useFetch';
@@ -57,7 +56,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <UnifiedPageLayout
+    <PageContainer
       tabs={dashboardTabs}
       defaultTab="dashboard"
       title="Dashboard"
@@ -137,7 +136,7 @@ export default function DashboardPage() {
                   View All
                 </button>
               </div>
-              <RecentActivity activities={trades} loading={dataLoading} />
+              <RecentActivity trades={trades} loading={dataLoading} />
             </div>
 
             {/* Quick Actions */}
@@ -178,6 +177,6 @@ export default function DashboardPage() {
           </div>
         </>
       )}
-    </UnifiedPageLayout>
+    </PageContainer>
   );
 }

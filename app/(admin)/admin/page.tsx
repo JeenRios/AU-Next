@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdmin } from '@/lib/hooks/useAdmin';
 import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 import UserDetailDrawer from '@/components/admin/users/UserDetailDrawer';
 import TicketDetailDrawer from '@/components/admin/support/TicketDetailDrawer';
@@ -60,7 +60,7 @@ export default function AdminOverviewPage() {
   }
 
   return (
-    <UnifiedPageLayout
+    <PageContainer
       tabs={adminTabs}
       defaultTab="overview"
       title="Admin Overview"
@@ -328,6 +328,6 @@ export default function AdminOverviewPage() {
       />
         </div>
       )}
-    </UnifiedPageLayout>
+    </PageContainer>
   );
 }

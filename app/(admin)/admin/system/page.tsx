@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useAdmin } from '@/lib/hooks/useAdmin';
-import { SectionHeader } from '@/components/shared';
-import UnifiedPageLayout from '@/components/shared/layout/UnifiedPageLayout';
+import { PageContainer } from '@/components/shared';
 import { ContentTabIcons } from '@/components/shared/ui/ContentTabs';
 
 const systemTabs = [
@@ -144,7 +143,7 @@ export default function AdminSystemPage() {
   };
 
   return (
-    <UnifiedPageLayout
+    <PageContainer
       tabs={systemTabs}
       defaultTab="settings"
       title="System"
@@ -173,10 +172,7 @@ export default function AdminSystemPage() {
       }
       className="h-full"
     >
-      {(activeTab) => {
-        setActiveSubTab(activeTab);
-        return renderContent();
-      }}
-    </UnifiedPageLayout>
+      {(activeTab: string) => renderContent()}
+    </PageContainer>
   );
 }
